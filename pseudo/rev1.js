@@ -47,7 +47,7 @@ class Generator {
 
 	prompt(promptArray) {
 		this.action.step((answers, callback) => {
-			this.inquirer
+			this.promptly
 				.prompt(promptArray)
 				.then(answers => {
 					for (let answerName in answers) {

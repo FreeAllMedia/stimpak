@@ -16,6 +16,8 @@ var _flowsync2 = _interopRequireDefault(_flowsync);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function prompt() {
+	var _this = this;
+
 	for (var _len = arguments.length, prompts = Array(_len), _key = 0; _key < _len; _key++) {
 		prompts[_key] = arguments[_key];
 	}
@@ -26,10 +28,13 @@ function prompt() {
 	var promptly = _.promptly;
 
 	action.step(function (generator, stepDone) {
-		_flowsync2.default.mapSeries(prompts, function (newPrompt, seriesDone) {
+		_flowsync2.default.mapSeries(prompts, function (newPrompt, promptDone) {
 			var message = newPrompt.message;
-			promptly.prompt(message, seriesDone);
-		}, function (error, answers) {
+			promptly.prompt(message, function (error, answer) {
+				_this.answers[newPrompt.name] = answer;
+				promptDone(error);
+			});
+		}, function (error) {
 			stepDone(error);
 		});
 	});
