@@ -1,7 +1,7 @@
 import Stimpak from "../../lib/stimpak/stimpak.js";
 import intercept from "intercept-stdout";
 
-describe("stimpak.prompt()", () => {
+describe("stimpak.prompt() (intercept)", () => {
 	let stimpak,
 			prompts,
 			promptOne,

@@ -1,19 +1,30 @@
 import privateData from "incognito";
 import Action from "staircase";
 import promptly from "promptly";
+import ChainLink from "mrt";
 
 const externalFunction = Symbol();
 
-
-
-export default class Stimpak {
-	constructor() {
+export default class Stimpak extends ChainLink {
+	initialize() {
 		const _ = privateData(this);
 		_.action = new Action(this);
 		_.promptly = promptly;
+
 		this.answers = {};
 		this.steps = _.action.steps;
 		this.generators = [];
+
+		this
+			.parameters("destination");
+
+		this
+			.parameters(
+				"source",
+				"onMerge"
+			)
+				.multiValue
+				.aggregate;
 	}
 
 	use(...generators) {
@@ -22,6 +33,10 @@ export default class Stimpak {
 
 	then(...stepFunctions) {
 		return this[externalFunction]("./stimpak.then.js", ...stepFunctions);
+	}
+
+	command(command, callback) {
+		return this[externalFunction]("./stimpak.command.js", command, callback);
 	}
 
 	prompt(...prompts) {

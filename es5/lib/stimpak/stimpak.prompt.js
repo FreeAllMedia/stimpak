@@ -9,9 +9,9 @@ var _incognito = require("incognito");
 
 var _incognito2 = _interopRequireDefault(_incognito);
 
-var _flowsync = require("flowsync");
+var _inquirer = require("inquirer");
 
-var _flowsync2 = _interopRequireDefault(_flowsync);
+var _inquirer2 = _interopRequireDefault(_inquirer);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -25,17 +25,15 @@ function prompt() {
 	var _ = (0, _incognito2.default)(this);
 
 	var action = _.action;
-	var promptly = _.promptly;
 
 	action.step(function (generator, stepDone) {
-		_flowsync2.default.mapSeries(prompts, function (newPrompt, promptDone) {
-			var message = newPrompt.message;
-			promptly.prompt(message, function (error, answer) {
-				_this.answers[newPrompt.name] = answer;
-				promptDone(error);
-			});
-		}, function (error) {
-			stepDone(error);
+		_inquirer2.default.prompt(prompts).then(function (answers) {
+			for (var answerName in answers) {
+				var answer = answers[answerName];
+				_this.answers[answerName] = answer;
+			}
+
+			stepDone();
 		});
 	});
 

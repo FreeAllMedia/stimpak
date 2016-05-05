@@ -56,7 +56,19 @@ describe("stimpak.generate()", () => {
 			});
 	});
 
-	it("should add all answers from prompts to .answers");
+	it("should callback with an error if one occurs", () => {
+		const expectedError = new Error("Something went wrong!");
 
-	it("should callback with an error if one occurs");
+		stimpak.steps.push({
+			concurrency: "series",
+			steps: [(generator, callback) => {
+				callback(expectedError);
+			}]
+		});
+
+		stimpak
+			.generate(error => {
+				error.should.eql(expectedError);
+			});
+	});
 });

@@ -106,7 +106,7 @@ class Generator {
 // Plugin Extending
 class Plugin extends GeneratorPlugin {
 	initialize(generator) {
-
+		generate.use(PackageJsonGenerator);
 
 		const preWritePrompts = [
 			{
@@ -141,17 +141,26 @@ class Plugin extends GeneratorPlugin {
 
 	write(generator, done) {
 		generator
-			.writeFiles(
-				"/this/template/directory",
-				"/this/destination/directory"
-			)
+			.onMerge(
+				package\.json/,
+				(generator, newFile, oldFile, done) => {
+					if (oldFile) {
+						const newPackageJson = JSON.parse(newFile.contents.toString());
+						const oldPackageJson = JSON.parse(oldFile.contents.toString());
+					}
+					done();
+				})
+			.source("/some/source/dir/**/*.json", {
+				basePath: "/some/source/"
+			})
 			.then(done);
 	}
 
 	install(generator, done) {
 		generator
-			.command("npm install --save", (stdin, stdout, stderr) => {
+			.command("npm install --save", (stdout, stderr, commandDone) => {
 				// optional
+				commandDone();
 			})
 			.then(done);
 	}

@@ -47,7 +47,8 @@
     "suppose": "^0.5.2"
   },
   "dependencies": {
-    "inquirer2": "^0.1.1",
+    "inquirer": "^1.0.2",
+    "mrt": "^0.1.0",
     "promptly": "^1.1.0",
     "staircase": "^0.1.0"
   }

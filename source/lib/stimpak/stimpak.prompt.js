@@ -1,23 +1,23 @@
 import privateData from "incognito";
-import Async from "flowsync";
+import inquirer from "inquirer";
 
 export default function prompt(...prompts) {
 	const _ = privateData(this);
 
 	const action = _.action;
-	const promptly = _.promptly;
 
 	action.step((generator, stepDone) => {
-		Async.mapSeries(prompts, (newPrompt, promptDone) => {
-			const message = newPrompt.message;
-			promptly.prompt(message, (error, answer) => {
-				this.answers[newPrompt.name] = answer;
-				promptDone(error);
+		inquirer
+			.prompt(prompts)
+			.then(answers => {
+				for (let answerName in answers) {
+					const answer = answers[answerName];
+					this.answers[answerName] = answer;
+				}
+
+				stepDone();
 			});
-		}, (error) => {
-			stepDone(error);
 		});
-	});
 
 	return this;
 }
