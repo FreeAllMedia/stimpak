@@ -8,7 +8,8 @@ describe("stimpak.then()", () => {
 			stepThree;
 
 	beforeEach(() => {
-		stimpak = new Stimpak();
+		stimpak = new Stimpak()
+			.destination("/some/path");
 
 		const slowFunction = (generator, callback) => {
 			setTimeout(callback, 100);

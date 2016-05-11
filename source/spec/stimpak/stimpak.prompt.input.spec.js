@@ -8,7 +8,8 @@ describe("stimpak.prompt() (intercept)", () => {
 			promptTwo;
 
 	beforeEach(function () {
-		stimpak = new Stimpak();
+		stimpak = new Stimpak()
+			.destination("/some/path");
 
 		prompts = [
 			{
@@ -75,7 +76,7 @@ describe("stimpak.prompt() (intercept)", () => {
 		stimpak
 			.prompt(...prompts)
 			.generate(error => {
-				stimpak.answers.should.eql({
+				stimpak.answers().should.eql({
 					firstName: "Gene",
 					lastName: "Belcher"
 				});

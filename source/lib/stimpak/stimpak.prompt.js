@@ -9,10 +9,11 @@ export default function prompt(...prompts) {
 	action.step((generator, stepDone) => {
 		inquirer
 			.prompt(prompts)
-			.then(answers => {
-				for (let answerName in answers) {
-					const answer = answers[answerName];
-					this.answers[answerName] = answer;
+			.then(questionAnswers => {
+				for (let answerName in questionAnswers) {
+					const answer = questionAnswers[answerName];
+					const answers = this.answers();
+					answers[answerName] = answer;
 				}
 
 				stepDone();

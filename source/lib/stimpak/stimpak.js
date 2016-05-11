@@ -3,28 +3,56 @@ import Action from "staircase";
 import promptly from "promptly";
 import ChainLink from "mrt";
 
-const externalFunction = Symbol();
+import Source from "../source/source.js";
+
+export { Source };
+
+const externalFunction = Symbol(),
+			initializePrivateData = Symbol(),
+			initializeInterface = Symbol(),
+			initializeDefaults = Symbol();
 
 export default class Stimpak extends ChainLink {
 	initialize() {
+		this[initializePrivateData]();
+		this[initializeInterface]();
+		this[initializeDefaults]();
+	}
+
+	[initializePrivateData]() {
 		const _ = privateData(this);
 		_.action = new Action(this);
 		_.promptly = promptly;
+	}
 
-		this.answers = {};
-		this.steps = _.action.steps;
+	[initializeInterface]() {
+		this.steps = privateData(this).action.steps;
 		this.generators = [];
 
 		this
-			.parameters("destination");
+			.link("source", Source)
+				.into("sources");
 
 		this
 			.parameters(
-				"source",
-				"onMerge"
+				"destination",
+				"answers"
+			);
+
+		this
+			.parameters(
+				"merge"
 			)
 				.multiValue
 				.aggregate;
+	}
+
+	[initializeDefaults]() {
+		this.answers({});
+	}
+
+	[externalFunction](functionFilePath, ...options) {
+		return require(functionFilePath).default.call(this, ...options);
 	}
 
 	use(...generators) {
@@ -45,9 +73,5 @@ export default class Stimpak extends ChainLink {
 
 	generate(callback) {
 		return this[externalFunction]("./stimpak.generate.js", callback);
-	}
-
-	[externalFunction](functionFilePath, ...options) {
-		return require(functionFilePath).default.call(this, ...options);
 	}
 }

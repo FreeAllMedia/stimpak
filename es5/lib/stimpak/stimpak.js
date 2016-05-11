@@ -3,6 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
+exports.Source = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -22,6 +23,10 @@ var _mrt = require("mrt");
 
 var _mrt2 = _interopRequireDefault(_mrt);
 
+var _source = require("../source/source.js");
+
+var _source2 = _interopRequireDefault(_source);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -30,7 +35,13 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var externalFunction = Symbol();
+exports.Source = _source2.default;
+
+
+var externalFunction = Symbol(),
+    initializePrivateData = Symbol(),
+    initializeInterface = Symbol(),
+    initializeDefaults = Symbol();
 
 var Stimpak = function (_ChainLink) {
 	_inherits(Stimpak, _ChainLink);
@@ -44,23 +55,50 @@ var Stimpak = function (_ChainLink) {
 	_createClass(Stimpak, [{
 		key: "initialize",
 		value: function initialize() {
+			this[initializePrivateData]();
+			this[initializeInterface]();
+			this[initializeDefaults]();
+		}
+	}, {
+		key: initializePrivateData,
+		value: function value() {
 			var _ = (0, _incognito2.default)(this);
 			_.action = new _staircase2.default(this);
 			_.promptly = _promptly2.default;
-
-			this.answers = {};
-			this.steps = _.action.steps;
+		}
+	}, {
+		key: initializeInterface,
+		value: function value() {
+			this.steps = (0, _incognito2.default)(this).action.steps;
 			this.generators = [];
 
-			this.parameters("destination");
+			this.link("source", _source2.default).into("sources");
 
-			this.parameters("source", "onMerge").multiValue.aggregate;
+			this.parameters("destination", "answers");
+
+			this.parameters("merge").multiValue.aggregate;
+		}
+	}, {
+		key: initializeDefaults,
+		value: function value() {
+			this.answers({});
+		}
+	}, {
+		key: externalFunction,
+		value: function value(functionFilePath) {
+			var _require$default;
+
+			for (var _len = arguments.length, options = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+				options[_key - 1] = arguments[_key];
+			}
+
+			return (_require$default = require(functionFilePath).default).call.apply(_require$default, [this].concat(options));
 		}
 	}, {
 		key: "use",
 		value: function use() {
-			for (var _len = arguments.length, generators = Array(_len), _key = 0; _key < _len; _key++) {
-				generators[_key] = arguments[_key];
+			for (var _len2 = arguments.length, generators = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+				generators[_key2] = arguments[_key2];
 			}
 
 			return this[externalFunction].apply(this, ["./stimpak.use.js"].concat(generators));
@@ -68,8 +106,8 @@ var Stimpak = function (_ChainLink) {
 	}, {
 		key: "then",
 		value: function then() {
-			for (var _len2 = arguments.length, stepFunctions = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-				stepFunctions[_key2] = arguments[_key2];
+			for (var _len3 = arguments.length, stepFunctions = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+				stepFunctions[_key3] = arguments[_key3];
 			}
 
 			return this[externalFunction].apply(this, ["./stimpak.then.js"].concat(stepFunctions));
@@ -82,8 +120,8 @@ var Stimpak = function (_ChainLink) {
 	}, {
 		key: "prompt",
 		value: function prompt() {
-			for (var _len3 = arguments.length, prompts = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
-				prompts[_key3] = arguments[_key3];
+			for (var _len4 = arguments.length, prompts = Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
+				prompts[_key4] = arguments[_key4];
 			}
 
 			return this[externalFunction].apply(this, ["./stimpak.prompt.js"].concat(prompts));
@@ -92,17 +130,6 @@ var Stimpak = function (_ChainLink) {
 		key: "generate",
 		value: function generate(callback) {
 			return this[externalFunction]("./stimpak.generate.js", callback);
-		}
-	}, {
-		key: externalFunction,
-		value: function value(functionFilePath) {
-			var _require$default;
-
-			for (var _len4 = arguments.length, options = Array(_len4 > 1 ? _len4 - 1 : 0), _key4 = 1; _key4 < _len4; _key4++) {
-				options[_key4 - 1] = arguments[_key4];
-			}
-
-			return (_require$default = require(functionFilePath).default).call.apply(_require$default, [this].concat(options));
 		}
 	}]);
 

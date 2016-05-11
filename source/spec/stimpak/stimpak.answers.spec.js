@@ -8,6 +8,14 @@ describe("stimpak.answers", () => {
 	});
 
 	it("should be an empty object by default", () => {
-		stimpak.answers.should.eql({});
+		stimpak.answers().should.eql({});
+	});
+
+	it("should be settable", () => {
+		const newAnswers = {
+			foo: "bar"
+		};
+		stimpak.answers(newAnswers);
+		stimpak.answers().should.eql(newAnswers);
 	});
 });

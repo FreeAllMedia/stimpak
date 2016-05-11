@@ -1,27 +1,21 @@
-import Stimpak from "../../lib/stimpak/stimpak.js";
+import Stimpak, { Source } from "../../lib/stimpak/stimpak.js";
 
 describe("stimpak.source()", () => {
 	let stimpak,
-			path;
+			globString;
 
 	beforeEach(() => {
 		stimpak = new Stimpak();
 
-		path = "/path/to/source/";
+		globString = "**/*";
 	});
 
-	it("should return itself to enable chaining when setting", () => {
-		stimpak.source(path).should.eql(stimpak);
+	it("should return an instance of Source", () => {
+		stimpak.source(globString).should.be.instanceOf(Source);
 	});
 
-	it("should set the path value", () => {
-		stimpak.source(path);
-		stimpak.source().should.eql([[path]]);
-	});
-
-	it("should aggregate multiple path values sets", () => {
-		stimpak.source(path);
-		stimpak.source(path);
-		stimpak.source().should.eql([[path], [path]]);
+	it("should add new instances to .sources", () => {
+		const source = stimpak.source(globString);
+		stimpak.sources.should.eql([source]);
 	});
 });

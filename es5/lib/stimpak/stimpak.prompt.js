@@ -27,10 +27,11 @@ function prompt() {
 	var action = _.action;
 
 	action.step(function (generator, stepDone) {
-		_inquirer2.default.prompt(prompts).then(function (answers) {
-			for (var answerName in answers) {
-				var answer = answers[answerName];
-				_this.answers[answerName] = answer;
+		_inquirer2.default.prompt(prompts).then(function (questionAnswers) {
+			for (var answerName in questionAnswers) {
+				var answer = questionAnswers[answerName];
+				var answers = _this.answers();
+				answers[answerName] = answer;
 			}
 
 			stepDone();

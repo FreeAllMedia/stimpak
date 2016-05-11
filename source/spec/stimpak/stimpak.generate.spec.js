@@ -15,7 +15,10 @@ describe("stimpak.generate()", () => {
 		stepTwo = sinon.spy(asyncFunction);
 
 		stimpak = new Stimpak();
-		stimpak.then(stepOne, stepTwo);
+
+		stimpak
+			.destination("/some/path")
+			.then(stepOne, stepTwo);
 	});
 
 	it("should return itself to enable chaining", () => {

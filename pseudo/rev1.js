@@ -10,10 +10,10 @@ generator advanced-project
 
 
 // CLI Code
-import Generator from "rock";
-import AdvancedProject from "rock-advanced-project";
+import Stimpak from "stimpak";
+import AdvancedProjectGenerator from "stimpak-advanced-project";
 
-const generator = new Generator().use(AdvancedProject);
+const generator = new Stimpak().use(AdvancedProjectGenerator);
 
 generator.generate(error => {
 	if (error) { throw error; }
@@ -104,9 +104,9 @@ class Generator {
 
 
 // Plugin Extending
-class Plugin extends GeneratorPlugin {
-	initialize(generator) {
-		generate.use(PackageJsonGenerator);
+class Plugin extends AdvancedProjectGenerator {
+	initialize(stimpak) {
+		stimpak.use(PackageJsonGenerator);
 
 		const preWritePrompts = [
 			{
@@ -132,32 +132,31 @@ class Plugin extends GeneratorPlugin {
 			}
 		];
 
-		generator
+		stimpak
 			.prompt(preWritePrompts)
 			.then(this.write)
 			.prompt(postWritePrompts)
 			.then(this.install);
 	}
 
-	write(generator, done) {
-		generator
-			.onMerge(
-				package\.json/,
-				(generator, newFile, oldFile, done) => {
-					if (oldFile) {
-						const newPackageJson = JSON.parse(newFile.contents.toString());
-						const oldPackageJson = JSON.parse(oldFile.contents.toString());
-					}
-					done();
+	write(stimpak, done) {
+		stimpak
+			.merge(
+				"package.json",
+				(stimpak, newFile, oldFile, done) => {
+					const newPackageJson = JSON.parse(newFile.contents);
+					const oldPackageJson = JSON.parse(oldFile.contents);
+
+					done(null, oldFile);
 				})
-			.source("/some/source/dir/**/*.json", {
-				basePath: "/some/source/"
-			})
+			.source("**/*.json")
+				.directory("/some/source/")
+				.basePath("/some/other/destination/subpath")
 			.then(done);
 	}
 
-	install(generator, done) {
-		generator
+	install(stimpak, done) {
+		stimpak
 			.command("npm install --save", (stdout, stderr, commandDone) => {
 				// optional
 				commandDone();
