@@ -9,8 +9,8 @@ describe("Source.basePath()", () => {
 		source = new Source(globString);
 	});
 
-	it("should set basePath to / by default", () => {
-		source.basePath().should.eql("/");
+	it("should set basePath to directory by default", () => {
+		source.basePath().should.eql(source.directory());
 	});
 
 	it("should be settable", () => {

@@ -48,7 +48,7 @@ var Source = function (_ChainLink) {
 
 			this.glob(globString);
 			this.directory(process.cwd());
-			this.basePath("/");
+			this.basePath(this.directory());
 		}
 	}]);
 

@@ -21,52 +21,86 @@ export default function generate(callback) {
 }
 
 function renderFiles(stimpak, done) {
-	let templateFilePaths = [];
+	Async.mapSeries(
+		stimpak.sources,
+		renderSource.bind(this),
+		done
+	);
+}
 
-	stimpak.sources.forEach(source => {
-		const absoluteSourceGlob = `${source.directory()}/${source.glob()}`;
-		const sourceFilePaths = glob.sync(absoluteSourceGlob);
-
-		templateFilePaths = templateFilePaths.concat(sourceFilePaths);
+function renderSource(source, done) {
+	const templateFileNames = glob.sync(source.glob(), {
+		cwd: source.directory()
 	});
 
-	templateFilePaths.forEach(templateFilePath => {
-		const renderedTemplateContents = renderTemplateFile.call(this, templateFilePath);
+	Async.mapSeries(
+		templateFileNames,
+		(fileName, fileNameDone) => {
+			renderFile.call(this, fileName, source, fileNameDone);
+		},
+		done
+	);
+}
 
-		const answers = this.answers();
-		for (let answerName in answers) {
-			const answerValue = answers[answerName];
+function renderFile(fileName, source, done) {
+	const templateFilePath = `${source.directory()}/${fileName}`;
+	const fileContents = renderTemplateFile.call(this, templateFilePath);
+	const answers = this.answers();
 
-			const answerRegExp = new RegExp(`##${answerName}##`, "g");
+	let filePath = fileName;
 
-			templateFilePath = templateFilePath.replace(answerRegExp, answerValue);
-		}
+	for (let answerName in answers) {
+		const answerValue = answers[answerName];
+		const answerRegExp = new RegExp(`##${answerName}##`, "g");
+		filePath = filePath.replace(answerRegExp, answerValue);
+	}
 
-		const templateFile = newFile.call(this, templateFilePath, renderedTemplateContents);
-
-		console.log("templateFile", templateFile);
+	const newFile = new File({
+		cwd: this.destination(),
+		base: this.destination(),
+		path: `${this.destination()}/${filePath}`,
+		contents: new Buffer(fileContents)
 	});
 
-	done();
+	if (fileSystem.existsSync(newFile.path)) {
+		const oldFileContents = fileSystem.readFileSync(newFile.path);
+
+		const mergeStrategies = this.merge();
+
+		mergeStrategies.forEach(mergeStrategy => {
+			const mergePattern = new RegExp(mergeStrategy[0]);
+
+			if (newFile.path.match(mergePattern)) {
+				const mergeFunction = mergeStrategy[1];
+				const oldFile = new File({
+					cwd: newFile.cwd,
+					base: newFile.base,
+					path: newFile.path,
+					contents: oldFileContents
+				});
+
+				mergeFunction(this, newFile, oldFile, done);
+			} else {
+				writeFile(newFile.path, newFile.contents, done);
+			}
+		});
+	} else {
+		writeFile(newFile.path, newFile.contents, done);
+	}
 }
 
 function renderTemplateFile(templateFilePath) {
 	const templateFileContents = fileSystem.readFileSync(templateFilePath);
-
 	const template = newTemplate(templateFileContents);
-
 	const renderedTemplateContents = template(this.answers());
 
 	return renderedTemplateContents;
 }
 
-function newFile(filePath, fileContents) {
-	const templateFile = new File({
-		cwd: this.destination(),
-		base: this.basePath(),
-		path: filePath,
-		contents: new Buffer(fileContents)
-	});
-
-	return templateFile;
+function writeFile(filePath, fileContents, done) {
+	fileSystem.writeFileSync(
+		filePath,
+		fileContents
+	);
+	done();
 }

@@ -20,6 +20,6 @@ export default class Source extends ChainLink {
 	[initializeDefaults](globString = "**/*") {
 		this.glob(globString);
 		this.directory(process.cwd());
-		this.basePath("/");
+		this.basePath(this.directory());
 	}
 }

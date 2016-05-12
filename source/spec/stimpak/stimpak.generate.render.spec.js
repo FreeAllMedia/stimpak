@@ -42,22 +42,21 @@ describe("stimpak.generate() (template rendering)", () => {
 	});
 
 	it("should render templates to a destination directory", () => {
-		generatedFilePaths.should.eql(renderedFilePaths);
+		generatedFilePaths.should.have.members(renderedFilePaths);
 	});
 
 	it("should render templates with .answers as template values", () => {
-		const templateFileContents = fileSystem.readFileSync(`${templateDirectoryPath}/colors.js`);
+		const templateFileContents = fileSystem.readFileSync(`${templateDirectoryPath}/colors.js`, { encoding: "utf-8" });
 		const template = newTemplate(templateFileContents);
 		const expectedRenderedTemplate = template(stimpak.answers());
 
-		const actualRenderedTemplate = fileSystem.readFileSync(`${temporaryDirectoryPath}/colors.js`);
+		const actualRenderedTemplate = fileSystem.readFileSync(`${temporaryDirectoryPath}/colors.js`, { encoding: "utf-8" });
 
 		actualRenderedTemplate.should.eql(expectedRenderedTemplate);
 	});
 
-	it("should overwrite existing files that lack a merge strategy");
-
-	xit("should return an error if destination is not set", done => {
+	it("should return an error if destination is not set", done => {
+		stimpak = new Stimpak();
 		stimpak
 			.generate(error => {
 				error.message.should.eql("You must set .destination() before you can .generate()");

@@ -45,54 +45,81 @@ function generate(callback) {
 }
 
 function renderFiles(stimpak, done) {
+	_flowsync2.default.mapSeries(stimpak.sources, renderSource.bind(this), done);
+}
+
+function renderSource(source, done) {
 	var _this = this;
 
-	var templateFilePaths = [];
-
-	stimpak.sources.forEach(function (source) {
-		var absoluteSourceGlob = source.directory() + "/" + source.glob();
-		var sourceFilePaths = _glob2.default.sync(absoluteSourceGlob);
-
-		templateFilePaths = templateFilePaths.concat(sourceFilePaths);
+	var templateFileNames = _glob2.default.sync(source.glob(), {
+		cwd: source.directory()
 	});
 
-	templateFilePaths.forEach(function (templateFilePath) {
-		var renderedTemplateContents = renderTemplateFile.call(_this, templateFilePath);
+	_flowsync2.default.mapSeries(templateFileNames, function (fileName, fileNameDone) {
+		renderFile.call(_this, fileName, source, fileNameDone);
+	}, done);
+}
 
-		var answers = _this.answers();
-		for (var answerName in answers) {
-			var answerValue = answers[answerName];
+function renderFile(fileName, source, done) {
+	var _this2 = this;
 
-			var answerRegExp = new RegExp("##" + answerName + "##", "g");
+	var templateFilePath = source.directory() + "/" + fileName;
+	var fileContents = renderTemplateFile.call(this, templateFilePath);
+	var answers = this.answers();
 
-			templateFilePath = templateFilePath.replace(answerRegExp, answerValue);
-		}
+	var filePath = fileName;
 
-		var templateFile = newFile.call(_this, templateFilePath, renderedTemplateContents);
+	for (var answerName in answers) {
+		var answerValue = answers[answerName];
+		var answerRegExp = new RegExp("##" + answerName + "##", "g");
+		filePath = filePath.replace(answerRegExp, answerValue);
+	}
 
-		console.log("templateFile", templateFile);
+	var newFile = new _vinyl2.default({
+		cwd: this.destination(),
+		base: this.destination(),
+		path: this.destination() + "/" + filePath,
+		contents: new Buffer(fileContents)
 	});
 
-	done();
+	if (_fs2.default.existsSync(newFile.path)) {
+		(function () {
+			var oldFileContents = _fs2.default.readFileSync(newFile.path);
+
+			var mergeStrategies = _this2.merge();
+
+			mergeStrategies.forEach(function (mergeStrategy) {
+				var mergePattern = new RegExp(mergeStrategy[0]);
+
+				if (newFile.path.match(mergePattern)) {
+					var mergeFunction = mergeStrategy[1];
+					var oldFile = new _vinyl2.default({
+						cwd: newFile.cwd,
+						base: newFile.base,
+						path: newFile.path,
+						contents: oldFileContents
+					});
+
+					mergeFunction(_this2, newFile, oldFile, done);
+				} else {
+					writeFile(newFile.path, newFile.contents, done);
+				}
+			});
+		})();
+	} else {
+		writeFile(newFile.path, newFile.contents, done);
+	}
 }
 
 function renderTemplateFile(templateFilePath) {
 	var templateFileContents = _fs2.default.readFileSync(templateFilePath);
-
 	var template = (0, _lodash2.default)(templateFileContents);
-
 	var renderedTemplateContents = template(this.answers());
 
 	return renderedTemplateContents;
 }
 
-function newFile(filePath, fileContents) {
-	var templateFile = new _vinyl2.default({
-		cwd: this.destination(),
-		base: this.basePath(),
-		path: filePath,
-		contents: new Buffer(fileContents)
-	});
-
-	return templateFile;
+function writeFile(filePath, fileContents, done) {
+	_fs2.default.writeFileSync(filePath, fileContents);
+	done();
 }

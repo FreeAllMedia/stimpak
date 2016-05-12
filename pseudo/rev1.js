@@ -151,13 +151,12 @@ class Plugin extends AdvancedProjectGenerator {
 				})
 			.source("**/*.json")
 				.directory("/some/source/")
-				.basePath("/some/other/destination/subpath")
 			.then(done);
 	}
 
 	install(stimpak, done) {
 		stimpak
-			.command("npm install --save", (stdout, stderr, commandDone) => {
+			.command("npm install --save", (stimpak, stdout, stderr, commandDone) => {
 				// optional
 				commandDone();
 			})
