@@ -5,6 +5,7 @@ import fileSystem from "fs-extra";
 import path from "path";
 import temp from "temp";
 import newTemplate from "lodash.template";
+import glob from "glob";
 
 describe("stimpak.merge() (on .generate)", () => {
 	let stimpak,
@@ -14,7 +15,8 @@ describe("stimpak.merge() (on .generate)", () => {
 			results,
 			existingProjectPath,
 			existingFileName,
-			existingFilePath;
+			existingFilePath,
+			answers;
 
 	beforeEach(done => {
 		templateDirectoryPath = path.normalize(`${__dirname}/fixtures/templates/`);
@@ -36,13 +38,16 @@ describe("stimpak.merge() (on .generate)", () => {
 		existingFileName = "package.json";
 		existingFilePath = `${temporaryDirectoryPath}/${existingFileName}`;
 
+		answers = {
+			className: "Foo",
+			primaryFunctionName: "bar",
+			dynamicFileName: "someName"
+		};
+
 		stimpak = new Stimpak();
 		stimpak
-			.answers({
-				className: "Foo",
-				primaryFunctionName: "bar"
-			})
-			.source("+(package|colors).*")
+			.answers(answers)
+			.source("**.*")
 				.directory(templateDirectoryPath)
 			.destination(temporaryDirectoryPath)
 			.merge(
@@ -107,5 +112,24 @@ describe("stimpak.merge() (on .generate)", () => {
 		const actualFileContents = fileSystem.readFileSync(`${temporaryDirectoryPath}/colors.js`, { encoding: "utf-8" });
 
 		actualFileContents.should.eql(expectedFileContents);
+	});
+
+	it("should render existing files like normal if there are no merge strategies at all", done => {
+		const templateContents = fileSystem.readFileSync(`${templateDirectoryPath}/colors.js`, { encoding: "utf-8" });
+		const template = newTemplate(templateContents);
+		const expectedFileContents = template(stimpak.answers());
+
+		stimpak = new Stimpak();
+
+		stimpak
+			.answers(answers)
+			.source("**.*")
+				.directory(templateDirectoryPath)
+			.destination(temporaryDirectoryPath)
+			.generate(() => {
+				const actualFileContents = fileSystem.readFileSync(`${temporaryDirectoryPath}/colors.js`, { encoding: "utf-8" });
+				actualFileContents.should.eql(expectedFileContents);
+				done();
+			});
 	});
 });

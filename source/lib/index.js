@@ -1,3 +1,3 @@
 import Stimpak from "./stimpak/stimpak.js";
 
-export { Stimpak };
+export default Stimpak;

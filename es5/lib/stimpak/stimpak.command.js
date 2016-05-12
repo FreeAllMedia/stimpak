@@ -17,11 +17,8 @@ function command(commandString, afterCommand) {
 	var _this = this;
 
 	var _ = (0, _incognito2.default)(this);
-	console.log("FUM");
 	_.action.step(function (stimpak, done) {
-		console.log("FEE");
 		(0, _child_process.exec)(commandString, function (error, stdout, stderr) {
-			console.log("FI");
 			afterCommand(_this, stdout, stderr, done);
 		});
 	});

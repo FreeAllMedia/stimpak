@@ -67,23 +67,27 @@ function renderFile(fileName, source, done) {
 
 		const mergeStrategies = this.merge();
 
-		mergeStrategies.forEach(mergeStrategy => {
-			const mergePattern = new RegExp(mergeStrategy[0]);
+		if (mergeStrategies.length > 0) {
+			mergeStrategies.forEach(mergeStrategy => {
+				const mergePattern = new RegExp(mergeStrategy[0]);
 
-			if (newFile.path.match(mergePattern)) {
-				const mergeFunction = mergeStrategy[1];
-				const oldFile = new File({
-					cwd: newFile.cwd,
-					base: newFile.base,
-					path: newFile.path,
-					contents: oldFileContents
-				});
+				if (newFile.path.match(mergePattern)) {
+					const mergeFunction = mergeStrategy[1];
+					const oldFile = new File({
+						cwd: newFile.cwd,
+						base: newFile.base,
+						path: newFile.path,
+						contents: oldFileContents
+					});
 
-				mergeFunction(this, newFile, oldFile, done);
-			} else {
-				writeFile(newFile.path, newFile.contents, done);
-			}
-		});
+					mergeFunction(this, newFile, oldFile, done);
+				} else {
+					writeFile(newFile.path, newFile.contents, done);
+				}
+			});
+		} else {
+			writeFile(newFile.path, newFile.contents, done);
+		}
 	} else {
 		writeFile(newFile.path, newFile.contents, done);
 	}

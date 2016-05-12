@@ -88,23 +88,27 @@ function renderFile(fileName, source, done) {
 
 			var mergeStrategies = _this2.merge();
 
-			mergeStrategies.forEach(function (mergeStrategy) {
-				var mergePattern = new RegExp(mergeStrategy[0]);
+			if (mergeStrategies.length > 0) {
+				mergeStrategies.forEach(function (mergeStrategy) {
+					var mergePattern = new RegExp(mergeStrategy[0]);
 
-				if (newFile.path.match(mergePattern)) {
-					var mergeFunction = mergeStrategy[1];
-					var oldFile = new _vinyl2.default({
-						cwd: newFile.cwd,
-						base: newFile.base,
-						path: newFile.path,
-						contents: oldFileContents
-					});
+					if (newFile.path.match(mergePattern)) {
+						var mergeFunction = mergeStrategy[1];
+						var oldFile = new _vinyl2.default({
+							cwd: newFile.cwd,
+							base: newFile.base,
+							path: newFile.path,
+							contents: oldFileContents
+						});
 
-					mergeFunction(_this2, newFile, oldFile, done);
-				} else {
-					writeFile(newFile.path, newFile.contents, done);
-				}
-			});
+						mergeFunction(_this2, newFile, oldFile, done);
+					} else {
+						writeFile(newFile.path, newFile.contents, done);
+					}
+				});
+			} else {
+				writeFile(newFile.path, newFile.contents, done);
+			}
 		})();
 	} else {
 		writeFile(newFile.path, newFile.contents, done);
