@@ -80,7 +80,15 @@ function renderFile(fileName, source, done) {
 						contents: oldFileContents
 					});
 
-					mergeFunction(this, newFile, oldFile, done);
+					mergeFunction(this, newFile, oldFile, (error, mergedFile) => {
+						if (error) {
+							done(error);
+						} else {
+							writeFile(mergedFile.path, mergedFile.contents, done);
+						}
+					});
+
+					// TODO: Write the merged file!
 				} else {
 					writeFile(newFile.path, newFile.contents, done);
 				}

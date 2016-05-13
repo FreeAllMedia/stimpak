@@ -16,6 +16,8 @@ describe("stimpak.merge() (on .generate)", () => {
 			existingProjectPath,
 			existingFileName,
 			existingFilePath,
+			existingFileContents,
+			mergedFileContents,
 			answers;
 
 	beforeEach(done => {
@@ -27,16 +29,26 @@ describe("stimpak.merge() (on .generate)", () => {
 
 		results = {};
 
-		mergeStrategy = sinon.spy((generator, newFile, oldFile, strategyCallback) => {
+		mergedFileContents = "merged!";
+
+		mergeStrategy = sinon.spy((generator, newFile, oldFile, mergeCallback) => {
 			results.generator = generator;
 			results.newFile = newFile;
 			results.oldFile = oldFile;
 
-			strategyCallback(null, oldFile);
+			results.mergedFile = new File({
+				cwd: results.newFile.cwd,
+				base: results.newFile.base,
+				path: results.newFile.path,
+				contents: new Buffer(mergedFileContents)
+			});
+
+			mergeCallback(null, results.mergedFile);
 		});
 
 		existingFileName = "package.json";
 		existingFilePath = `${temporaryDirectoryPath}/${existingFileName}`;
+		existingFileContents = fileSystem.readFileSync(existingFilePath);
 
 		answers = {
 			className: "Foo",
@@ -99,7 +111,7 @@ describe("stimpak.merge() (on .generate)", () => {
 	});
 
 	it("should set the old file to the appropriate file contents", () => {
-		const expectedFileContents = fileSystem.readFileSync(existingFilePath, { encoding: "utf-8" });
+		const expectedFileContents = existingFileContents.toString();
 		const actualFileContents = results.oldFile.contents.toString();
 		actualFileContents.should.be.eql(expectedFileContents);
 	});
@@ -129,6 +141,34 @@ describe("stimpak.merge() (on .generate)", () => {
 			.generate(() => {
 				const actualFileContents = fileSystem.readFileSync(`${temporaryDirectoryPath}/colors.js`, { encoding: "utf-8" });
 				actualFileContents.should.eql(expectedFileContents);
+				done();
+			});
+	});
+
+	it("should write the file returned by the merge function callback", () => {
+		const expectedFileContents = mergedFileContents;
+
+		stimpak = new Stimpak();
+
+		const actualFileContents = fileSystem.readFileSync(`${temporaryDirectoryPath}/${existingFileName}`, { encoding: "utf-8" });
+		actualFileContents.should.eql(expectedFileContents);
+	});
+
+	it("should return an error if a merge function returns an error", done => {
+		const expectedErrorMessage = "Something went wrong!";
+
+		stimpak = new Stimpak();
+
+		stimpak
+			.answers(answers)
+			.source("**.*")
+				.directory(templateDirectoryPath)
+			.destination(temporaryDirectoryPath)
+			.merge(existingFilePath, (generator, newFile, oldFile, mergeCallback) => {
+				mergeCallback(new Error(expectedErrorMessage));
+			})
+			.generate(error => {
+				error.message.should.eql(expectedErrorMessage);
 				done();
 			});
 	});

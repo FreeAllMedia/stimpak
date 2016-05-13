@@ -101,10 +101,18 @@ function renderFile(fileName, source, done) {
 							contents: oldFileContents
 						});
 
-						mergeFunction(_this2, newFile, oldFile, done);
+						mergeFunction(_this2, newFile, oldFile, function (error, mergedFile) {
+							if (error) {
+								done(error);
+							} else {
+								writeFile(mergedFile.path, mergedFile.contents, done);
+							}
+						});
+
+						// TODO: Write the merged file!
 					} else {
-						writeFile(newFile.path, newFile.contents, done);
-					}
+							writeFile(newFile.path, newFile.contents, done);
+						}
 				});
 			} else {
 				writeFile(newFile.path, newFile.contents, done);
