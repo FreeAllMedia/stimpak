@@ -26,12 +26,22 @@ function prompt() {
 
 	var action = _.action;
 
+	var _loop = function _loop(answerName) {
+		prompts = prompts.filter(function (promptDefinition) {
+			return promptDefinition.name !== answerName;
+		});
+	};
+
+	for (var answerName in this.answers()) {
+		_loop(answerName);
+	}
+
 	action.step(function (generator, stepDone) {
 		_inquirer2.default.prompt(prompts).then(function (questionAnswers) {
-			for (var answerName in questionAnswers) {
-				var answer = questionAnswers[answerName];
+			for (var _answerName in questionAnswers) {
+				var answer = questionAnswers[_answerName];
 				var answers = _this.answers();
-				answers[answerName] = answer;
+				answers[_answerName] = answer;
 			}
 
 			stepDone();

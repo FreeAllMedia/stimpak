@@ -5,7 +5,8 @@ describe("stimpak.prompt() (intercept)", () => {
 	let stimpak,
 			prompts,
 			promptOne,
-			promptTwo;
+			promptTwo,
+			answers;
 
 	beforeEach(function () {
 		stimpak = new Stimpak()
@@ -25,6 +26,11 @@ describe("stimpak.prompt() (intercept)", () => {
 				default: "Belcher"
 			}
 		];
+
+		answers = {
+			firstName: "Gene",
+			lastName: "Belcher"
+		};
 
 		promptOne = prompts[0];
 		promptTwo = prompts[1];
@@ -53,6 +59,7 @@ describe("stimpak.prompt() (intercept)", () => {
 					promptTwo: stdout.indexOf(promptTwo.message) !== -1
 				};
 
+				// TODO: Figure out why this test times out when failing
 				results.should.eql({
 					promptOne: true,
 					promptTwo: true
@@ -64,11 +71,11 @@ describe("stimpak.prompt() (intercept)", () => {
 			});
 
 		setTimeout(() => {
-			process.stdin.emit("data", "Gene\n");
+			process.stdin.emit("data", `${answers.firstName}\n`);
 		}, 100);
 
 		setTimeout(() => {
-			process.stdin.emit("data", "Belcher\n");
+			process.stdin.emit("data", `${answers.lastName}\n`);
 		}, 200);
 	});
 
@@ -76,19 +83,70 @@ describe("stimpak.prompt() (intercept)", () => {
 		stimpak
 			.prompt(...prompts)
 			.generate(error => {
-				stimpak.answers().should.eql({
-					firstName: "Gene",
-					lastName: "Belcher"
-				});
+				stimpak.answers().should.eql(answers);
 				done(error);
 			});
 
 		setTimeout(() => {
-			process.stdin.emit("data", "Gene\n");
+			process.stdin.emit("data", `${answers.firstName}\n`);
 		}, 100);
 
 		setTimeout(() => {
-			process.stdin.emit("data", "Belcher\n");
+			process.stdin.emit("data", `${answers.lastName}\n`);
 		}, 200);
+	});
+
+	it("should skip prompts that already have answers", (done) => {
+		let stdout = "";
+
+		const stopIntercept = intercept(data => {
+			stdout += data.toString();
+		});
+
+		stimpak
+			.answers({
+				firstName: "Neil"
+			})
+			.prompt(...prompts)
+			.generate(error => {
+				let results = {
+					promptOne: stdout.indexOf(promptOne.message) !== -1,
+					promptTwo: stdout.indexOf(promptTwo.message) !== -1
+				};
+
+				stopIntercept();
+
+				// TODO: Figure out why this test times out when failing
+				results.should.eql({
+					promptOne: false,
+					promptTwo: true
+				});
+
+				done(error);
+			});
+
+		setTimeout(() => {
+			process.stdin.emit("data", `${answers.firstName}\n`);
+		}, 100);
+
+		setTimeout(() => {
+			process.stdin.emit("data", `BAD VALUE\n`);
+		}, 500);
+	});
+
+	it("should use existing answers", () => {
+		let firstName = "Neil";
+
+		stimpak
+			.prompt(...prompts)
+			.answers({
+				firstName
+			})
+			.generate(() => {
+				stimpak.answers().should.eql({
+					firstName,
+					lastName: answers.lastName
+				});
+			});
 	});
 });

@@ -6,6 +6,12 @@ export default function prompt(...prompts) {
 
 	const action = _.action;
 
+	for (let answerName in this.answers()) {
+		prompts = prompts.filter(promptDefinition => {
+			return (promptDefinition.name !== answerName);
+		});
+	}
+
 	action.step((generator, stepDone) => {
 		inquirer
 			.prompt(prompts)

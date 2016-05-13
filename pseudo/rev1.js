@@ -13,7 +13,8 @@ generator advanced-project
 import Stimpak from "stimpak";
 import AdvancedProjectGenerator from "stimpak-advanced-project";
 
-const generator = new Stimpak().use(AdvancedProjectGenerator);
+const generator = new Stimpak()
+	.use(AdvancedProjectGenerator);
 
 generator.generate(error => {
 	if (error) { throw error; }
