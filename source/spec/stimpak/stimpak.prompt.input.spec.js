@@ -59,15 +59,18 @@ describe("stimpak.prompt() (intercept)", () => {
 					promptTwo: stdout.indexOf(promptTwo.message) !== -1
 				};
 
-				// TODO: Figure out why this test times out when failing
-				results.should.eql({
-					promptOne: true,
-					promptTwo: true
-				});
-
 				stopIntercept();
 
-				done(error);
+				try {
+					results.should.eql({
+						promptOne: true,
+						promptTwo: true
+					});
+
+					done(error);
+				} catch (ex) {
+					done(ex);
+				}
 			});
 
 		setTimeout(() => {
@@ -116,13 +119,16 @@ describe("stimpak.prompt() (intercept)", () => {
 
 				stopIntercept();
 
-				// TODO: Figure out why this test times out when failing
-				results.should.eql({
-					promptOne: false,
-					promptTwo: true
-				});
+				try {
+					results.should.eql({
+						promptOne: false,
+						promptTwo: true
+					});
 
-				done(error);
+					done(error);
+				} catch (ex) {
+					done(ex);
+				}
 			});
 
 		setTimeout(() => {
