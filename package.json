@@ -1,7 +1,7 @@
 {
   "name": "stimpak",
   "version": "0.0.0",
-  "description": "(Re)Generate code easily.",
+  "description": "Generate and re-generate code of any language with ease!",
   "main": "./es5/lib/index.js",
   "scripts": {
     "test": "gulp test"
