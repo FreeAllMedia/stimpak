@@ -3,12 +3,16 @@ npm install stimpak -g
 npm install stimpak-new-project -g
 
 
-// Running stimpak without arguments
-$ stimpak new-project something-else
-
 // Help commands
 $ stimpak
 $ stimpak -h
+$ stimpak --help
+
+// Run single generatorB
+$ stimpak new-project
+
+// Run multiple generators
+$ stimpak new-project something-else
 
 // Answering questions via CLI
 $ stimpak new-project

@@ -164,3 +164,38 @@ class Plugin extends AdvancedProjectGenerator {
 			.then(done);
 	}
 }
+
+
+
+
+
+
+
+
+class MyGenerator {
+	constructor(stimpak) {
+		stimpak
+			.prompt(
+				{
+					type: "input",
+					message: "What's your name?",
+					name: "name",
+					default: "Bob"
+				}
+			)
+			.merge(
+				"package.json",
+				(stimpak, newFile, oldFile, mergeDone) => {
+					const mergedFile = new File({
+						cwd: oldFile.cwd,
+						path: oldFile.path
+						contents: oldFile.contents.replace("foo", "bar")
+					});
+
+					mergeDone(null, mergedFile);
+				}
+			)
+			.source("**/*")
+				.directory("./templates/");
+	}
+}
