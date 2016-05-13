@@ -46,6 +46,7 @@
     "suppose": "^0.5.2"
   },
   "dependencies": {
+    "fs-extra": "^0.30.0",
     "inquirer": "^1.0.2",
     "lodash.template": "^4.2.4",
     "mrt": "^0.1.5",
