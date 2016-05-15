@@ -1,24 +1,45 @@
-import suppose from "suppose";
 import fileSystem from "fs";
 import path from "path";
+import { exec } from "child_process";
 
 describe("(CLI) stimpak", () => {
-	it("should return the help page when called without arguments", done => {
-		const helpFileTemplatePath = path.normalize(`${__dirname}/../../lib/cli/templates/help.txt`);
-		const expectedStdout = fileSystem.readFileSync(helpFileTemplatePath, { encoding: "utf-8" });
+	let command,
+			expectedStdout;
 
-		let result = false;
+	beforeEach(() => {
+		const helpFileTemplatePath = path.normalize(
+			`${__dirname}/../../lib/cli/templates/help.txt`
+		);
 
-		suppose("node stimpak", [])
-			.when(expectedStdout, () => {
-				result = true;
-			})
-			.on("error", done)
-			.end(() => {
-				result.should.be.true;
-				done();
-			});
+		expectedStdout = fileSystem.readFileSync(
+			helpFileTemplatePath,
+			{ encoding: "utf-8" }
+		);
+
+		const stimpakPath = "./es5/lib/cli/stimpak.cli.js";
+		command = `node ${stimpakPath}`;
 	});
 
-	it("should return the help page when called with the -h flag");
+	it("should return the help page when called without arguments", done => {
+		exec(command, (error, stdout) => {
+			stdout.should.eql(expectedStdout);
+			done(error);
+		});
+	});
+
+	it("should return the help page when called with the -h flag", done => {
+		command += " -h";
+		exec(command, (error, stdout) => {
+			stdout.should.eql(expectedStdout);
+			done(error);
+		});
+	});
+
+	it("should return the help page when called with the --help flag as the first argument", done => {
+		command += " --help";
+		exec(command, (error, stdout) => {
+			stdout.should.eql(expectedStdout);
+			done(error);
+		});
+	});
 });

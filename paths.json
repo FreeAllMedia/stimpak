@@ -5,7 +5,12 @@
 			"./source/lib/**/*.js",
 			"./source/*.js"
 		],
-		"spec": "./source/spec/**/*.js"
+		"generators": "./source/spec/cli/fixtures/**/*.*",
+		"txt": "./source/lib/**/*.txt",
+		"spec": [
+			"./source/spec/**/*.js",
+			"!./source/spec/stimpak/fixtures/**/*.*"
+		]
 	},
 
 	"build": {
@@ -15,6 +20,7 @@
 			"spec": "./es5/spec"
 		},
 		"lib": "./es5/lib/**/*.js",
+		"generators": "./es5/spec/cli/fixtures/**/*.*",
 		"spec": "./es5/spec/**/*.spec.js",
 		"sourceSpec": [
 			"./source/spec/**/*.spec.js",
