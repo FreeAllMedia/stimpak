@@ -7,6 +7,7 @@
 		],
 		"generators": "./source/spec/cli/fixtures/**/*.*",
 		"txt": "./source/lib/**/*.txt",
+		"specJson": "./source/spec/**/*.js",
 		"spec": [
 			"./source/spec/**/*.js",
 			"!./source/spec/stimpak/fixtures/**/*.*"

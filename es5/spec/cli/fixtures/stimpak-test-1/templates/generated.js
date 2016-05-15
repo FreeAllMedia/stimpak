@@ -1,2 +1,0 @@
-// GENERATED!
-"use strict";

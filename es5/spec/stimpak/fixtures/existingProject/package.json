@@ -1,0 +1,7 @@
+{
+	"name": "my_package",
+	"dependencies": {
+		"async": "0.3.0",
+		"incognito": "0.1.0"
+	}
+}

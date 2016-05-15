@@ -5,11 +5,9 @@ var _fs = require("fs");
 
 var _fs2 = _interopRequireDefault(_fs);
 
-var _stimpak = require("../stimpak/stimpak.js");
-
-var _stimpak2 = _interopRequireDefault(_stimpak);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var Stimpak = require(__dirname + "/../stimpak/stimpak.js").default;
 
 var firstArgument = process.argv[2];
 
@@ -20,7 +18,7 @@ switch (firstArgument) {
 		_fs2.default.createReadStream(__dirname + "/templates/help.txt").pipe(process.stdout);
 		break;
 	default:
-		var stimpak = new _stimpak2.default();
+		var stimpak = new Stimpak().destination(process.cwd());
 
 		var lastArguments = process.argv.splice(2);
 		var answers = [];
@@ -30,16 +28,13 @@ switch (firstArgument) {
 			if (argument.indexOf("--") !== -1) {
 				answers.push(argument);
 			} else {
-				console.log("FEE");
 				var generatorName = argument;
-				var packagename = "stimpak-" + generatorName;
-				try {
-					var GeneratorConstructor = require(packagename).default;
-					console.log("FI", GeneratorConstructor);
+				var packageName = "stimpak-" + generatorName;
 
+				try {
+					var GeneratorConstructor = require(packageName).default;
 					stimpak.use(GeneratorConstructor);
 				} catch (error) {
-					console.log("FO", error);
 					var errorMessage = "\"" + generatorName + "\" is not installed. Use \"npm install stimpak-" + generatorName + " -g\"";
 					process.stderr.write(errorMessage);
 				}
@@ -47,7 +42,10 @@ switch (firstArgument) {
 		}
 
 		stimpak.generate(function (error) {
-			console.log("FUM");
-			// if (error) { throw error; }
+			if (error) {
+				throw error;
+			}
+			var doneFileContents = _fs2.default.readFileSync(__dirname + "/templates/done.txt", { encoding: "utf-8" });
+			process.stdout.write(doneFileContents);
 		});
 }

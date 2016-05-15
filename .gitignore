@@ -24,7 +24,8 @@ build/Release
 
 # Dependency directory
 # https://www.npmjs.org/doc/misc/npm-faq.html#should-i-check-my-node_modules-folder-into-git
-node_modules
+node_modules/*
+!source/spec/cli/fixtures/node_modules/*
 
 # lcov file
 lcov.info
@@ -34,4 +35,3 @@ lcov.info
 testOutput
 
 .akiro
-node_modules
