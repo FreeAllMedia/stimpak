@@ -1,8 +1,8 @@
 "use strict";
 
-var _stimpak4 = require("../../lib/stimpak/stimpak.js");
+var _stimpak5 = require("../../lib/stimpak/stimpak.js");
 
-var _stimpak5 = _interopRequireDefault(_stimpak4);
+var _stimpak6 = _interopRequireDefault(_stimpak5);
 
 var _interceptStdout = require("intercept-stdout");
 
@@ -20,7 +20,7 @@ describe("stimpak.prompt() (intercept)", function () {
 	    answers = void 0;
 
 	beforeEach(function () {
-		stimpak = new _stimpak5.default().destination("/some/path");
+		stimpak = new _stimpak6.default().destination("/some/path");
 
 		prompts = [{
 			type: "input",
@@ -48,11 +48,17 @@ describe("stimpak.prompt() (intercept)", function () {
 	});
 
 	it("should add a step to display each prompt's questions", function () {
-		stimpak.prompt().steps.length.should.eql(1);
+		var _stimpak;
+
+		(_stimpak = stimpak).prompt.apply(_stimpak, _toConsumableArray(prompts)).steps.length.should.eql(1);
+	});
+
+	it("should not add a step if no prompts given", function () {
+		stimpak.prompt().steps.length.should.eql(0);
 	});
 
 	it("should display each prompt's questions when `.generate()` is called", function (done) {
-		var _stimpak;
+		var _stimpak2;
 
 		var stdout = "";
 
@@ -60,7 +66,7 @@ describe("stimpak.prompt() (intercept)", function () {
 			stdout += data.toString();
 		});
 
-		(_stimpak = stimpak).prompt.apply(_stimpak, _toConsumableArray(prompts)).generate(function (error) {
+		(_stimpak2 = stimpak).prompt.apply(_stimpak2, _toConsumableArray(prompts)).generate(function (error) {
 			var results = {
 				promptOne: stdout.indexOf(promptOne.message) !== -1,
 				promptTwo: stdout.indexOf(promptTwo.message) !== -1
@@ -87,9 +93,9 @@ describe("stimpak.prompt() (intercept)", function () {
 	});
 
 	it("should accept each prompt's answers", function (done) {
-		var _stimpak2;
+		var _stimpak3;
 
-		(_stimpak2 = stimpak).prompt.apply(_stimpak2, _toConsumableArray(prompts)).generate(function (error) {
+		(_stimpak3 = stimpak).prompt.apply(_stimpak3, _toConsumableArray(prompts)).generate(function (error) {
 			stimpak.answers().should.eql(answers);
 			done(error);
 		});
@@ -141,11 +147,11 @@ describe("stimpak.prompt() (intercept)", function () {
 	});
 
 	it("should use existing answers", function () {
-		var _stimpak3;
+		var _stimpak4;
 
 		var firstName = "Neil";
 
-		(_stimpak3 = stimpak).prompt.apply(_stimpak3, _toConsumableArray(prompts)).answers({
+		(_stimpak4 = stimpak).prompt.apply(_stimpak4, _toConsumableArray(prompts)).answers({
 			firstName: firstName
 		}).generate(function () {
 			stimpak.answers().should.eql({

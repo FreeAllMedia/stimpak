@@ -36,17 +36,19 @@ function prompt() {
 		_loop(answerName);
 	}
 
-	action.step(function (generator, stepDone) {
-		_inquirer2.default.prompt(prompts).then(function (questionAnswers) {
-			for (var _answerName in questionAnswers) {
-				var answer = questionAnswers[_answerName];
-				var answers = _this.answers();
-				answers[_answerName] = answer;
-			}
+	if (prompts.length > 0) {
+		action.step(function (generator, stepDone) {
+			_inquirer2.default.prompt(prompts).then(function (questionAnswers) {
+				for (var _answerName in questionAnswers) {
+					var answer = questionAnswers[_answerName];
+					var answers = _this.answers();
+					answers[_answerName] = answer;
+				}
 
-			stepDone();
+				stepDone();
+			});
 		});
-	});
+	}
 
 	return this;
 }

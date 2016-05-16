@@ -12,19 +12,21 @@ export default function prompt(...prompts) {
 		});
 	}
 
-	action.step((generator, stepDone) => {
-		inquirer
-			.prompt(prompts)
-			.then(questionAnswers => {
-				for (let answerName in questionAnswers) {
-					const answer = questionAnswers[answerName];
-					const answers = this.answers();
-					answers[answerName] = answer;
-				}
+	if (prompts.length > 0) {
+		action.step((generator, stepDone) => {
+			inquirer
+				.prompt(prompts)
+				.then(questionAnswers => {
+					for (let answerName in questionAnswers) {
+						const answer = questionAnswers[answerName];
+						const answers = this.answers();
+						answers[answerName] = answer;
+					}
 
-				stepDone();
+					stepDone();
+				});
 			});
-		});
+	}
 
 	return this;
 }
