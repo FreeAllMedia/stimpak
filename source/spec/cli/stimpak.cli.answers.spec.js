@@ -30,6 +30,8 @@ describe("(CLI) stimpak --answers", () => {
 			`${stimpakDirectoryPath}/node_modules/stimpak-test-2`;
 		const generatorThreeDirectoryPath =
 			`${stimpakDirectoryPath}/node_modules/stimpak-test-3`;
+		const generatorFourDirectoryPath =
+			`${stimpakDirectoryPath}/node_modules/stimpak-test-4`;
 
 		fileSystem.mkdirSync(nodeModulesDirectoryPath);
 
@@ -47,6 +49,9 @@ describe("(CLI) stimpak --answers", () => {
 		try {
 			fileSystem.unlinkSync(generatorThreeDirectoryPath);
 		}	catch (error) {}
+		try {
+			fileSystem.unlinkSync(generatorFourDirectoryPath);
+		}	catch (error) {}
 
 		fileSystem.symlinkSync(
 			`${nodeModulesFixtureDirectoryPath}/stimpak-test-1`,
@@ -63,14 +68,38 @@ describe("(CLI) stimpak --answers", () => {
 			generatorThreeDirectoryPath
 		);
 
+		fileSystem.symlinkSync(
+			`${nodeModulesFixtureDirectoryPath}/stimpak-test-4`,
+			generatorFourDirectoryPath
+		);
+
 		command = `node ${stimpakCliPath}`;
 	});
 
 	it("should use provided answer and skip question prompt", done => {
-		command += " test-4";
-		runCommand(command, (error, stdout) => {
-			stdout.should.eql("");
-			done();
+		command += " test-4 --promptName=Blah";
+		runCommand(command, (error, stdout, stderr) => {
+			try {
+				stderr.should.eql("");
+				stdout.should.eql("DONE!\n");
+				done();
+			} catch (err) {
+				done(err);
+			}
+		});
+	});
+
+	it("should use report malformed answers", done => {
+		command += " test-4 --promptName=Blah --malformed1:Blah --malformed2";
+		runCommand(command, (error, stdout, stderr) => {
+			try {
+				stderr.should.contain("The provided answer \"--malformed1:Blah\" is malformed");
+				stderr.should.contain("The provided answer \"--malformed2\" is malformed");
+				stdout.should.eql("DONE!\n");
+				done();
+			} catch (err) {
+				done(err);
+			}
 		});
 	});
 });
