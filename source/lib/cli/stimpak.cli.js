@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import fileSystem from "fs";
 const Stimpak = require(__dirname + "/../stimpak/stimpak.js").default;
+import requireResolve from "require-resolve";
 
 const firstArgument = process.argv[2];
 
@@ -27,11 +28,17 @@ switch (firstArgument) {
 				const generatorName = argument;
 				const packageName = `stimpak-${generatorName}`;
 
+				const packageInfo = requireResolve(packageName, `${process.cwd()}/node_modules`);
 				try {
-					const GeneratorConstructor = require(packageName).default;
+					let GeneratorConstructor;
+					if (packageInfo && packageInfo.src) {
+						GeneratorConstructor = require(packageInfo.src).default;
+					} else {
+						GeneratorConstructor = require(packageName).default;
+					}
 					stimpak.use(GeneratorConstructor);
 				} catch (error) {
-					const errorMessage = `"${generatorName}" is not installed. Use "npm install stimpak-${generatorName} -g"`;
+					const errorMessage = `"${generatorName}" is not installed. Use "npm install stimpak-${generatorName} -g"\n`;
 					process.stderr.write(errorMessage);
 				}
 			}

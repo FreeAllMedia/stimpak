@@ -1,70 +1,16 @@
 import fileSystem from "fs-extra";
 import path from "path";
 import { exec as runCommand } from "child_process";
-import temp from "temp";
-import glob from "glob";
+import { setupCliEnvironment } from "./stimpak.cli.helper.js";
 
 describe("(CLI) stimpak generators", () => {
 	let command,
-			temporaryDirectoryPath;
+			userProjectDirectoryPath;
 
 	beforeEach(() => {
-		temporaryDirectoryPath = temp.mkdirSync("stimpakgenerators");
-
-		const projectRootPath = path.normalize(
-			`${__dirname}/../../../`
-		);
-
-		const es5DirectoryPath =
-			`${projectRootPath}/es5`;
-		const nodeModulesDirectoryPath =
-			`${temporaryDirectoryPath}/node_modules`;
-		const nodeModulesFixtureDirectoryPath =
-			`${es5DirectoryPath}/spec/cli/fixtures/project/node_modules`;
-		const stimpakDirectoryPath =
-			`${nodeModulesDirectoryPath}/stimpak`;
-		const stimpakCliPath =
-			`${stimpakDirectoryPath}/es5/lib/cli/stimpak.cli.js`;
-		const generatorOneDirectoryPath =
-			`${stimpakDirectoryPath}/node_modules/stimpak-test-1`;
-		const generatorTwoDirectoryPath =
-			`${stimpakDirectoryPath}/node_modules/stimpak-test-2`;
-		const generatorThreeDirectoryPath =
-			`${stimpakDirectoryPath}/node_modules/stimpak-test-3`;
-
-		fileSystem.mkdirSync(nodeModulesDirectoryPath);
-
-		fileSystem.symlinkSync(
-			projectRootPath,
-			stimpakDirectoryPath
-		);
-
-		try {
-			fileSystem.unlinkSync(generatorOneDirectoryPath);
-		}	catch (error) {}
-		try {
-			fileSystem.unlinkSync(generatorTwoDirectoryPath);
-		}	catch (error) {}
-		try {
-			fileSystem.unlinkSync(generatorThreeDirectoryPath);
-		}	catch (error) {}
-
-		fileSystem.symlinkSync(
-			`${nodeModulesFixtureDirectoryPath}/stimpak-test-1`,
-			generatorOneDirectoryPath
-		);
-
-		fileSystem.symlinkSync(
-			`${nodeModulesFixtureDirectoryPath}/stimpak-test-2`,
-			generatorTwoDirectoryPath
-		);
-
-		fileSystem.symlinkSync(
-			`${nodeModulesFixtureDirectoryPath}/stimpak-test-3`,
-			generatorThreeDirectoryPath
-		);
-
-		command = `node ${stimpakCliPath}`;
+		const options = setupCliEnvironment();
+		command = options.command;
+		userProjectDirectoryPath = options.userProjectDirectoryPath;
 	});
 
 	it("should throw an error if any of the generators aren't installed", done => {
@@ -72,7 +18,7 @@ describe("(CLI) stimpak generators", () => {
 		command += ` ${invalidGeneratorName}`;
 
 		runCommand(command, (error, stdout, stderr) => {
-			const expectedStderr = `"${invalidGeneratorName}" is not installed. Use "npm install stimpak-${invalidGeneratorName} -g"`;
+			const expectedStderr = `"${invalidGeneratorName}" is not installed. Use "npm install stimpak-${invalidGeneratorName} -g"\n`;
 			stderr.should.eql(expectedStderr);
 			done();
 		});
@@ -80,9 +26,9 @@ describe("(CLI) stimpak generators", () => {
 
 	it("should use the current working directory as the destination", done => {
 		command += " test-1";
-		const expectedFilePath = `${temporaryDirectoryPath}/generated1.js`;
+		const expectedFilePath = `${userProjectDirectoryPath}/generated1.js`;
 
-		runCommand(command, { cwd: temporaryDirectoryPath }, error => {
+		runCommand(command, { cwd: userProjectDirectoryPath }, error => {
 			fileSystem.existsSync(expectedFilePath).should.be.true;
 			done(error);
 		});
@@ -100,7 +46,7 @@ describe("(CLI) stimpak generators", () => {
 			{ encoding: "utf-8" }
 		);
 
-		runCommand(command, { cwd: temporaryDirectoryPath }, (error, stdout) => {
+		runCommand(command, { cwd: userProjectDirectoryPath }, (error, stdout) => {
 			stdout.should.eql(expectedStdout);
 			done(error);
 		});
@@ -109,9 +55,9 @@ describe("(CLI) stimpak generators", () => {
 	it("should run multiple designated generators", done => {
 		command += " test-1 test-2";
 
-		const expectedFilePath = `${temporaryDirectoryPath}/generated2.js`;
+		const expectedFilePath = `${userProjectDirectoryPath}/generated2.js`;
 
-		runCommand(command, { cwd: temporaryDirectoryPath }, error => {
+		runCommand(command, { cwd: userProjectDirectoryPath }, error => {
 			fileSystem.existsSync(expectedFilePath).should.be.true;
 			done(error);
 		});
@@ -120,7 +66,7 @@ describe("(CLI) stimpak generators", () => {
 	it("should throw an error returned by .generate", done => {
 		command += " test-3";
 
-		runCommand(command, { cwd: temporaryDirectoryPath }, error => {
+		runCommand(command, { cwd: userProjectDirectoryPath }, error => {
 			error.message.should.contain("Generator 3 Error!");
 			done();
 		});
