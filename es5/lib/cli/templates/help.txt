@@ -1,3 +1,4 @@
+
    Usage: stimpak [--flags] [...generatorNames] [--answerName="answerValue"]
 
    Generate and re-generate code of any language
@@ -12,4 +13,4 @@
 
    Flags:
      -h, --help           output usage information
-     -V, --version        output the version number
+     -v, --version        output the version number

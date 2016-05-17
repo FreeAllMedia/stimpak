@@ -5,6 +5,10 @@ var _fs = require("fs");
 
 var _fs2 = _interopRequireDefault(_fs);
 
+var _package = require("../../../package.json");
+
+var _package2 = _interopRequireDefault(_package);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var Stimpak = require(__dirname + "/../stimpak/stimpak.js").default;
@@ -12,6 +16,10 @@ var Stimpak = require(__dirname + "/../stimpak/stimpak.js").default;
 var firstArgument = process.argv[2];
 
 switch (firstArgument) {
+	case "-V":
+	case "--version":
+		process.stdout.write(_package2.default.version + "\n");
+		break;
 	case "-h":
 	case "--help":
 	case undefined:

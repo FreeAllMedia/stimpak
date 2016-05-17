@@ -4,14 +4,20 @@ const Stimpak = require(__dirname + "/../stimpak/stimpak.js").default;
 
 const firstArgument = process.argv[2];
 
+import packageJson from "../../../package.json";
+
 switch (firstArgument) {
+	case "-V":
+	case "--version":
+		process.stdout.write(`${packageJson.version}\n`);
+		break;
 	case "-h":
 	case "--help":
 	case undefined:
 		fileSystem
 			.createReadStream(`${__dirname}/templates/help.txt`)
 			.pipe(process.stdout);
-	break;
+			break;
 	default:
 		const stimpak = new Stimpak()
 			.destination(process.cwd());
