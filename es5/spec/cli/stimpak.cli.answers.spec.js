@@ -33,6 +33,7 @@ describe("(CLI) stimpak --answers", function () {
 		var generatorOneDirectoryPath = stimpakDirectoryPath + "/node_modules/stimpak-test-1";
 		var generatorTwoDirectoryPath = stimpakDirectoryPath + "/node_modules/stimpak-test-2";
 		var generatorThreeDirectoryPath = stimpakDirectoryPath + "/node_modules/stimpak-test-3";
+		var generatorFourDirectoryPath = stimpakDirectoryPath + "/node_modules/stimpak-test-4";
 
 		_fsExtra2.default.mkdirSync(nodeModulesDirectoryPath);
 
@@ -47,6 +48,9 @@ describe("(CLI) stimpak --answers", function () {
 		try {
 			_fsExtra2.default.unlinkSync(generatorThreeDirectoryPath);
 		} catch (error) {}
+		try {
+			_fsExtra2.default.unlinkSync(generatorFourDirectoryPath);
+		} catch (error) {}
 
 		_fsExtra2.default.symlinkSync(nodeModulesFixtureDirectoryPath + "/stimpak-test-1", generatorOneDirectoryPath);
 
@@ -54,14 +58,35 @@ describe("(CLI) stimpak --answers", function () {
 
 		_fsExtra2.default.symlinkSync(nodeModulesFixtureDirectoryPath + "/stimpak-test-3", generatorThreeDirectoryPath);
 
+		_fsExtra2.default.symlinkSync(nodeModulesFixtureDirectoryPath + "/stimpak-test-4", generatorFourDirectoryPath);
+
 		command = "node " + stimpakCliPath;
 	});
 
 	it("should use provided answer and skip question prompt", function (done) {
-		command += " test-4";
-		(0, _child_process.exec)(command, function (error, stdout) {
-			stdout.should.eql("");
-			done();
+		command += " test-4 --promptName=Blah";
+		(0, _child_process.exec)(command, function (error, stdout, stderr) {
+			try {
+				stderr.should.eql("");
+				stdout.should.eql("DONE!\n");
+				done();
+			} catch (err) {
+				done(err);
+			}
+		});
+	});
+
+	it("should use report malformed answers", function (done) {
+		command += " test-4 --promptName=Blah --malformed1:Blah --malformed2";
+		(0, _child_process.exec)(command, function (error, stdout, stderr) {
+			try {
+				stderr.should.contain("The provided answer \"--malformed1:Blah\" is malformed");
+				stderr.should.contain("The provided answer \"--malformed2\" is malformed");
+				stdout.should.eql("DONE!\n");
+				done();
+			} catch (err) {
+				done(err);
+			}
 		});
 	});
 });

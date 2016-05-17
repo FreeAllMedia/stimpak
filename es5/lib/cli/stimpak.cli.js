@@ -21,25 +21,37 @@ switch (firstArgument) {
 		var stimpak = new Stimpak().destination(process.cwd());
 
 		var lastArguments = process.argv.splice(2);
-		var answers = [];
+		var generators = [];
+		var answers = {};
 
 		for (var argumentIndex in lastArguments) {
 			var argument = lastArguments[argumentIndex];
 			if (argument.indexOf("--") !== -1) {
-				answers.push(argument);
-			} else {
-				var generatorName = argument;
-				var packageName = "stimpak-" + generatorName;
-
-				try {
-					var GeneratorConstructor = require(packageName).default;
-					stimpak.use(GeneratorConstructor);
-				} catch (error) {
-					var errorMessage = "\"" + generatorName + "\" is not installed. Use \"npm install stimpak-" + generatorName + " -g\"";
+				var md = /^--([^=]+)=(.*)$/.exec(argument);
+				if (md) {
+					answers[md[1]] = md[2];
+				} else {
+					var errorMessage = "The provided answer \"" + argument + "\" is malformed, please use \"--key=value\".\n";
 					process.stderr.write(errorMessage);
 				}
+			} else {
+				generators.push(argument);
 			}
 		}
+
+		stimpak.answers(answers);
+
+		generators.forEach(function (generatorName) {
+			var packageName = "stimpak-" + generatorName;
+
+			try {
+				var GeneratorConstructor = require(packageName).default;
+				stimpak.use(GeneratorConstructor);
+			} catch (error) {
+				var _errorMessage = "\"" + generatorName + "\" is not installed. Use \"npm install stimpak-" + generatorName + " -g\"";
+				process.stderr.write(_errorMessage);
+			}
+		});
 
 		stimpak.generate(function (error) {
 			if (error) {
