@@ -17,7 +17,7 @@ describe("(CLI) stimpak generators", () => {
 		const invalidGeneratorName = "not-a-real-generator";
 		command += ` ${invalidGeneratorName}`;
 
-		runCommand(command, (error, stdout, stderr) => {
+		runCommand(command, { cwd: userProjectDirectoryPath }, (error, stdout, stderr) => {
 			const expectedStderr = `"${invalidGeneratorName}" is not installed. Use "npm install stimpak-${invalidGeneratorName} -g"\n`;
 			stderr.should.eql(expectedStderr);
 			done();
@@ -67,8 +67,12 @@ describe("(CLI) stimpak generators", () => {
 		command += " test-3";
 
 		runCommand(command, { cwd: userProjectDirectoryPath }, error => {
-			error.message.should.contain("Generator 3 Error!");
-			done();
+			try {
+				error.message.should.contain("Generator 3 Error!");
+				done();
+			} catch (ex) {
+				done(ex);
+			}
 		});
 	});
 });

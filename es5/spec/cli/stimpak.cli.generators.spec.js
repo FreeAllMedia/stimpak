@@ -28,7 +28,7 @@ describe("(CLI) stimpak generators", function () {
 		var invalidGeneratorName = "not-a-real-generator";
 		command += " " + invalidGeneratorName;
 
-		(0, _child_process.exec)(command, function (error, stdout, stderr) {
+		(0, _child_process.exec)(command, { cwd: userProjectDirectoryPath }, function (error, stdout, stderr) {
 			var expectedStderr = "\"" + invalidGeneratorName + "\" is not installed. Use \"npm install stimpak-" + invalidGeneratorName + " -g\"\n";
 			stderr.should.eql(expectedStderr);
 			done();
@@ -73,8 +73,12 @@ describe("(CLI) stimpak generators", function () {
 		command += " test-3";
 
 		(0, _child_process.exec)(command, { cwd: userProjectDirectoryPath }, function (error) {
-			error.message.should.contain("Generator 3 Error!");
-			done();
+			try {
+				error.message.should.contain("Generator 3 Error!");
+				done();
+			} catch (ex) {
+				done(ex);
+			}
 		});
 	});
 });

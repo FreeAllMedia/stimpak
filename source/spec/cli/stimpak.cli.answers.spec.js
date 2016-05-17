@@ -12,11 +12,26 @@ describe("(CLI) stimpak --answers", () => {
 	});
 
 	it("should use provided answer and skip question prompt", done => {
-		command += " test-4";
+		command += " test-4 --promptName=Blah";
 		runCommand(command, { cwd: userProjectDirectoryPath }, (error, stdout, stderr) => {
-			stderr.should.eql("");
-			stdout.should.eql("");
-			done();
+			try {
+				stdout.should.eql("DONE!\n");
+				done();
+			} catch (err) {
+				done(err);
+			}
+		});
+	});
+
+	it("should use report malformed answers", done => {
+		command += " test-4 --promptName=Blah --malformed1:Blah --malformed2";
+		runCommand(command, { cwd: userProjectDirectoryPath }, (error, stdout, stderr) => {
+			try {
+				stderr.should.match(/The provided answer "--malformed1:Blah" is malformed.*\nThe provided answer "--malformed2" is malformed/);
+				done();
+			} catch (err) {
+				done(err);
+			}
 		});
 	});
 });

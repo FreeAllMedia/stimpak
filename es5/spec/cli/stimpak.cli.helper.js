@@ -68,8 +68,6 @@ function setupCliEnvironment() {
 
   var command = "node " + stimpakCliPath;
 
-  console.log("cd " + userProjectDirectoryPath + " && node " + stimpakCliPath);
-
   return {
     temporaryDirectoryPath: temporaryDirectoryPath,
     userProjectDirectoryPath: userProjectDirectoryPath,

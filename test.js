@@ -29,5 +29,3 @@ stimpak
 	.generate(() => {
 		console.log("OK!");
 	});
-
-import glob from "glob";
