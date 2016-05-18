@@ -1,6 +1,6 @@
 // Imagine a beautifully written colors library here.
-export default class Blah {
+export default class Baz {
 	constructor() {
-		this.initialize = () => {}
+		this.bloop = () => {}
 	}
 }
