@@ -49,12 +49,17 @@
     "suppose": "^0.5.2"
   },
   "dependencies": {
+    "flowsync": "^0.1.12",
     "fs-extra": "^0.30.0",
+    "glob": "^7.0.3",
+    "incognito": "^0.1.4",
     "inquirer": "^1.0.2",
     "lodash.template": "^4.2.4",
     "mrt": "^0.1.5",
     "promptly": "^1.1.0",
+    "require-resolve": "0.0.2",
     "staircase": "^0.1.0",
+    "temp": "^0.8.3",
     "vinyl": "^1.1.1"
   }
 }

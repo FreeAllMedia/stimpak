@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import fileSystem from "fs";
 const Stimpak = require(__dirname + "/../stimpak/stimpak.js").default;
+import requireResolve from "require-resolve";
 
 const firstArgument = process.argv[2];
 
@@ -23,34 +24,43 @@ switch (firstArgument) {
 			.destination(process.cwd());
 
 		const lastArguments = process.argv.splice(2);
-		const generators = [];
+		const generatorNames = [];
 		const answers = {};
 
 		for (let argumentIndex in lastArguments) {
 			const argument = lastArguments[argumentIndex];
 			if (argument.indexOf("--") !== -1) {
-				const md = /^--([^=]+)=(.*)$/.exec(argument);
-				if (md) {
-					answers [md [1]] = md [2];
+				const matchData = /^--([^=]+)=(.*)$/.exec(argument);
+				if (matchData) {
+					answers [matchData [1]] = matchData [2];
 				} else {
 					const errorMessage = `The provided answer "${argument}" is malformed, please use "--key=value".\n`;
 					process.stderr.write(errorMessage);
 				}
 			} else {
-				generators.push(argument);
+				generatorNames.push(argument);
 			}
 		}
 
 		stimpak.answers(answers);
 
-		generators.forEach(generatorName => {
+		const moduleSearchDirectoryPath = `${process.cwd()}/node_modules`;
+
+		generatorNames.forEach(generatorName => {
 			const packageName = `stimpak-${generatorName}`;
 
 			try {
-				const GeneratorConstructor = require(packageName).default;
+				const packageInfo = requireResolve(packageName, moduleSearchDirectoryPath);
+
+				let GeneratorConstructor;
+				if (packageInfo && packageInfo.src) {
+					GeneratorConstructor = require(packageInfo.src).default;
+				} else {
+					GeneratorConstructor = require(packageName).default;
+				}
 				stimpak.use(GeneratorConstructor);
 			} catch (error) {
-				const errorMessage = `"${generatorName}" is not installed. Use "npm install stimpak-${generatorName} -g"`;
+				const errorMessage = `"${generatorName}" is not installed. Use "npm install stimpak-${generatorName} -g"\n`;
 				process.stderr.write(errorMessage);
 			}
 		});

@@ -10,63 +10,26 @@ var _path2 = _interopRequireDefault(_path);
 
 var _child_process = require("child_process");
 
-var _temp = require("temp");
-
-var _temp2 = _interopRequireDefault(_temp);
-
-var _glob = require("glob");
-
-var _glob2 = _interopRequireDefault(_glob);
+var _stimpakCliHelper = require("./stimpak.cli.helper.js");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 describe("(CLI) stimpak generators", function () {
 	var command = void 0,
-	    temporaryDirectoryPath = void 0;
+	    userProjectDirectoryPath = void 0;
 
 	beforeEach(function () {
-		temporaryDirectoryPath = _temp2.default.mkdirSync("stimpakgenerators");
-
-		var projectRootPath = _path2.default.normalize(__dirname + "/../../../");
-
-		var es5DirectoryPath = projectRootPath + "/es5";
-		var nodeModulesDirectoryPath = temporaryDirectoryPath + "/node_modules";
-		var nodeModulesFixtureDirectoryPath = es5DirectoryPath + "/spec/cli/fixtures/project/node_modules";
-		var stimpakDirectoryPath = nodeModulesDirectoryPath + "/stimpak";
-		var stimpakCliPath = stimpakDirectoryPath + "/es5/lib/cli/stimpak.cli.js";
-		var generatorOneDirectoryPath = stimpakDirectoryPath + "/node_modules/stimpak-test-1";
-		var generatorTwoDirectoryPath = stimpakDirectoryPath + "/node_modules/stimpak-test-2";
-		var generatorThreeDirectoryPath = stimpakDirectoryPath + "/node_modules/stimpak-test-3";
-
-		_fsExtra2.default.mkdirSync(nodeModulesDirectoryPath);
-
-		_fsExtra2.default.symlinkSync(projectRootPath, stimpakDirectoryPath);
-
-		try {
-			_fsExtra2.default.unlinkSync(generatorOneDirectoryPath);
-		} catch (error) {}
-		try {
-			_fsExtra2.default.unlinkSync(generatorTwoDirectoryPath);
-		} catch (error) {}
-		try {
-			_fsExtra2.default.unlinkSync(generatorThreeDirectoryPath);
-		} catch (error) {}
-
-		_fsExtra2.default.symlinkSync(nodeModulesFixtureDirectoryPath + "/stimpak-test-1", generatorOneDirectoryPath);
-
-		_fsExtra2.default.symlinkSync(nodeModulesFixtureDirectoryPath + "/stimpak-test-2", generatorTwoDirectoryPath);
-
-		_fsExtra2.default.symlinkSync(nodeModulesFixtureDirectoryPath + "/stimpak-test-3", generatorThreeDirectoryPath);
-
-		command = "node " + stimpakCliPath;
+		var options = (0, _stimpakCliHelper.setupCliEnvironment)();
+		command = options.command;
+		userProjectDirectoryPath = options.userProjectDirectoryPath;
 	});
 
 	it("should throw an error if any of the generators aren't installed", function (done) {
 		var invalidGeneratorName = "not-a-real-generator";
 		command += " " + invalidGeneratorName;
 
-		(0, _child_process.exec)(command, function (error, stdout, stderr) {
-			var expectedStderr = "\"" + invalidGeneratorName + "\" is not installed. Use \"npm install stimpak-" + invalidGeneratorName + " -g\"";
+		(0, _child_process.exec)(command, { cwd: userProjectDirectoryPath }, function (error, stdout, stderr) {
+			var expectedStderr = "\"" + invalidGeneratorName + "\" is not installed. Use \"npm install stimpak-" + invalidGeneratorName + " -g\"\n";
 			stderr.should.eql(expectedStderr);
 			done();
 		});
@@ -74,9 +37,9 @@ describe("(CLI) stimpak generators", function () {
 
 	it("should use the current working directory as the destination", function (done) {
 		command += " test-1";
-		var expectedFilePath = temporaryDirectoryPath + "/generated1.js";
+		var expectedFilePath = userProjectDirectoryPath + "/generated1.js";
 
-		(0, _child_process.exec)(command, { cwd: temporaryDirectoryPath }, function (error) {
+		(0, _child_process.exec)(command, { cwd: userProjectDirectoryPath }, function (error) {
 			_fsExtra2.default.existsSync(expectedFilePath).should.be.true;
 			done(error);
 		});
@@ -89,7 +52,7 @@ describe("(CLI) stimpak generators", function () {
 
 		var expectedStdout = _fsExtra2.default.readFileSync(doneFileTemplatePath, { encoding: "utf-8" });
 
-		(0, _child_process.exec)(command, { cwd: temporaryDirectoryPath }, function (error, stdout) {
+		(0, _child_process.exec)(command, { cwd: userProjectDirectoryPath }, function (error, stdout) {
 			stdout.should.eql(expectedStdout);
 			done(error);
 		});
@@ -98,9 +61,9 @@ describe("(CLI) stimpak generators", function () {
 	it("should run multiple designated generators", function (done) {
 		command += " test-1 test-2";
 
-		var expectedFilePath = temporaryDirectoryPath + "/generated2.js";
+		var expectedFilePath = userProjectDirectoryPath + "/generated2.js";
 
-		(0, _child_process.exec)(command, { cwd: temporaryDirectoryPath }, function (error) {
+		(0, _child_process.exec)(command, { cwd: userProjectDirectoryPath }, function (error) {
 			_fsExtra2.default.existsSync(expectedFilePath).should.be.true;
 			done(error);
 		});
@@ -109,9 +72,13 @@ describe("(CLI) stimpak generators", function () {
 	it("should throw an error returned by .generate", function (done) {
 		command += " test-3";
 
-		(0, _child_process.exec)(command, { cwd: temporaryDirectoryPath }, function (error) {
-			error.message.should.contain("Generator 3 Error!");
-			done();
+		(0, _child_process.exec)(command, { cwd: userProjectDirectoryPath }, function (error) {
+			try {
+				error.message.should.contain("Generator 3 Error!");
+				done();
+			} catch (ex) {
+				done(ex);
+			}
 		});
 	});
 });
