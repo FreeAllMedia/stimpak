@@ -1,0 +1,13 @@
+[Stimpak Medic] Prepped and ready. Need medical attention?
+---------------
+
+[Error] NPM root value is not in your NODE_PATH
+  [info]
+    NODE_PATH = <%= nodePath %>
+    NPM root  = <%= npmRoot %>
+
+  [Fix] Append the NPM root value to your NODE_PATH variable
+    Add this line to your .bashrc
+      export NODE_PATH=$NODE_PATH:<%= npmRoot %>
+    Or run this command
+      echo "export NODE_PATH=$NODE_PATH:/home/vagrant/npm/lib/node_modules" >> ~/.bashrc && source ~/.bashrc

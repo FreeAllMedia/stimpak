@@ -5,13 +5,13 @@ var _fs = require("fs");
 
 var _fs2 = _interopRequireDefault(_fs);
 
-var _requireResolve = require("require-resolve");
-
-var _requireResolve2 = _interopRequireDefault(_requireResolve);
-
 var _package = require("../../../package.json");
 
 var _package2 = _interopRequireDefault(_package);
+
+var _globalPaths = require("global-paths");
+
+var _globalPaths2 = _interopRequireDefault(_globalPaths);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -42,10 +42,15 @@ switch (firstArgument) {
 
 		for (var argumentIndex in lastArguments) {
 			var argument = lastArguments[argumentIndex];
-			if (argument.indexOf("--") !== -1) {
-				var matchData = /^--([^=]+)=(.*)$/.exec(argument);
-				if (matchData) {
-					answers[matchData[1]] = matchData[2];
+
+			var hasAnswers = argument.indexOf("--") !== -1;
+
+			if (hasAnswers) {
+				var answerMatchData = /^--([^=]+)=(.*)$/.exec(argument);
+				if (answerMatchData) {
+					var answerName = answerMatchData[1];
+					var answerValue = answerMatchData[2];
+					answers[answerName] = answerValue;
 				} else {
 					var errorMessage = "The provided answer \"" + argument + "\" is malformed, please use \"--key=value\".\n";
 					process.stderr.write(errorMessage);
@@ -57,23 +62,15 @@ switch (firstArgument) {
 
 		stimpak.answers(answers);
 
-		var moduleSearchDirectoryPath = process.cwd() + "/node_modules";
-
 		generatorNames.forEach(function (generatorName) {
 			var packageName = "stimpak-" + generatorName;
 
-			try {
-				var packageInfo = (0, _requireResolve2.default)(packageName, moduleSearchDirectoryPath);
+			var packagePath = resolvePackagePath(packageName);
 
-				var GeneratorConstructor = void 0;
-				if (packageInfo && packageInfo.src) {
-					GeneratorConstructor = require(packageInfo.src).default;
-				} else {
-					GeneratorConstructor = require(packageName).default;
-				}
-
+			if (packagePath) {
+				var GeneratorConstructor = require(packagePath).default;
 				stimpak.use(GeneratorConstructor);
-			} catch (error) {
+			} else {
 				var _errorMessage = "\"" + generatorName + "\" is not installed. Use \"npm install stimpak-" + generatorName + " -g\"\n";
 				process.stderr.write(_errorMessage);
 			}
@@ -86,4 +83,17 @@ switch (firstArgument) {
 			var doneFileContents = _fs2.default.readFileSync(__dirname + "/templates/done.txt", { encoding: "utf-8" });
 			process.stdout.write(doneFileContents);
 		});
+}
+
+function resolvePackagePath(packageName) {
+	var found = false;
+	(0, _globalPaths2.default)().forEach(function (npmPath) {
+		var generatorFilePath = npmPath + "/" + packageName;
+
+		if (_fs2.default.existsSync(generatorFilePath)) {
+			found = generatorFilePath;
+		}
+	});
+
+	return found;
 }
