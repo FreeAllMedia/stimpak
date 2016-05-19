@@ -23,12 +23,15 @@ describe("stimpak.generate() (template rendering)", () => {
 
 		templateFilePaths = glob.sync("**/*", { cwd: templateDirectoryPath });
 		renderedFilePaths = templateFilePaths.map(templateFilePath => {
-			return templateFilePath.replace("##dynamicFileName##", "shapes");
+			return templateFilePath
+				.replace("##dynamicFileName##", "shapes")
+				.replace("##dynamicFolderName##", "letters");
 		});
 
 		stimpak
 			.answers({
 				dynamicFileName: "shapes",
+				dynamicFolderName: "letters",
 				className: "Foo",
 				primaryFunctionName: "index"
 			})

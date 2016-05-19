@@ -64,10 +64,10 @@ function renderFile(fileName, source, done) {
 	var _this2 = this;
 
 	var templateFilePath = source.directory() + "/" + fileName;
-	var fileContents = renderTemplateFile.call(this, templateFilePath);
+	var templateFileStats = _fs2.default.statSync(templateFilePath);
 	var answers = this.answers();
 
-	var filePath = fileName;
+	var filePath = "" + fileName;
 
 	for (var answerName in answers) {
 		var answerValue = answers[answerName];
@@ -75,49 +75,58 @@ function renderFile(fileName, source, done) {
 		filePath = filePath.replace(answerRegExp, answerValue);
 	}
 
-	var newFile = new _vinyl2.default({
-		cwd: this.destination(),
-		base: this.destination(),
-		path: this.destination() + "/" + filePath,
-		contents: new Buffer(fileContents)
-	});
-
-	if (_fs2.default.existsSync(newFile.path)) {
+	if (templateFileStats.isDirectory()) {
+		_fs2.default.mkdirSync(this.destination() + "/" + filePath);
+		done();
+	} else {
 		(function () {
-			var oldFileContents = _fs2.default.readFileSync(newFile.path);
+			var fileContents = renderTemplateFile.call(_this2, templateFilePath);
 
-			var mergeStrategies = _this2.merge();
+			var newFile = new _vinyl2.default({
+				cwd: _this2.destination(),
+				base: _this2.destination(),
+				path: _this2.destination() + "/" + filePath,
+				contents: new Buffer(fileContents)
+			});
 
-			if (mergeStrategies.length > 0) {
-				_flowsync2.default.mapSeries(mergeStrategies, function (mergeStrategy, mergeDone) {
-					var mergePattern = new RegExp(mergeStrategy[0]);
+			if (_fs2.default.existsSync(newFile.path)) {
+				(function () {
+					var oldFileContents = _fs2.default.readFileSync(newFile.path);
 
-					if (newFile.path.match(mergePattern)) {
-						var mergeFunction = mergeStrategy[1];
-						var oldFile = new _vinyl2.default({
-							cwd: newFile.cwd,
-							base: newFile.base,
-							path: newFile.path,
-							contents: oldFileContents
-						});
+					var mergeStrategies = _this2.merge();
 
-						mergeFunction(_this2, newFile, oldFile, function (error, mergedFile) {
-							if (error) {
-								mergeDone(error);
+					if (mergeStrategies.length > 0) {
+						_flowsync2.default.mapSeries(mergeStrategies, function (mergeStrategy, mergeDone) {
+							var mergePattern = new RegExp(mergeStrategy[0]);
+
+							if (newFile.path.match(mergePattern)) {
+								var mergeFunction = mergeStrategy[1];
+								var oldFile = new _vinyl2.default({
+									cwd: newFile.cwd,
+									base: newFile.base,
+									path: newFile.path,
+									contents: oldFileContents
+								});
+
+								mergeFunction(_this2, newFile, oldFile, function (error, mergedFile) {
+									if (error) {
+										mergeDone(error);
+									} else {
+										writeFile(mergedFile.path, mergedFile.contents, mergeDone);
+									}
+								});
 							} else {
-								writeFile(mergedFile.path, mergedFile.contents, mergeDone);
+								writeFile(newFile.path, newFile.contents, mergeDone);
 							}
-						});
+						}, done);
 					} else {
-						writeFile(newFile.path, newFile.contents, mergeDone);
+						writeFile(newFile.path, newFile.contents, done);
 					}
-				}, done);
+				})();
 			} else {
 				writeFile(newFile.path, newFile.contents, done);
 			}
 		})();
-	} else {
-		writeFile(newFile.path, newFile.contents, done);
 	}
 }
 
