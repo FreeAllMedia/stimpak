@@ -1,5 +1,6 @@
 import privateData from "incognito";
 import newTemplate from "lodash.template";
+import templateSettings from "lodash.templatesettings";
 import glob from "glob";
 import fileSystem from "fs";
 import File from "vinyl";
@@ -108,6 +109,8 @@ function renderFile(fileName, source, done) {
 }
 
 function renderTemplateFile(templateFilePath) {
+	templateSettings.interpolate = /<%=([\s\S]+?)%>/g;
+
 	const templateFileContents = fileSystem.readFileSync(templateFilePath);
 	const template = newTemplate(templateFileContents);
 	const renderedTemplateContents = template(this.answers());

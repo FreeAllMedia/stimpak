@@ -13,6 +13,10 @@ var _lodash = require("lodash.template");
 
 var _lodash2 = _interopRequireDefault(_lodash);
 
+var _lodash3 = require("lodash.templatesettings");
+
+var _lodash4 = _interopRequireDefault(_lodash3);
+
 var _glob = require("glob");
 
 var _glob2 = _interopRequireDefault(_glob);
@@ -60,6 +64,7 @@ function renderSource(source, done) {
 	}, done);
 }
 
+// TODO: Clean up function by breaking it up into smaller ones
 function renderFile(fileName, source, done) {
 	var _this2 = this;
 
@@ -131,6 +136,8 @@ function renderFile(fileName, source, done) {
 }
 
 function renderTemplateFile(templateFilePath) {
+	_lodash4.default.interpolate = /<%=([\s\S]+?)%>/g;
+
 	var templateFileContents = _fs2.default.readFileSync(templateFilePath);
 	var template = (0, _lodash2.default)(templateFileContents);
 	var renderedTemplateContents = template(this.answers());
