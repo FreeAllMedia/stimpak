@@ -41,7 +41,11 @@ describe("stimpak.prompt() (intercept)", () => {
 	});
 
 	it("should add a step to display each prompt's questions", () => {
-		stimpak.prompt().steps.length.should.eql(1);
+		stimpak.prompt(...prompts).steps.length.should.eql(1);
+	});
+
+	it("should not add a step if no prompts given", () => {
+		stimpak.prompt().steps.length.should.eql(0);
 	});
 
 	it("should display each prompt's questions when `.generate()` is called", done => {

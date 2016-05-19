@@ -1,0 +1,17 @@
+
+   Usage: stimpak [--flags] [...generatorNames] [--answerName="answerValue"]
+
+   Generate and re-generate code of any language
+   using modular generators from npm!
+
+   To search for available generators, search npm
+   for keyword "stimpak" via CLI or the Npmjs.com
+   website.
+
+   *Note:* Flags must be set before generatorNames or
+   they will be interpreted as answer values.
+
+   Flags:
+     -h, --help           output usage information
+     -v, --version        output the version number
+     

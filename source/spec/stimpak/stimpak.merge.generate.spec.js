@@ -172,4 +172,23 @@ describe("stimpak.merge() (on .generate)", () => {
 				done();
 			});
 	});
+
+	it("should handle multiple merge strategies", done => {
+		stimpak = new Stimpak();
+
+		function mergeFunction(generator, newFile, oldFile, mergeCallback) {
+			mergeCallback(null, oldFile);
+		}
+
+		stimpak
+			.answers(answers)
+			.source("**.*")
+				.directory(templateDirectoryPath)
+			.destination(temporaryDirectoryPath)
+			.merge(existingFilePath, mergeFunction)
+			.merge(existingFilePath, mergeFunction)
+			.generate(() => {
+				done();
+			});
+	});
 });

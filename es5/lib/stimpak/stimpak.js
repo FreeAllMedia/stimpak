@@ -15,10 +15,6 @@ var _staircase = require("staircase");
 
 var _staircase2 = _interopRequireDefault(_staircase);
 
-var _promptly = require("promptly");
-
-var _promptly2 = _interopRequireDefault(_promptly);
-
 var _mrt = require("mrt");
 
 var _mrt2 = _interopRequireDefault(_mrt);
@@ -64,7 +60,6 @@ var Stimpak = function (_ChainLink) {
 		value: function value() {
 			var _ = (0, _incognito2.default)(this);
 			_.action = new _staircase2.default(this);
-			_.promptly = _promptly2.default;
 		}
 	}, {
 		key: initializeInterface,

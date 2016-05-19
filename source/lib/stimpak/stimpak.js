@@ -1,6 +1,5 @@
 import privateData from "incognito";
 import Action from "staircase";
-import promptly from "promptly";
 import ChainLink from "mrt";
 
 import Source from "../source/source.js";
@@ -22,7 +21,6 @@ export default class Stimpak extends ChainLink {
 	[initializePrivateData]() {
 		const _ = privateData(this);
 		_.action = new Action(this);
-		_.promptly = promptly;
 	}
 
 	[initializeInterface]() {

@@ -1,7 +1,0 @@
-{
-	"name": "my_package",
-	"dependencies": {
-		"incognito": "0.1.1",
-		"dovima": "0.1.12"
-	}
-}
