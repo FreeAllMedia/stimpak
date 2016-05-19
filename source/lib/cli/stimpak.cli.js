@@ -2,7 +2,6 @@
 require("babel-polyfill");
 
 import fileSystem from "fs";
-import requireResolve from "require-resolve";
 import packageJson from "../../../package.json";
 import npmPaths from "global-paths";
 

@@ -5,10 +5,6 @@ var _fs = require("fs");
 
 var _fs2 = _interopRequireDefault(_fs);
 
-var _requireResolve = require("require-resolve");
-
-var _requireResolve2 = _interopRequireDefault(_requireResolve);
-
 var _package = require("../../../package.json");
 
 var _package2 = _interopRequireDefault(_package);
