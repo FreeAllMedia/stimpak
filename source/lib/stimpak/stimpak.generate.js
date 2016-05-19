@@ -42,12 +42,13 @@ function renderSource(source, done) {
 	);
 }
 
+// TODO: Clean up function by breaking it up into smaller ones
 function renderFile(fileName, source, done) {
 	const templateFilePath = `${source.directory()}/${fileName}`;
-	const fileContents = renderTemplateFile.call(this, templateFilePath);
+	const templateFileStats = fileSystem.statSync(templateFilePath);
 	const answers = this.answers();
 
-	let filePath = fileName;
+	let filePath = `${fileName}`;
 
 	for (let answerName in answers) {
 		const answerValue = answers[answerName];
@@ -55,47 +56,54 @@ function renderFile(fileName, source, done) {
 		filePath = filePath.replace(answerRegExp, answerValue);
 	}
 
-	const newFile = new File({
-		cwd: this.destination(),
-		base: this.destination(),
-		path: `${this.destination()}/${filePath}`,
-		contents: new Buffer(fileContents)
-	});
+	if (templateFileStats.isDirectory()) {
+		fileSystem.mkdirSync(`${this.destination()}/${filePath}`);
+		done();
+	} else {
+		const fileContents = renderTemplateFile.call(this, templateFilePath);
 
-	if (fileSystem.existsSync(newFile.path)) {
-		const oldFileContents = fileSystem.readFileSync(newFile.path);
+		const newFile = new File({
+			cwd: this.destination(),
+			base: this.destination(),
+			path: `${this.destination()}/${filePath}`,
+			contents: new Buffer(fileContents)
+		});
 
-		const mergeStrategies = this.merge();
+		if (fileSystem.existsSync(newFile.path)) {
+			const oldFileContents = fileSystem.readFileSync(newFile.path);
 
-		if (mergeStrategies.length > 0) {
-			Async.mapSeries(mergeStrategies, (mergeStrategy, mergeDone) => {
-				const mergePattern = new RegExp(mergeStrategy[0]);
+			const mergeStrategies = this.merge();
 
-				if (newFile.path.match(mergePattern)) {
-					const mergeFunction = mergeStrategy[1];
-					const oldFile = new File({
-						cwd: newFile.cwd,
-						base: newFile.base,
-						path: newFile.path,
-						contents: oldFileContents
-					});
+			if (mergeStrategies.length > 0) {
+				Async.mapSeries(mergeStrategies, (mergeStrategy, mergeDone) => {
+					const mergePattern = new RegExp(mergeStrategy[0]);
 
-					mergeFunction(this, newFile, oldFile, (error, mergedFile) => {
-						if (error) {
-							mergeDone(error);
-						} else {
-							writeFile(mergedFile.path, mergedFile.contents, mergeDone);
-						}
-					});
-				} else {
-					writeFile(newFile.path, newFile.contents, mergeDone);
-				}
-			}, done);
+					if (newFile.path.match(mergePattern)) {
+						const mergeFunction = mergeStrategy[1];
+						const oldFile = new File({
+							cwd: newFile.cwd,
+							base: newFile.base,
+							path: newFile.path,
+							contents: oldFileContents
+						});
+
+						mergeFunction(this, newFile, oldFile, (error, mergedFile) => {
+							if (error) {
+								mergeDone(error);
+							} else {
+								writeFile(mergedFile.path, mergedFile.contents, mergeDone);
+							}
+						});
+					} else {
+						writeFile(newFile.path, newFile.contents, mergeDone);
+					}
+				}, done);
+			} else {
+				writeFile(newFile.path, newFile.contents, done);
+			}
 		} else {
 			writeFile(newFile.path, newFile.contents, done);
 		}
-	} else {
-		writeFile(newFile.path, newFile.contents, done);
 	}
 }
 
