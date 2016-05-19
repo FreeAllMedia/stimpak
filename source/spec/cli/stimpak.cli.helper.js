@@ -3,71 +3,63 @@ import path from "path";
 import temp from "temp";
 
 export function setupCliEnvironment() {
-  const temporaryDirectoryPath = temp.mkdirSync("stimpakgenerators");
+	const temporaryDirectoryPath = temp.mkdirSync("stimpakgenerators");
+	const projectRootPath = path.normalize(`${__dirname}/../../../`);
+	const sourceDirectoryPath = `${projectRootPath}/source`;
 
-  const projectRootPath = path.normalize(
-    `${__dirname}/../../../`
-  );
+	const fixtureDirectoryPath =
+		`${sourceDirectoryPath}/spec/cli/fixtures`;
+	const workingGeneratorDirectoryPath =
+		`${fixtureDirectoryPath}/stimpak-generator`;
+	const errorGeneratorDirectoryPath =
+		`${fixtureDirectoryPath}/stimpak-generator-error`;
 
-  const es5DirectoryPath =
-    `${projectRootPath}/es5`;
-  const nodeModulesFixtureDirectoryPath =
-    `${es5DirectoryPath}/spec/cli/fixtures/project/node_modules`;
+	const temporaryNodeModulesDirectoryPath =
+		`${temporaryDirectoryPath}/node_modules`;
+	const userProjectDirectoryPath =
+		`${temporaryDirectoryPath}/userProject`;
+	const userProjectNodeModulesDirectoryPath =
+		`${userProjectDirectoryPath}/node_modules`;
 
-  const generatorOneDirectoryPath =
-    `${nodeModulesFixtureDirectoryPath}/stimpak-test-1`;
-  const generatorTwoDirectoryPath =
-    `${nodeModulesFixtureDirectoryPath}/stimpak-test-2`;
-  const generatorThreeDirectoryPath =
-    `${nodeModulesFixtureDirectoryPath}/stimpak-test-3`;
-  const generatorFourDirectoryPath =
-    `${nodeModulesFixtureDirectoryPath}/stimpak-test-4`;
+	const stimpakCliPath =
+		`${projectRootPath}/es5/lib/cli/stimpak.cli.js`;
 
-  const pseudoGlobalNodeModulesDirectoryPath =
-    `${temporaryDirectoryPath}/node_modules`;
-  const userProjectDirectoryPath =
-    `${temporaryDirectoryPath}/user_project`;
-  const pseudoLocalNodeModulesDirectoryPath =
-    `${userProjectDirectoryPath}/node_modules`;
+	const symLinkPaths = [
+		[ workingGeneratorDirectoryPath,
+			`${temporaryNodeModulesDirectoryPath}/stimpak-test-1` ],
+		[ workingGeneratorDirectoryPath,
+			`${temporaryNodeModulesDirectoryPath}/stimpak-test-2` ],
+		[ errorGeneratorDirectoryPath,
+			`${temporaryNodeModulesDirectoryPath}/stimpak-test-3` ],
+		[ errorGeneratorDirectoryPath,
+			`${userProjectNodeModulesDirectoryPath}/stimpak-test-4` ]
+	];
 
-  const stimpakCliPath =
-    `${pseudoGlobalNodeModulesDirectoryPath}/stimpak/es5/lib/cli/stimpak.cli.js`;
+	fileSystem.mkdirSync(temporaryNodeModulesDirectoryPath);
+	fileSystem.mkdirSync(userProjectDirectoryPath);
+	fileSystem.mkdirSync(userProjectNodeModulesDirectoryPath);
 
-  fileSystem.mkdirSync(pseudoGlobalNodeModulesDirectoryPath);
-  fileSystem.mkdirSync(userProjectDirectoryPath);
-  fileSystem.mkdirSync(pseudoLocalNodeModulesDirectoryPath);
+	symLinkPaths.forEach(paths => {
+		const symLinkFromPath = paths[0];
+		const symLinkToPath = paths[1];
+		symLink(symLinkFromPath, symLinkToPath);
+	});
 
-  const pseudoNpmInstall = (srcDirectoryPath, dstDirectoryPath) => {
-    try {
-      fileSystem.unlinkSync(dstDirectoryPath);
-    } catch (ex) {
-      // nop
-    }
-    fileSystem.symlinkSync(srcDirectoryPath, dstDirectoryPath);
-  };
+	const command = `node ${stimpakCliPath}`;
 
-  const pseudoNpmInstallGlobally = (srcDirectoryPath, moduleName) => {
-    pseudoNpmInstall(srcDirectoryPath, `${pseudoGlobalNodeModulesDirectoryPath}/${moduleName}`);
-  };
+	return {
+		temporaryDirectoryPath,
+		userProjectDirectoryPath,
+		command
+	};
+}
 
-  const pseudoNpmInstallLocally = (srcDirectoryPath, moduleName) => {
-    pseudoNpmInstall(srcDirectoryPath, `${pseudoLocalNodeModulesDirectoryPath}/${moduleName}`);
-  };
+function symLink(sourceDirectoryPath, destinationDirectoryPath) {
+	try {
+		fileSystem.unlinkSync(destinationDirectoryPath);
+	} catch (ex) {
+		// nop
+	}
 
-  // simulate "npm install ..."
-  pseudoNpmInstallGlobally(projectRootPath, 'stimpak');
-  pseudoNpmInstallGlobally(generatorOneDirectoryPath, 'stimpak-test-1');
-  pseudoNpmInstallLocally(generatorTwoDirectoryPath, 'stimpak-test-2');
-  pseudoNpmInstallGlobally(generatorThreeDirectoryPath, 'stimpak-test-3');
-  pseudoNpmInstallGlobally(generatorFourDirectoryPath, 'stimpak-test-4');
-
-  const command = `node ${stimpakCliPath}`;
-
-  return {
-    temporaryDirectoryPath,
-    userProjectDirectoryPath,
-    pseudoNpmInstallGlobally,
-    pseudoNpmInstallLocally,
-    command,
-  };
+	fileSystem.symlinkSync(sourceDirectoryPath, destinationDirectoryPath);
 }

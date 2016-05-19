@@ -2,8 +2,11 @@ import fileSystem from "fs-extra";
 import path from "path";
 import { exec as runCommand } from "child_process";
 import { setupCliEnvironment } from "./stimpak.cli.helper.js";
+import glob from "glob";
 
-describe("(CLI) stimpak generators", () => {
+describe("(CLI) stimpak generators", function () {
+	this.timeout(5000);
+
 	let command,
 			userProjectDirectoryPath;
 
@@ -25,8 +28,8 @@ describe("(CLI) stimpak generators", () => {
 	});
 
 	it("should use the current working directory as the destination", done => {
-		command += " test-1";
-		const expectedFilePath = `${userProjectDirectoryPath}/generated1.js`;
+		command += " test-1 --promptName=Blah";
+		const expectedFilePath = `${userProjectDirectoryPath}/generated.js`;
 
 		runCommand(command, { cwd: userProjectDirectoryPath }, error => {
 			fileSystem.existsSync(expectedFilePath).should.be.true;
@@ -35,7 +38,7 @@ describe("(CLI) stimpak generators", () => {
 	});
 
 	it("should print out the rendered done template on completion", done => {
-		command += " test-1";
+		command += " test-1 --promptName=Blah";
 
 		const doneFileTemplatePath = path.normalize(
 			`${__dirname}/../../lib/cli/templates/done.txt`
@@ -53,12 +56,16 @@ describe("(CLI) stimpak generators", () => {
 	});
 
 	it("should run multiple designated generators", done => {
-		command += " test-1 test-2";
+		command += " test-1 test-2 --promptName=Blah";
 
-		const expectedFilePath = `${userProjectDirectoryPath}/generated2.js`;
+		const expectedFilePaths = [
+			`${userProjectDirectoryPath}/generated.js`,
+			`${userProjectDirectoryPath}/generated2.js`
+		];
 
 		runCommand(command, { cwd: userProjectDirectoryPath }, error => {
-			fileSystem.existsSync(expectedFilePath).should.be.true;
+			const actualFilePaths = glob.sync(`${userProjectDirectoryPath}/*.js`);
+			actualFilePaths.should.have.members(expectedFilePaths);
 			done(error);
 		});
 	});
@@ -70,8 +77,8 @@ describe("(CLI) stimpak generators", () => {
 			try {
 				error.message.should.contain("Generator 3 Error!");
 				done();
-			} catch (ex) {
-				done(ex);
+			} catch (caughtError) {
+				done(caughtError);
 			}
 		});
 	});

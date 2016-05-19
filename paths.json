@@ -1,6 +1,6 @@
 {
 	"source": {
-		"all": "./source/**/*.*",
+		"all": "./source/lib/*.*",
 		"lib": [
 			"./source/lib/**/*.js",
 			"./source/*.js"
@@ -10,7 +10,7 @@
 		"specJson": "./source/spec/**/*.js",
 		"spec": [
 			"./source/spec/**/*.js",
-			"!./source/spec/stimpak/fixtures/**/*.*"
+			"!./source/spec/**/fixtures/**/*.*"
 		]
 	},
 

@@ -15,9 +15,9 @@ var _package2 = _interopRequireDefault(_package);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+require("babel-polyfill");
+
 var Stimpak = require(__dirname + "/../stimpak/stimpak.js").default;
-
-
 var firstArgument = process.argv[2];
 
 switch (firstArgument) {
@@ -30,7 +30,10 @@ switch (firstArgument) {
 	case undefined:
 		_fs2.default.createReadStream(__dirname + "/templates/help.txt").pipe(process.stdout);
 		break;
+
 	default:
+		require("babel-register");
+
 		var stimpak = new Stimpak().destination(process.cwd());
 
 		var lastArguments = process.argv.splice(2);
@@ -68,6 +71,7 @@ switch (firstArgument) {
 				} else {
 					GeneratorConstructor = require(packageName).default;
 				}
+
 				stimpak.use(GeneratorConstructor);
 			} catch (error) {
 				var _errorMessage = "\"" + generatorName + "\" is not installed. Use \"npm install stimpak-" + generatorName + " -g\"\n";

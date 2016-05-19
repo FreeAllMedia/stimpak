@@ -89,7 +89,7 @@ function renderFile(fileName, source, done) {
 			var mergeStrategies = _this2.merge();
 
 			if (mergeStrategies.length > 0) {
-				mergeStrategies.forEach(function (mergeStrategy) {
+				_flowsync2.default.mapSeries(mergeStrategies, function (mergeStrategy, mergeDone) {
 					var mergePattern = new RegExp(mergeStrategy[0]);
 
 					if (newFile.path.match(mergePattern)) {
@@ -103,17 +103,15 @@ function renderFile(fileName, source, done) {
 
 						mergeFunction(_this2, newFile, oldFile, function (error, mergedFile) {
 							if (error) {
-								done(error);
+								mergeDone(error);
 							} else {
-								writeFile(mergedFile.path, mergedFile.contents, done);
+								writeFile(mergedFile.path, mergedFile.contents, mergeDone);
 							}
 						});
-
-						// TODO: Write the merged file!
 					} else {
-							writeFile(newFile.path, newFile.contents, done);
-						}
-				});
+						writeFile(newFile.path, newFile.contents, mergeDone);
+					}
+				}, done);
 			} else {
 				writeFile(newFile.path, newFile.contents, done);
 			}

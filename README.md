@@ -1,5 +1,22 @@
 # Stimpak.js
 
+Easy to use code (re)generation system. Just answer questions to generate or update code with smart merging strategies.
+
+``` shell
+$ mkdir new-project
+$ cd new-project
+$ stimpak generator
+
+? What is the name of your project? (new-project) new-project
+? What style of test assertions do you prefer? (new-project) new-project
+```
+
+Stimpak can be used as either a command line utility, or a library that can be included in your own packages.
+
+## Getting Started
+
+
+
 ``` shell
 npm install stimpak -g
 ```

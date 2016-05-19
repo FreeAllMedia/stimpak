@@ -1,11 +1,12 @@
 #!/usr/bin/env node
+require("babel-polyfill");
+
 import fileSystem from "fs";
-const Stimpak = require(__dirname + "/../stimpak/stimpak.js").default;
 import requireResolve from "require-resolve";
-
-const firstArgument = process.argv[2];
-
 import packageJson from "../../../package.json";
+
+const Stimpak = require(__dirname + "/../stimpak/stimpak.js").default;
+const firstArgument = process.argv[2];
 
 switch (firstArgument) {
 	case "-V":
@@ -19,7 +20,10 @@ switch (firstArgument) {
 			.createReadStream(`${__dirname}/templates/help.txt`)
 			.pipe(process.stdout);
 			break;
+
 	default:
+		require("babel-register");
+
 		const stimpak = new Stimpak()
 			.destination(process.cwd());
 
@@ -58,6 +62,7 @@ switch (firstArgument) {
 				} else {
 					GeneratorConstructor = require(packageName).default;
 				}
+
 				stimpak.use(GeneratorConstructor);
 			} catch (error) {
 				const errorMessage = `"${generatorName}" is not installed. Use "npm install stimpak-${generatorName} -g"\n`;

@@ -1,51 +1,75 @@
+#!/usr/bin/env node
+import fileSystem from "fs";
+const Stimpak = require(__dirname + "/../stimpak/stimpak.js").default;
+import requireResolve from "require-resolve";
 
-npm install stimpak -g
-npm install stimpak-new-project -g
+const firstArgument = process.argv[2];
 
+import packageJson from "../../../package.json";
 
-// Help commands
-$ stimpak
-$ stimpak -h
-$ stimpak --help
+switch (firstArgument) {
+	case "-V":
+	case "--version":
+		process.stdout.write(`${packageJson.version}\n`);
+		break;
 
-// Run single generatorB
-$ stimpak new-project
+	case "-h":
+	case "--help":
+	case undefined:
+		fileSystem
+			.createReadStream(`${__dirname}/templates/help.txt`)
+			.pipe(process.stdout);
+			break;
 
-// Run multiple generators
-$ stimpak new-project something-else
+	default:
+		const stimpak = new Stimpak()
+			.destination(process.cwd());
 
-// Run single generatorB
-$ stimpak /path/to/newProject.js
+		const lastArguments = process.argv.splice(2);
+		const generatorNames = [];
+		const answers = {};
 
-// Run multiple generators
-$ stimpak /path/to/newProject.js /path/to/newProject.js
+		for (let argumentIndex in lastArguments) {
+			const argument = lastArguments[argumentIndex];
+			if (argument.indexOf("--") !== -1) {
+				const matchData = /^--([^=]+)=(.*)$/.exec(argument);
+				if (matchData) {
+					answers [matchData [1]] = matchData [2];
+				} else {
+					const errorMessage = `The provided answer "${argument}" is malformed, please use "--key=value".\n`;
+					process.stderr.write(errorMessage);
+				}
+			} else {
+				generatorNames.push(argument);
+			}
+		}
 
-// Answering questions via CLI
-$ stimpak --help new-project
-	--fileName="something"
-	--useSomething=true
-	--help=true
+		stimpak.answers(answers);
 
+		const moduleSearchDirectoryPath = `${process.cwd()}/node_modules`;
 
-ASK QUESTIONS EHRERERE
+		generatorNames.forEach(generatorName => {
+			const packageName = `stimpak-${generatorName}`;
 
-GENERATE CODE
+			try {
+				const packageInfo = requireResolve(packageName, moduleSearchDirectoryPath);
 
+				let GeneratorConstructor;
+				if (packageInfo && packageInfo.src) {
+					GeneratorConstructor = require(packageInfo.src).default;
+				} else {
+					GeneratorConstructor = require(packageName).default;
+				}
+				stimpak.use(GeneratorConstructor);
+			} catch (error) {
+				const errorMessage = `"${generatorName}" is not installed. Use "npm install stimpak-${generatorName} -g"\n`;
+				process.stderr.write(errorMessage);
+			}
+		});
 
-/////////////////////
-
-
-import Stimpak from "stimpak";
-import AdvancedProjectGenerator from "stimpak-advanced-project";
-
-const generator = new Stimpak().use(AdvancedProjectGenerator);
-
-generator
-	.answers({
-		something: "blah"
-	})
-	.generate(error => {
-		if (error) { throw error; }
-	});
-
-const callFunction = Symbol();
+		stimpak.generate(error => {
+			if (error) { throw error; }
+			const doneFileContents = fileSystem.readFileSync(`${__dirname}/templates/done.txt`, { encoding: "utf-8" });
+			process.stdout.write(doneFileContents);
+		});
+}

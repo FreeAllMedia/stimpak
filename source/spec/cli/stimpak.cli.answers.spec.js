@@ -1,9 +1,11 @@
 import { exec as runCommand } from "child_process";
 import { setupCliEnvironment } from "./stimpak.cli.helper.js";
 
-describe("(CLI) stimpak --answers", () => {
+describe("(CLI) stimpak --answers", function () {
+	this.timeout(5000);
+
 	let command,
-	    userProjectDirectoryPath;
+			userProjectDirectoryPath;
 
 	beforeEach(() => {
 		const options = setupCliEnvironment();
@@ -12,8 +14,8 @@ describe("(CLI) stimpak --answers", () => {
 	});
 
 	it("should use provided answer and skip question prompt", done => {
-		command += " test-4 --promptName=Blah";
-		runCommand(command, { cwd: userProjectDirectoryPath }, (error, stdout, stderr) => {
+		command += " test-1 --promptName=Blah";
+		runCommand(command, { cwd: userProjectDirectoryPath }, (error, stdout) => {
 			try {
 				stdout.should.eql("DONE!\n");
 				done();
