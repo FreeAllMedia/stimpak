@@ -4,6 +4,7 @@ require("babel-polyfill");
 import fileSystem from "fs";
 import requireResolve from "require-resolve";
 import packageJson from "../../../package.json";
+import npmPaths from "global-paths";
 
 const Stimpak = require(__dirname + "/../stimpak/stimpak.js").default;
 const firstArgument = process.argv[2];
@@ -33,10 +34,15 @@ switch (firstArgument) {
 
 		for (let argumentIndex in lastArguments) {
 			const argument = lastArguments[argumentIndex];
-			if (argument.indexOf("--") !== -1) {
-				const matchData = /^--([^=]+)=(.*)$/.exec(argument);
-				if (matchData) {
-					answers [matchData [1]] = matchData [2];
+
+			const hasAnswers = argument.indexOf("--") !== -1;
+
+			if (hasAnswers) {
+				const answerMatchData = /^--([^=]+)=(.*)$/.exec(argument);
+				if (answerMatchData) {
+					const answerName = answerMatchData[1];
+					const answerValue = answerMatchData[2];
+					answers[answerName] = answerValue;
 				} else {
 					const errorMessage = `The provided answer "${argument}" is malformed, please use "--key=value".\n`;
 					process.stderr.write(errorMessage);
@@ -48,23 +54,15 @@ switch (firstArgument) {
 
 		stimpak.answers(answers);
 
-		const moduleSearchDirectoryPath = `${process.cwd()}/node_modules`;
-
 		generatorNames.forEach(generatorName => {
 			const packageName = `stimpak-${generatorName}`;
 
-			try {
-				const packageInfo = requireResolve(packageName, moduleSearchDirectoryPath);
+			const packagePath = resolvePackagePath(packageName);
 
-				let GeneratorConstructor;
-				if (packageInfo && packageInfo.src) {
-					GeneratorConstructor = require(packageInfo.src).default;
-				} else {
-					GeneratorConstructor = require(packageName).default;
-				}
-
+			if (packagePath) {
+				const GeneratorConstructor = require(packagePath).default;
 				stimpak.use(GeneratorConstructor);
-			} catch (error) {
+			} else {
 				const errorMessage = `"${generatorName}" is not installed. Use "npm install stimpak-${generatorName} -g"\n`;
 				process.stderr.write(errorMessage);
 			}
@@ -75,4 +73,17 @@ switch (firstArgument) {
 			const doneFileContents = fileSystem.readFileSync(`${__dirname}/templates/done.txt`, { encoding: "utf-8" });
 			process.stdout.write(doneFileContents);
 		});
+}
+
+function resolvePackagePath(packageName) {
+	let found = false;
+	npmPaths().forEach(npmPath => {
+		const generatorFilePath = `${npmPath}/${packageName}`;
+
+		if (fileSystem.existsSync(generatorFilePath)) {
+			found = generatorFilePath;
+		}
+	});
+
+	return found;
 }
