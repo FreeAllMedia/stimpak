@@ -41,7 +41,7 @@
     "intercept-stdout": "^0.1.2",
     "json-stable-stringify": "^1.0.1",
     "mocha": "^2.2.5",
-    "nexpect": "^0.5.0",
+    "rimraf": "^2.5.2",
     "run-sequence": "^1.1.5",
     "sinon": "^1.17.2",
     "stream-buffers": "^3.0.0",
@@ -60,7 +60,9 @@
     "lodash.template": "^4.2.4",
     "lodash.templatesettings": "^4.0.1",
     "mrt": "^0.1.5",
+    "mv": "^2.1.1",
     "staircase": "^0.1.0",
+    "sync": "^0.2.5",
     "temp": "^0.8.3",
     "vinyl": "^1.1.1"
   }

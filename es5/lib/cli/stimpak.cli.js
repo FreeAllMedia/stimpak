@@ -13,6 +13,10 @@ var _globalPaths = require("global-paths");
 
 var _globalPaths2 = _interopRequireDefault(_globalPaths);
 
+var _temp = require("temp");
+
+var _temp2 = _interopRequireDefault(_temp);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 require("babel-polyfill");
@@ -34,11 +38,15 @@ switch (firstArgument) {
 	default:
 		require("babel-register");
 
+		var temporaryDirectoryPath = _temp2.default.mkdirSync("no-globals-allowed-workaround");
+
 		var stimpak = new Stimpak().destination(process.cwd());
 
 		var lastArguments = process.argv.splice(2);
 		var generatorNames = [];
 		var answers = {};
+
+		var generatorPaths = {};
 
 		for (var argumentIndex in lastArguments) {
 			var argument = lastArguments[argumentIndex];
@@ -60,29 +68,82 @@ switch (firstArgument) {
 			}
 		}
 
-		stimpak.answers(answers);
-
 		generatorNames.forEach(function (generatorName) {
 			var packageName = "stimpak-" + generatorName;
-
 			var packagePath = resolvePackagePath(packageName);
-
-			if (packagePath) {
-				var GeneratorConstructor = require(packagePath).default;
-				stimpak.use(GeneratorConstructor);
-			} else {
-				var _errorMessage = "\"" + generatorName + "\" is not installed. Use \"npm install stimpak-" + generatorName + " -g\"\n";
-				process.stderr.write(_errorMessage);
-			}
+			generatorPaths[packageName] = {
+				generatorName: generatorName,
+				path: packagePath
+			};
 		});
 
-		stimpak.generate(function (error) {
-			if (error) {
-				throw error;
-			}
-			var doneFileContents = _fs2.default.readFileSync(__dirname + "/templates/done.txt", { encoding: "utf-8" });
-			process.stdout.write(doneFileContents);
+		stimpak.answers(answers);
+
+		process.on("exit", function () {
+			replaceGenerators(generatorPaths);
 		});
+
+		try {
+			for (var packageName in generatorPaths) {
+				var packagePaths = generatorPaths[packageName];
+				var packagePath = packagePaths.path;
+
+				if (packagePath) {
+					var temporaryModuleDirectoryPath = temporaryDirectoryPath + "/" + packageName;
+					var wasCopied = moveDirectory(packagePath, temporaryModuleDirectoryPath);
+
+					var requirePath = void 0;
+
+					if (wasCopied) {
+						packagePaths.copiedDirectoryPath = temporaryModuleDirectoryPath;
+						requirePath = temporaryModuleDirectoryPath;
+					} else {
+						requirePath = packagePath;
+					}
+
+					var GeneratorConstructor = require(requirePath).default;
+					stimpak.use(GeneratorConstructor);
+				} else {
+					var _errorMessage = "\"" + packagePaths.generatorName + "\" is not installed. Use \"npm install " + packageName + " -g\"\n";
+					process.stderr.write(_errorMessage);
+				}
+			}
+
+			stimpak.generate(function (error) {
+				replaceGenerators(generatorPaths, error);
+
+				var doneFileContents = _fs2.default.readFileSync(__dirname + "/templates/done.txt", { encoding: "utf-8" });
+				process.stdout.write(doneFileContents);
+			});
+		} catch (error) {
+			replaceGenerators(generatorPaths, error);
+		}
+}
+
+function moveDirectory(fromPath, toPath) {
+	var fromPathStats = _fs2.default.lstatSync(fromPath);
+	if (fromPathStats.isSymbolicLink()) {
+		return false;
+	} else {
+		_fs2.default.renameSync(fromPath, toPath);
+		return true;
+	}
+}
+
+function replaceGenerators(generatorPaths, error) {
+	for (var _packageName in generatorPaths) {
+		var _packagePaths = generatorPaths[_packageName];
+		var _packagePath = _packagePaths.path;
+		var copiedDirectoryPath = _packagePaths.copiedDirectoryPath;
+
+		if (copiedDirectoryPath) {
+			moveDirectory(copiedDirectoryPath, _packagePath);
+		}
+	}
+
+	if (error) {
+		throw error;
+	}
 }
 
 function resolvePackagePath(packageName) {
