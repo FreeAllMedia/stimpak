@@ -7,3 +7,4 @@
 	* Must provide an elegant solution. Don't want to trade an ugly solution for another ugly solution.
 	* All specs must pass
 	* Make it as readable as possible!
+	* Minimize dependency additions!
