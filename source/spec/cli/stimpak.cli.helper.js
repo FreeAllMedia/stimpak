@@ -1,6 +1,10 @@
 import fileSystem from "fs-extra";
 import path from "path";
 import temp from "temp";
+import rimraf from "rimraf";
+import {
+		execSync as runCommandSync
+} from "child_process";
 
 export function setupCliEnvironment() {
 	const temporaryDirectoryPath = temp.mkdirSync("stimpakgenerators");
@@ -16,13 +20,14 @@ export function setupCliEnvironment() {
 
 	const temporaryNodeModulesDirectoryPath =
 		`${temporaryDirectoryPath}/node_modules`;
-	const userProjectDirectoryPath =
-		`${temporaryDirectoryPath}/userProject`;
-	const userProjectNodeModulesDirectoryPath =
-		`${userProjectDirectoryPath}/node_modules`;
 
 	const stimpakCliPath =
 		`${projectRootPath}/es5/lib/cli/stimpak.cli.js`;
+
+	const globalNodeModulesDirectoryPath =
+		runCommandSync("npm config get prefix")
+			.toString()
+			.replace(/[\n\r]/, "/lib/node_modules");
 
 	const symLinkPaths = [
 		[ workingGeneratorDirectoryPath,
@@ -32,12 +37,18 @@ export function setupCliEnvironment() {
 		[ errorGeneratorDirectoryPath,
 			`${temporaryNodeModulesDirectoryPath}/stimpak-test-3` ],
 		[ errorGeneratorDirectoryPath,
-			`${userProjectNodeModulesDirectoryPath}/stimpak-test-4` ]
+			`${temporaryNodeModulesDirectoryPath}/stimpak-test-4` ]
 	];
 
+	const globalGeneratorDirectoryPath = `${globalNodeModulesDirectoryPath}/stimpak-00000`;
+	rimraf.sync(globalGeneratorDirectoryPath);
+
+	fileSystem.copySync(
+		workingGeneratorDirectoryPath,
+		globalGeneratorDirectoryPath
+	);
+
 	fileSystem.mkdirSync(temporaryNodeModulesDirectoryPath);
-	fileSystem.mkdirSync(userProjectDirectoryPath);
-	fileSystem.mkdirSync(userProjectNodeModulesDirectoryPath);
 
 	symLinkPaths.forEach(paths => {
 		const symLinkFromPath = paths[0];
@@ -49,7 +60,7 @@ export function setupCliEnvironment() {
 
 	return {
 		temporaryDirectoryPath,
-		userProjectDirectoryPath,
+		globalNodeModulesDirectoryPath,
 		command
 	};
 }
