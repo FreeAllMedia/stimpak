@@ -71,44 +71,39 @@ switch (firstArgument) {
 			replaceGenerators(generatorPaths);
 		});
 
-		try {
-			for (let packageName in generatorPaths) {
-				const packagePaths = generatorPaths[packageName];
-				const packagePath = packagePaths.path;
+		for (let packageName in generatorPaths) {
+			const packagePaths = generatorPaths[packageName];
+			const packagePath = packagePaths.path;
 
-				if (packagePath) {
-					const temporaryModuleDirectoryPath = `${temporaryDirectoryPath}/${packageName}`;
-					const wasCopied = moveDirectory(
-						packagePath,
-						temporaryModuleDirectoryPath
-					);
+			if (packagePath) {
+				const temporaryModuleDirectoryPath = `${temporaryDirectoryPath}/${packageName}`;
+				const wasCopied = moveDirectory(
+					packagePath,
+					temporaryModuleDirectoryPath
+				);
 
-					let requirePath;
+				let requirePath;
 
-					if (wasCopied) {
-						packagePaths.copiedDirectoryPath = temporaryModuleDirectoryPath;
-						requirePath = temporaryModuleDirectoryPath;
-					} else {
-						requirePath = packagePath;
-					}
-
-					const GeneratorConstructor = require(requirePath).default;
-					stimpak.use(GeneratorConstructor);
+				if (wasCopied) {
+					packagePaths.copiedDirectoryPath = temporaryModuleDirectoryPath;
+					requirePath = temporaryModuleDirectoryPath;
 				} else {
-					const errorMessage = `"${packagePaths.generatorName}" is not installed. Use "npm install ${packageName} -g"\n`;
-					process.stderr.write(errorMessage);
+					requirePath = packagePath;
 				}
+
+				const GeneratorConstructor = require(requirePath).default;
+				stimpak.use(GeneratorConstructor);
+			} else {
+				const errorMessage = `"${packagePaths.generatorName}" is not installed. Use "npm install ${packageName} -g"\n`;
+				process.stderr.write(errorMessage);
 			}
-
-			stimpak.generate(error => {
-				replaceGenerators(generatorPaths, error);
-
-				const doneFileContents = fileSystem.readFileSync(`${__dirname}/templates/done.txt`, { encoding: "utf-8" });
-				process.stdout.write(doneFileContents);
-			});
-		} catch (error) {
-			replaceGenerators(generatorPaths, error);
 		}
+
+		stimpak.generate(error => {
+			if (error) { throw error; }
+			const doneFileContents = fileSystem.readFileSync(`${__dirname}/templates/done.txt`, { encoding: "utf-8" });
+			process.stdout.write(doneFileContents);
+		});
 }
 
 function moveDirectory(fromPath, toPath) {
@@ -124,7 +119,7 @@ function moveDirectory(fromPath, toPath) {
 	}
 }
 
-function replaceGenerators(generatorPaths, error) {
+function replaceGenerators(generatorPaths) {
 	for (let packageName in generatorPaths) {
 		const packagePaths = generatorPaths[packageName];
 		const packagePath = packagePaths.path;
@@ -137,8 +132,6 @@ function replaceGenerators(generatorPaths, error) {
 			);
 		}
 	}
-
-	if (error) { throw error; }
 }
 
 function resolvePackagePath(packageName) {
