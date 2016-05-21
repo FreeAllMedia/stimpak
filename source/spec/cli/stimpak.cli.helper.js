@@ -18,9 +18,6 @@ export function setupCliEnvironment() {
 	const errorGeneratorDirectoryPath =
 		`${fixtureDirectoryPath}/stimpak-generator-error`;
 
-	const temporaryNodeModulesDirectoryPath =
-		`${temporaryDirectoryPath}/node_modules`;
-
 	const stimpakCliPath =
 		`${projectRootPath}/es5/lib/cli/stimpak.cli.js`;
 
@@ -31,13 +28,13 @@ export function setupCliEnvironment() {
 
 	const symLinkPaths = [
 		[ workingGeneratorDirectoryPath,
-			`${temporaryNodeModulesDirectoryPath}/stimpak-test-1` ],
+			`${globalNodeModulesDirectoryPath}/stimpak-test-1` ],
 		[ workingGeneratorDirectoryPath,
-			`${temporaryNodeModulesDirectoryPath}/stimpak-test-2` ],
+			`${globalNodeModulesDirectoryPath}/stimpak-test-2` ],
 		[ errorGeneratorDirectoryPath,
-			`${temporaryNodeModulesDirectoryPath}/stimpak-test-3` ],
+			`${globalNodeModulesDirectoryPath}/stimpak-test-3` ],
 		[ errorGeneratorDirectoryPath,
-			`${temporaryNodeModulesDirectoryPath}/stimpak-test-4` ]
+			`${globalNodeModulesDirectoryPath}/stimpak-test-4` ]
 	];
 
 	const globalGeneratorDirectoryPath = `${globalNodeModulesDirectoryPath}/stimpak-00000`;
@@ -47,8 +44,6 @@ export function setupCliEnvironment() {
 		workingGeneratorDirectoryPath,
 		globalGeneratorDirectoryPath
 	);
-
-	fileSystem.mkdirSync(temporaryNodeModulesDirectoryPath);
 
 	symLinkPaths.forEach(paths => {
 		const symLinkFromPath = paths[0];

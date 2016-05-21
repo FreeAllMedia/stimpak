@@ -3,8 +3,7 @@ require("babel-polyfill");
 
 import fileSystem from "fs";
 import packageJson from "../../../package.json";
-import npmPaths from "global-paths";
-import temp from "temp";
+import requireg from "requireg";
 
 const Stimpak = require(__dirname + "/../stimpak/stimpak.js").default;
 const firstArgument = process.argv[2];
@@ -25,16 +24,12 @@ switch (firstArgument) {
 	default:
 		require("babel-register");
 
-		const temporaryDirectoryPath = temp.mkdirSync("no-globals-allowed-workaround");
-
 		const stimpak = new Stimpak()
 			.destination(process.cwd());
 
 		const lastArguments = process.argv.splice(2);
 		const generatorNames = [];
 		const answers = {};
-
-		const generatorPaths = {};
 
 		for (let argumentIndex in lastArguments) {
 			const argument = lastArguments[argumentIndex];
@@ -56,45 +51,16 @@ switch (firstArgument) {
 			}
 		}
 
-		generatorNames.forEach(generatorName => {
-			const packageName = `stimpak-${generatorName}`;
-			const packagePath = resolvePackagePath(packageName);
-			generatorPaths[packageName] = {
-				generatorName: generatorName,
-				path: packagePath
-			};
-		});
-
 		stimpak.answers(answers);
 
-		process.on("exit", () => {
-			replaceGenerators(generatorPaths);
-		});
-
-		for (let packageName in generatorPaths) {
-			const packagePaths = generatorPaths[packageName];
-			const packagePath = packagePaths.path;
-
-			if (packagePath) {
-				const temporaryModuleDirectoryPath = `${temporaryDirectoryPath}/${packageName}`;
-				const wasCopied = moveDirectory(
-					packagePath,
-					temporaryModuleDirectoryPath
-				);
-
-				let requirePath;
-
-				if (wasCopied) {
-					packagePaths.copiedDirectoryPath = temporaryModuleDirectoryPath;
-					requirePath = temporaryModuleDirectoryPath;
-				} else {
-					requirePath = packagePath;
-				}
-
-				const GeneratorConstructor = require(requirePath).default;
+		for (let generator in generatorNames) {
+			const generatorName = generatorNames[generator];
+			const packageName   = `stimpak-${generatorName}`;
+			try {
+				const GeneratorConstructor = requireg(packageName).default;
 				stimpak.use(GeneratorConstructor);
-			} else {
-				const errorMessage = `"${packagePaths.generatorName}" is not installed. Use "npm install ${packageName} -g"\n`;
+			} catch (error) {
+				const errorMessage = `"${generatorName}" is not installed. Use "npm install ${packageName} -g"\n`;
 				process.stderr.write(errorMessage);
 			}
 		}
@@ -104,45 +70,4 @@ switch (firstArgument) {
 			const doneFileContents = fileSystem.readFileSync(`${__dirname}/templates/done.txt`, { encoding: "utf-8" });
 			process.stdout.write(doneFileContents);
 		});
-}
-
-function moveDirectory(fromPath, toPath) {
-	const fromPathStats = fileSystem.lstatSync(fromPath);
-	if (fromPathStats.isSymbolicLink()) {
-		return false;
-	} else {
-		fileSystem.renameSync(
-			fromPath,
-			toPath
-		);
-		return true;
-	}
-}
-
-function replaceGenerators(generatorPaths) {
-	for (let packageName in generatorPaths) {
-		const packagePaths = generatorPaths[packageName];
-		const packagePath = packagePaths.path;
-		const copiedDirectoryPath = packagePaths.copiedDirectoryPath;
-
-		if (copiedDirectoryPath) {
-			moveDirectory(
-				copiedDirectoryPath,
-				packagePath
-			);
-		}
-	}
-}
-
-function resolvePackagePath(packageName) {
-	let found = false;
-	npmPaths().forEach(npmPath => {
-		const generatorFilePath = `${npmPath}/${packageName}`;
-
-		if (fileSystem.existsSync(generatorFilePath)) {
-			found = generatorFilePath;
-		}
-	});
-
-	return found;
 }

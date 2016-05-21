@@ -9,13 +9,9 @@ var _package = require("../../../package.json");
 
 var _package2 = _interopRequireDefault(_package);
 
-var _globalPaths = require("global-paths");
+var _requireg = require("requireg");
 
-var _globalPaths2 = _interopRequireDefault(_globalPaths);
-
-var _temp = require("temp");
-
-var _temp2 = _interopRequireDefault(_temp);
+var _requireg2 = _interopRequireDefault(_requireg);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -38,15 +34,11 @@ switch (firstArgument) {
 	default:
 		require("babel-register");
 
-		var temporaryDirectoryPath = _temp2.default.mkdirSync("no-globals-allowed-workaround");
-
 		var stimpak = new Stimpak().destination(process.cwd());
 
 		var lastArguments = process.argv.splice(2);
 		var generatorNames = [];
 		var answers = {};
-
-		var generatorPaths = {};
 
 		for (var argumentIndex in lastArguments) {
 			var argument = lastArguments[argumentIndex];
@@ -68,42 +60,16 @@ switch (firstArgument) {
 			}
 		}
 
-		generatorNames.forEach(function (generatorName) {
-			var packageName = "stimpak-" + generatorName;
-			var packagePath = resolvePackagePath(packageName);
-			generatorPaths[packageName] = {
-				generatorName: generatorName,
-				path: packagePath
-			};
-		});
-
 		stimpak.answers(answers);
 
-		process.on("exit", function () {
-			replaceGenerators(generatorPaths);
-		});
-
-		for (var packageName in generatorPaths) {
-			var packagePaths = generatorPaths[packageName];
-			var packagePath = packagePaths.path;
-
-			if (packagePath) {
-				var temporaryModuleDirectoryPath = temporaryDirectoryPath + "/" + packageName;
-				var wasCopied = moveDirectory(packagePath, temporaryModuleDirectoryPath);
-
-				var requirePath = void 0;
-
-				if (wasCopied) {
-					packagePaths.copiedDirectoryPath = temporaryModuleDirectoryPath;
-					requirePath = temporaryModuleDirectoryPath;
-				} else {
-					requirePath = packagePath;
-				}
-
-				var GeneratorConstructor = require(requirePath).default;
+		for (var generator in generatorNames) {
+			var generatorName = generatorNames[generator];
+			var packageName = "stimpak-" + generatorName;
+			try {
+				var GeneratorConstructor = (0, _requireg2.default)(packageName).default;
 				stimpak.use(GeneratorConstructor);
-			} else {
-				var _errorMessage = "\"" + packagePaths.generatorName + "\" is not installed. Use \"npm install " + packageName + " -g\"\n";
+			} catch (error) {
+				var _errorMessage = "\"" + generatorName + "\" is not installed. Use \"npm install " + packageName + " -g\"\n";
 				process.stderr.write(_errorMessage);
 			}
 		}
@@ -115,39 +81,4 @@ switch (firstArgument) {
 			var doneFileContents = _fs2.default.readFileSync(__dirname + "/templates/done.txt", { encoding: "utf-8" });
 			process.stdout.write(doneFileContents);
 		});
-}
-
-function moveDirectory(fromPath, toPath) {
-	var fromPathStats = _fs2.default.lstatSync(fromPath);
-	if (fromPathStats.isSymbolicLink()) {
-		return false;
-	} else {
-		_fs2.default.renameSync(fromPath, toPath);
-		return true;
-	}
-}
-
-function replaceGenerators(generatorPaths) {
-	for (var _packageName in generatorPaths) {
-		var _packagePaths = generatorPaths[_packageName];
-		var _packagePath = _packagePaths.path;
-		var copiedDirectoryPath = _packagePaths.copiedDirectoryPath;
-
-		if (copiedDirectoryPath) {
-			moveDirectory(copiedDirectoryPath, _packagePath);
-		}
-	}
-}
-
-function resolvePackagePath(packageName) {
-	var found = false;
-	(0, _globalPaths2.default)().forEach(function (npmPath) {
-		var generatorFilePath = npmPath + "/" + packageName;
-
-		if (_fs2.default.existsSync(generatorFilePath)) {
-			found = generatorFilePath;
-		}
-	});
-
-	return found;
 }
