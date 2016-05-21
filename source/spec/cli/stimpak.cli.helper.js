@@ -3,10 +3,23 @@ import path from "path";
 import temp from "temp";
 import rimraf from "rimraf";
 import {
-		execSync as runCommandSync
+		exec as runCommand
 } from "child_process";
 
-export function setupCliEnvironment() {
+export function setupCliEnvironment(callback) {
+	runCommand("npm config get prefix", (error, stdout) => {
+		const globalNodeModulesDirectoryPath =
+			stdout
+				.toString()
+				.replace(/[\n\r]/, "/lib/node_modules");
+
+		const environmentOptions = setupEnvironment(globalNodeModulesDirectoryPath);
+
+		callback(null, environmentOptions);
+	});
+}
+
+function setupEnvironment(globalNodeModulesDirectoryPath) {
 	const temporaryDirectoryPath = temp.mkdirSync("stimpakgenerators");
 	const projectRootPath = path.normalize(`${__dirname}/../../../`);
 	const sourceDirectoryPath = `${projectRootPath}/source`;
@@ -23,11 +36,6 @@ export function setupCliEnvironment() {
 
 	const stimpakCliPath =
 		`${projectRootPath}/es5/lib/cli/stimpak.cli.js`;
-
-	const globalNodeModulesDirectoryPath =
-		runCommandSync("npm config get prefix")
-			.toString()
-			.replace(/[\n\r]/, "/lib/node_modules");
 
 	const symLinkPaths = [
 		[ workingGeneratorDirectoryPath,

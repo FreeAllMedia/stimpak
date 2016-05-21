@@ -5,17 +5,24 @@ describe("(CLI) stimpak --answers", function () {
 	this.timeout(10000);
 
 	let command,
-			userProjectDirectoryPath;
+			temporaryDirectoryPath,
+			environmentOptions;
+
+	before(done => {
+		setupCliEnvironment((error, options) => {
+			environmentOptions = options;
+			done();
+		});
+	});
 
 	beforeEach(() => {
-		const options = setupCliEnvironment();
-		command = options.command;
-		userProjectDirectoryPath = options.userProjectDirectoryPath;
+		command = String(environmentOptions.command);
+		temporaryDirectoryPath = String(environmentOptions.temporaryDirectoryPath);
 	});
 
 	it("should use provided answer and skip question prompt", done => {
 		command += " test-1 --promptName=Blah";
-		runCommand(command, { cwd: userProjectDirectoryPath }, (error, stdout) => {
+		runCommand(command, { cwd: temporaryDirectoryPath }, (error, stdout) => {
 			try {
 				stdout.should.eql("DONE!\n");
 				done();
@@ -27,7 +34,7 @@ describe("(CLI) stimpak --answers", function () {
 
 	it("should use report malformed answers", done => {
 		command += " test-4 --promptName=Blah --malformed1:Blah --malformed2";
-		runCommand(command, { cwd: userProjectDirectoryPath }, (error, stdout, stderr) => {
+		runCommand(command, { cwd: temporaryDirectoryPath }, (error, stdout, stderr) => {
 			try {
 				stderr.should.match(/The provided answer "--malformed1:Blah" is malformed.*\nThe provided answer "--malformed2" is malformed/);
 				done();
