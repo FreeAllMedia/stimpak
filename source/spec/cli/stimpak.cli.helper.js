@@ -26,15 +26,20 @@ export function setupCliEnvironment() {
 			.toString()
 			.replace(/[\n\r]/, "/lib/node_modules");
 
+	const temporaryNodeModulesDirectoryPath =
+		`${temporaryDirectoryPath}/node_modules`;
+
+	fileSystem.mkdirSync(temporaryNodeModulesDirectoryPath);
+
 	const symLinkPaths = [
 		[ workingGeneratorDirectoryPath,
-			`${globalNodeModulesDirectoryPath}/stimpak-test-1` ],
+			`${temporaryNodeModulesDirectoryPath}/stimpak-test-1` ],
 		[ workingGeneratorDirectoryPath,
-			`${globalNodeModulesDirectoryPath}/stimpak-test-2` ],
+			`${temporaryNodeModulesDirectoryPath}/stimpak-test-2` ],
 		[ errorGeneratorDirectoryPath,
-			`${globalNodeModulesDirectoryPath}/stimpak-test-3` ],
+			`${temporaryNodeModulesDirectoryPath}/stimpak-test-3` ],
 		[ errorGeneratorDirectoryPath,
-			`${globalNodeModulesDirectoryPath}/stimpak-test-4` ]
+			`${temporaryNodeModulesDirectoryPath}/stimpak-test-4` ]
 	];
 
 	const globalGeneratorDirectoryPath = `${globalNodeModulesDirectoryPath}/stimpak-00000`;
