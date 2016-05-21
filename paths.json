@@ -1,16 +1,28 @@
 {
 	"source": {
-		"all": "./source/lib/*.*",
-		"lib": [
+		"all": [
 			"./source/lib/**/*.js",
+			"./source/lib/*.js"
+		],
+		"allSpec": "./source/spec/**/*.spec.js",
+		"library": [
+			"./source/lib/**/*.js",
+			"!./source/lib/cli/*",
 			"./source/*.js"
 		],
+		"cli": [
+			"./source/lib/**/*.js",
+			"!./source/lib/stimpak/*",
+			"!./source/lib/source/*",
+			"!./source/lib/index.js"
+		],
 		"generators": "./source/spec/cli/fixtures/**/*.*",
-		"txt": "./source/lib/**/*.txt",
-		"specJson": "./source/spec/**/*.js",
-		"spec": [
-			"./source/spec/**/*.js",
-			"!./source/spec/**/fixtures/**/*.*"
+		"librarySpec": [
+			"./source/spec/**/*.spec.js",
+			"!./source/spec/cli/**/*"
+		],
+		"cliSpec": [
+			"./source/spec/cli/*.spec.js"
 		]
 	},
 
@@ -20,7 +32,6 @@
 			"lib": "./es5/lib",
 			"spec": "./es5/spec"
 		},
-		"lib": "./es5/lib/**/*.js",
 		"generators": "./es5/spec/cli/fixtures/**/*.*",
 		"spec": "./es5/spec/**/*.spec.js",
 		"sourceSpec": [

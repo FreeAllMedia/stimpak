@@ -12,8 +12,9 @@ describe("stimpak.generate() (template rendering)", () => {
 			templateDirectoryPath,
 			sourceGlob,
 			templateFilePaths,
-			renderedFilePaths,
-			generatedFilePaths;
+			expectedGeneratedFilePaths,
+			actualGeneratedFilePaths,
+			answers;
 
 	beforeEach(done => {
 		stimpak = new Stimpak();
@@ -21,31 +22,33 @@ describe("stimpak.generate() (template rendering)", () => {
 		temporaryDirectoryPath = temp.mkdirSync("stimpak.generate");
 		templateDirectoryPath = path.normalize(`${__dirname}/fixtures/templates`);
 
-		templateFilePaths = glob.sync("**/*", { cwd: templateDirectoryPath });
-		renderedFilePaths = templateFilePaths.map(templateFilePath => {
+		templateFilePaths = glob.sync("**/*", { cwd: templateDirectoryPath, dot: true });
+		expectedGeneratedFilePaths = templateFilePaths.map(templateFilePath => {
 			return templateFilePath
 				.replace("##dynamicFileName##", "shapes")
 				.replace("##dynamicFolderName##", "letters");
 		});
 
+		answers = {
+			dynamicFileName: "shapes",
+			dynamicFolderName: "letters",
+			className: "Foo",
+			primaryFunctionName: "index"
+		};
+
 		stimpak
-			.answers({
-				dynamicFileName: "shapes",
-				dynamicFolderName: "letters",
-				className: "Foo",
-				primaryFunctionName: "index"
-			})
+			.answers(answers)
 			.source(sourceGlob)
 				.directory(templateDirectoryPath)
 			.destination(temporaryDirectoryPath)
 			.generate(() => {
-				generatedFilePaths = glob.sync("**/*", { cwd: temporaryDirectoryPath });
+				actualGeneratedFilePaths = glob.sync("**/*", { cwd: temporaryDirectoryPath, dot: true });
 				done();
 			});
 	});
 
 	it("should render templates to a destination directory", () => {
-		generatedFilePaths.should.have.members(renderedFilePaths);
+		actualGeneratedFilePaths.should.have.members(expectedGeneratedFilePaths);
 	});
 
 	it("should render templates with .answers as template values", () => {
@@ -65,5 +68,10 @@ describe("stimpak.generate() (template rendering)", () => {
 				error.message.should.eql("You must set .destination() before you can .generate()");
 				done();
 			});
+	});
+
+	it("should generate .dotfiles", () => {
+		console.log("actualGeneratedFilePaths", actualGeneratedFilePaths);
+		actualGeneratedFilePaths.should.contain(`.${answers.dynamicFileName}`);
 	});
 });

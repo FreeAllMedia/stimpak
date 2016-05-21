@@ -31,7 +31,8 @@ function renderFiles(stimpak, done) {
 
 function renderSource(source, done) {
 	const templateFileNames = glob.sync(source.glob(), {
-		cwd: source.directory()
+		cwd: source.directory(),
+		dot: true
 	});
 
 	Async.mapSeries(

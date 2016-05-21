@@ -56,7 +56,8 @@ function renderSource(source, done) {
 	var _this = this;
 
 	var templateFileNames = _glob2.default.sync(source.glob(), {
-		cwd: source.directory()
+		cwd: source.directory(),
+		dot: true
 	});
 
 	_flowsync2.default.mapSeries(templateFileNames, function (fileName, fileNameDone) {
