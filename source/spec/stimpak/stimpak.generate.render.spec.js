@@ -4,7 +4,7 @@ import temp from "temp";
 import path from "path";
 import glob from "glob";
 import newTemplate from "lodash.template";
-import fileSystem from "fs";
+import fileSystem from "fs-extra";
 
 describe("stimpak.generate() (template rendering)", () => {
 	let stimpak,
@@ -20,6 +20,10 @@ describe("stimpak.generate() (template rendering)", () => {
 		stimpak = new Stimpak();
 
 		temporaryDirectoryPath = temp.mkdirSync("stimpak.generate");
+
+		const existingProjectPath = path.normalize(`${__dirname}/fixtures/existingProject/`);
+		fileSystem.copySync(existingProjectPath, temporaryDirectoryPath);
+
 		templateDirectoryPath = path.normalize(`${__dirname}/fixtures/templates`);
 
 		templateFilePaths = glob.sync("**/*", { cwd: templateDirectoryPath, dot: true });
@@ -71,7 +75,6 @@ describe("stimpak.generate() (template rendering)", () => {
 	});
 
 	it("should generate .dotfiles", () => {
-		console.log("actualGeneratedFilePaths", actualGeneratedFilePaths);
 		actualGeneratedFilePaths.should.contain(`.${answers.dynamicFileName}`);
 	});
 });
