@@ -9,19 +9,22 @@ import { setupCliEnvironment } from "./stimpak.cli.helper.js";
 import glob from "glob";
 
 describe("(CLI) stimpak generators", function () {
-	this.timeout(10000);
+	this.timeout(20000);
 
 	let command,
 			temporaryDirectoryPath,
-			options;
+			environmentOptions;
 
-	before(() => {
-		options = setupCliEnvironment();
-		temporaryDirectoryPath = options.temporaryDirectoryPath;
+	before(done => {
+		setupCliEnvironment((error, options) => {
+			environmentOptions = options;
+			done();
+		});
 	});
 
 	beforeEach(() => {
-		command = String(options.command);
+		temporaryDirectoryPath = environmentOptions.temporaryDirectoryPath;
+		command = String(environmentOptions.command);
 	});
 
 	it("should throw an error if any of the generators aren't installed", done => {
