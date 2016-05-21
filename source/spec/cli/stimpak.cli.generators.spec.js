@@ -91,11 +91,20 @@ describe("(CLI) stimpak generators", function () {
 		});
 	});
 
-	it("should be able to require global generators", function (done) {
+	it("should be able to transpile global generators", function (done) {
 		command += " 00000 --promptName=Blah";
 
 		runCommand(command, { cwd: temporaryDirectoryPath }, (error, stdout, stderr) => {
 			stderr.should.not.contain("SyntaxError: Unexpected reserved word");
+			done();
+		});
+	});
+
+	it("should be able to transpile global generators", function (done) {
+		command += " 00000 --promptName=Blah";
+
+		runCommand(command, { cwd: temporaryDirectoryPath }, (error, stdout, stderr) => {
+			stderr.should.not.contain("\"00000\" is not installed.");
 			done();
 		});
 	});
