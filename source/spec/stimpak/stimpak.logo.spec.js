@@ -42,4 +42,29 @@ describe("stimpak.logo()", () => {
 
 		actualStdout.should.eql(expectedStdout);
 	});
+
+	it("should display the logo without a message when called without arguments", done => {
+		const templateContents = fileSystem.readFileSync(`${__dirname}/../../lib/cli/templates/logo.txt`);
+		const template = newTemplate(templateContents);
+
+		const expectedStdout = template({
+			message: ""
+		});
+
+		actualStdout = "";
+
+		interceptStdoutEnd = interceptStdout(data => {
+			actualStdout += data.toString();
+		});
+
+		stimpak = new Stimpak();
+		stimpak
+			.destination(__dirname)
+			.logo()
+			.generate((error) => {
+				interceptStdoutEnd();
+				actualStdout.should.eql(expectedStdout);
+				done(error);
+			});
+	});
 });

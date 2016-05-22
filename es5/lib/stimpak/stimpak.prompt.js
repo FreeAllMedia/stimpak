@@ -45,6 +45,8 @@ function prompt() {
 					answers[_answerName] = answer;
 				}
 
+				process.stdout.write("\n");
+
 				stepDone();
 			});
 		});

@@ -22,13 +22,8 @@ describe("(CLI) stimpak --answers", function () {
 
 	it("should use provided answer and skip question prompt", done => {
 		command += " test-1 --promptName=Blah";
-		runCommand(command, { cwd: temporaryDirectoryPath }, (error, stdout) => {
-			try {
-				stdout.should.eql("DONE!\n");
-				done();
-			} catch (err) {
-				done(err);
-			}
+		runCommand(command, { cwd: temporaryDirectoryPath }, error => {
+			done(error);
 		});
 	});
 

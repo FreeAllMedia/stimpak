@@ -23,6 +23,8 @@ export default function prompt(...prompts) {
 						answers[answerName] = answer;
 					}
 
+					process.stdout.write("\n");
+
 					stepDone();
 				});
 			});

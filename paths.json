@@ -1,5 +1,9 @@
 {
 	"source": {
+		"javascript": [
+			"./source/lib/**/*.js",
+			"./source/lib/*.js"
+		],
 		"all": [
 			"./source/lib/**/*",
 			"./source/lib/*"
