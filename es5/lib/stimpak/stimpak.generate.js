@@ -21,9 +21,9 @@ var _glob = require("glob");
 
 var _glob2 = _interopRequireDefault(_glob);
 
-var _fs = require("fs");
+var _fsExtra = require("fs-extra");
 
-var _fs2 = _interopRequireDefault(_fs);
+var _fsExtra2 = _interopRequireDefault(_fsExtra);
 
 var _vinyl = require("vinyl");
 
@@ -56,7 +56,8 @@ function renderSource(source, done) {
 	var _this = this;
 
 	var templateFileNames = _glob2.default.sync(source.glob(), {
-		cwd: source.directory()
+		cwd: source.directory(),
+		dot: true
 	});
 
 	_flowsync2.default.mapSeries(templateFileNames, function (fileName, fileNameDone) {
@@ -69,7 +70,7 @@ function renderFile(fileName, source, done) {
 	var _this2 = this;
 
 	var templateFilePath = source.directory() + "/" + fileName;
-	var templateFileStats = _fs2.default.statSync(templateFilePath);
+	var templateFileStats = _fsExtra2.default.statSync(templateFilePath);
 	var answers = this.answers();
 
 	var filePath = "" + fileName;
@@ -81,7 +82,7 @@ function renderFile(fileName, source, done) {
 	}
 
 	if (templateFileStats.isDirectory()) {
-		_fs2.default.mkdirSync(this.destination() + "/" + filePath);
+		_fsExtra2.default.mkdirsSync(this.destination() + "/" + filePath);
 		done();
 	} else {
 		(function () {
@@ -94,9 +95,9 @@ function renderFile(fileName, source, done) {
 				contents: new Buffer(fileContents)
 			});
 
-			if (_fs2.default.existsSync(newFile.path)) {
+			if (_fsExtra2.default.existsSync(newFile.path)) {
 				(function () {
-					var oldFileContents = _fs2.default.readFileSync(newFile.path);
+					var oldFileContents = _fsExtra2.default.readFileSync(newFile.path);
 
 					var mergeStrategies = _this2.merge();
 
@@ -138,7 +139,7 @@ function renderFile(fileName, source, done) {
 function renderTemplateFile(templateFilePath) {
 	_lodash4.default.interpolate = /<%=([\s\S]+?)%>/g;
 
-	var templateFileContents = _fs2.default.readFileSync(templateFilePath);
+	var templateFileContents = _fsExtra2.default.readFileSync(templateFilePath);
 	var template = (0, _lodash2.default)(templateFileContents);
 	var renderedTemplateContents = template(this.answers());
 
@@ -146,6 +147,6 @@ function renderTemplateFile(templateFilePath) {
 }
 
 function writeFile(filePath, fileContents, done) {
-	_fs2.default.writeFileSync(filePath, fileContents);
+	_fsExtra2.default.writeFileSync(filePath, fileContents);
 	done();
 }

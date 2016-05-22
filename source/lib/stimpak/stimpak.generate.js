@@ -2,7 +2,7 @@ import privateData from "incognito";
 import newTemplate from "lodash.template";
 import templateSettings from "lodash.templatesettings";
 import glob from "glob";
-import fileSystem from "fs";
+import fileSystem from "fs-extra";
 import File from "vinyl";
 import Async from "flowsync";
 
@@ -31,7 +31,8 @@ function renderFiles(stimpak, done) {
 
 function renderSource(source, done) {
 	const templateFileNames = glob.sync(source.glob(), {
-		cwd: source.directory()
+		cwd: source.directory(),
+		dot: true
 	});
 
 	Async.mapSeries(
@@ -58,7 +59,7 @@ function renderFile(fileName, source, done) {
 	}
 
 	if (templateFileStats.isDirectory()) {
-		fileSystem.mkdirSync(`${this.destination()}/${filePath}`);
+		fileSystem.mkdirsSync(`${this.destination()}/${filePath}`);
 		done();
 	} else {
 		const fileContents = renderTemplateFile.call(this, templateFilePath);
