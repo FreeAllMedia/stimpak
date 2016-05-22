@@ -1,8 +1,8 @@
 {
 	"source": {
 		"all": [
-			"./source/lib/**/*.js",
-			"./source/lib/*.js"
+			"./source/lib/**/*",
+			"./source/lib/*"
 		],
 		"allSpec": "./source/spec/**/*.spec.js",
 		"library": [

@@ -126,6 +126,16 @@ var Stimpak = function (_ChainLink) {
 		value: function generate(callback) {
 			return this[externalFunction]("./stimpak.generate.js", callback);
 		}
+	}, {
+		key: "note",
+		value: function note(message) {
+			return this[externalFunction]("./stimpak.note.js", message);
+		}
+	}, {
+		key: "logo",
+		value: function logo(message) {
+			return this[externalFunction]("./stimpak.logo.js", message);
+		}
 	}]);
 
 	return Stimpak;

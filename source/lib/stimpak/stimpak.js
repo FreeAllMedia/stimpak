@@ -72,4 +72,12 @@ export default class Stimpak extends ChainLink {
 	generate(callback) {
 		return this[externalFunction]("./stimpak.generate.js", callback);
 	}
+
+	note(message) {
+		return this[externalFunction]("./stimpak.note.js", message);
+	}
+
+	logo(message) {
+		return this[externalFunction]("./stimpak.logo.js", message);
+	}
 }

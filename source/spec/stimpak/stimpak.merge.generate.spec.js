@@ -5,7 +5,6 @@ import fileSystem from "fs-extra";
 import path from "path";
 import temp from "temp";
 import newTemplate from "lodash.template";
-import glob from "glob";
 
 describe("stimpak.merge() (on .generate)", () => {
 	let stimpak,
@@ -59,7 +58,7 @@ describe("stimpak.merge() (on .generate)", () => {
 		stimpak = new Stimpak();
 		stimpak
 			.answers(answers)
-			.source("**.*")
+			.source("**/*")
 				.directory(templateDirectoryPath)
 			.destination(temporaryDirectoryPath)
 			.merge(
@@ -135,7 +134,7 @@ describe("stimpak.merge() (on .generate)", () => {
 
 		stimpak
 			.answers(answers)
-			.source("**.*")
+			.source("**/*")
 				.directory(templateDirectoryPath)
 			.destination(temporaryDirectoryPath)
 			.generate(() => {
@@ -161,7 +160,7 @@ describe("stimpak.merge() (on .generate)", () => {
 
 		stimpak
 			.answers(answers)
-			.source("**.*")
+			.source("**/*")
 				.directory(templateDirectoryPath)
 			.destination(temporaryDirectoryPath)
 			.merge(existingFilePath, (generator, newFile, oldFile, mergeCallback) => {
@@ -182,7 +181,7 @@ describe("stimpak.merge() (on .generate)", () => {
 
 		stimpak
 			.answers(answers)
-			.source("**.*")
+			.source("**/*")
 				.directory(templateDirectoryPath)
 			.destination(temporaryDirectoryPath)
 			.merge(existingFilePath, mergeFunction)
