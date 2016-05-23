@@ -18,4 +18,24 @@ describe("stimpak.answers", () => {
 		stimpak.answers(newAnswers);
 		stimpak.answers().should.eql(newAnswers);
 	});
+
+	it("should merge answers by name", () => {
+		const answersOne = {
+			foo: "bar",
+			baz: "snarf"
+		};
+
+		const answersTwo = {
+			baz: "blah"
+		};
+
+		const mergedAnswers = {
+			foo: "bar",
+			baz: "blah"
+		};
+
+		stimpak.answers(answersOne);
+		stimpak.answers(answersTwo);
+		stimpak.answers().should.eql(mergedAnswers);
+	});
 });

@@ -8,14 +8,12 @@ export { Source };
 
 const externalFunction = Symbol(),
 			initializePrivateData = Symbol(),
-			initializeInterface = Symbol(),
-			initializeDefaults = Symbol();
+			initializeInterface = Symbol();
 
 export default class Stimpak extends ChainLink {
 	initialize() {
 		this[initializePrivateData]();
 		this[initializeInterface]();
-		this[initializeDefaults]();
 	}
 
 	[initializePrivateData]() {
@@ -31,22 +29,17 @@ export default class Stimpak extends ChainLink {
 			.link("source", Source)
 				.into("sources");
 
-		this
-			.parameters(
-				"destination",
-				"answers"
-			);
+		this.parameters(
+			"destination"
+		);
 
-		this
-			.parameters(
-				"merge"
-			)
-				.multiValue
-				.aggregate;
-	}
+		this.parameters(
+			"answers"
+		).mergeKeyValues;
 
-	[initializeDefaults]() {
-		this.answers({});
+		this.parameters(
+			"merge"
+		).multiValue.aggregate;
 	}
 
 	[externalFunction](functionFilePath, ...options) {

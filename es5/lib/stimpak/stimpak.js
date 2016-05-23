@@ -36,8 +36,7 @@ exports.Source = _source2.default;
 
 var externalFunction = Symbol(),
     initializePrivateData = Symbol(),
-    initializeInterface = Symbol(),
-    initializeDefaults = Symbol();
+    initializeInterface = Symbol();
 
 var Stimpak = function (_ChainLink) {
 	_inherits(Stimpak, _ChainLink);
@@ -53,7 +52,6 @@ var Stimpak = function (_ChainLink) {
 		value: function initialize() {
 			this[initializePrivateData]();
 			this[initializeInterface]();
-			this[initializeDefaults]();
 		}
 	}, {
 		key: initializePrivateData,
@@ -69,14 +67,11 @@ var Stimpak = function (_ChainLink) {
 
 			this.link("source", _source2.default).into("sources");
 
-			this.parameters("destination", "answers");
+			this.parameters("destination");
+
+			this.parameters("answers").mergeKeyValues;
 
 			this.parameters("merge").multiValue.aggregate;
-		}
-	}, {
-		key: initializeDefaults,
-		value: function value() {
-			this.answers({});
 		}
 	}, {
 		key: externalFunction,

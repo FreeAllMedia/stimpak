@@ -48,9 +48,12 @@
     "inquirer": "^1.0.2",
     "lodash.template": "^4.2.4",
     "lodash.templatesettings": "^4.0.1",
-    "mrt": "^0.1.5",
+    "mrt": "^0.1.6",
     "staircase": "^0.1.0",
     "temp": "^0.8.3",
     "vinyl": "^1.1.1"
+  },
+  "fileVersions": {
+    "some/path/to/file.js": "0.1.2"
   }
 }
