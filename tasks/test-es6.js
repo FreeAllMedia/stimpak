@@ -8,7 +8,7 @@ import chai from "chai";
 chai.should(); // This enables should-style syntax
 
 gulp.task("test-es6", ["build"], callback => {
-	gulp.src(paths.source.all)
+	gulp.src(paths.source.javascript)
 		.pipe(istanbul()) // Covering files
 		.pipe(istanbul.hookRequire()) // Force `require` to return covered files
 		.on("finish", () => {

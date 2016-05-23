@@ -1,0 +1,4 @@
++<%= "-".repeat(message.length + 2) %>+
+| <%= message %> |
++<%= "-".repeat(message.length + 2) %>+
+ 
