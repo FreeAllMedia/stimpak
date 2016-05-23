@@ -71,7 +71,8 @@ describe("(CLI) stimpak generators", function () {
 
 		const expectedFilePaths = [
 			`${temporaryDirectoryPath}/generated.js`,
-			`${temporaryDirectoryPath}/generated2.js`
+			`${temporaryDirectoryPath}/generated2.js`,
+			`${temporaryDirectoryPath}/subgenerated.js`
 		];
 
 		runCommand(command, { cwd: temporaryDirectoryPath }, error => {
@@ -99,6 +100,17 @@ describe("(CLI) stimpak generators", function () {
 
 		runCommand(command, { cwd: temporaryDirectoryPath }, (error, stdout, stderr) => {
 			stderr.should.not.contain("SyntaxError: Unexpected reserved word");
+			done();
+		});
+	});
+
+	it("should be able to require global generators", function (done) {
+		command += " 00000 --promptName=Blah";
+
+		const expectedStderr = `"00000" is not installed. Use "npm install stimpak-00000 -g"\n`;
+
+		runCommand(command, { cwd: temporaryDirectoryPath }, (error, stdout, stderr) => {
+			stderr.should.not.eql(expectedStderr);
 			done();
 		});
 	});

@@ -1,4 +1,4 @@
-export default class Generator {
+export default class StimpakGeneratorError {
 	constructor(stimpak) {
 		stimpak
 			.then((generator, done) => {
