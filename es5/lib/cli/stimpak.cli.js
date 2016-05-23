@@ -21,6 +21,10 @@ var _path = require("path");
 
 var _path2 = _interopRequireDefault(_path);
 
+var _rimraf = require("rimraf");
+
+var _rimraf2 = _interopRequireDefault(_rimraf);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 require("babel-polyfill");
@@ -139,19 +143,41 @@ switch (firstArgument) {
 }
 
 function linkDirectory(fromPath, toPath) {
-	if (!_fsExtra2.default.existsSync(toPath)) {
-		_fsExtra2.default.symlinkSync(fromPath, toPath);
-		tempFiles.push(toPath);
+	if (_fsExtra2.default.existsSync(toPath)) {
+		var fileStats = _fsExtra2.default.lstatSync(toPath);
+		if (fileStats.isSymbolicLink()) {
+			unlink(toPath);
+			symlink(fromPath, toPath);
+			tempFiles.push(toPath);
+		}
+	} else {
+		symlink(fromPath, toPath);
+	}
+}
+
+function symlink(fromPath, toPath) {
+	_fsExtra2.default.symlinkSync(fromPath, toPath);
+	addTempFile(toPath);
+}
+
+function unlink(filePath) {
+	// HACK: Using rimraf.sync instead of fileSystem.unlinkSync because of weird behavior by unlinkSync. Rimraf is a slower solution, but it ensures that the file is completely removed before it moves on, unlinke unlinkSync: https://github.com/nodejs/node-v0.x-archive/issues/7164
+	_rimraf2.default.sync(filePath);
+	var index = tempFiles.indexOf(filePath);
+	if (index > -1) {
+		tempFiles = tempFiles.splice(index, 1);
+	}
+}
+
+function addTempFile(filePath) {
+	if (tempFiles.indexOf(filePath) === -1) {
+		tempFiles.push(filePath);
 	}
 }
 
 function cleanupTempFiles() {
 	tempFiles.forEach(function (tempFile) {
-		if (_fsExtra2.default.existsSync(tempFile)) {
-			//fileSystem.unlinkSync(tempFile);
-		} else {
-				// TODO: Find out why this logic branch ever happens.
-			}
+		unlink(tempFile);
 	});
 }
 

@@ -6,11 +6,12 @@ import packageJson from "../../../package.json";
 import npmPaths from "global-paths";
 import glob from "glob";
 import path from "path";
+import rimraf from "rimraf";
 
 const Stimpak = require(__dirname + "/../stimpak/stimpak.js").default;
 const firstArgument = process.argv[2];
 
-const tempFiles = [];
+let tempFiles = [];
 
 switch (firstArgument) {
 	case "-V":
@@ -123,19 +124,41 @@ switch (firstArgument) {
 }
 
 function linkDirectory(fromPath, toPath) {
-	if (!fileSystem.existsSync(toPath)) {
-		fileSystem.symlinkSync(fromPath, toPath);
-		tempFiles.push(toPath);
+	if (fileSystem.existsSync(toPath)) {
+		const fileStats = fileSystem.lstatSync(toPath);
+		if (fileStats.isSymbolicLink()) {
+			unlink(toPath);
+			symlink(fromPath, toPath);
+			tempFiles.push(toPath);
+		}
+	} else {
+		symlink(fromPath, toPath);
+	}
+}
+
+function symlink(fromPath, toPath) {
+	fileSystem.symlinkSync(fromPath, toPath);
+	addTempFile(toPath);
+}
+
+function unlink(filePath) {
+	// HACK: Using rimraf.sync instead of fileSystem.unlinkSync because of weird behavior by unlinkSync. Rimraf is a slower solution, but it ensures that the file is completely removed before it moves on, unlinke unlinkSync: https://github.com/nodejs/node-v0.x-archive/issues/7164
+	rimraf.sync(filePath);
+	let index = tempFiles.indexOf(filePath);
+	if (index > -1) {
+		tempFiles = tempFiles.splice(index, 1);
+	}
+}
+
+function addTempFile(filePath) {
+	if (tempFiles.indexOf(filePath) === -1) {
+		tempFiles.push(filePath);
 	}
 }
 
 function cleanupTempFiles() {
 	tempFiles.forEach(tempFile => {
-		if (fileSystem.existsSync(tempFile)) {
-			//fileSystem.unlinkSync(tempFile);
-		} else {
-			// TODO: Find out why this logic branch ever happens.
-		}
+		unlink(tempFile);
 	});
 }
 
