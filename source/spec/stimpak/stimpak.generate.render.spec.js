@@ -57,6 +57,7 @@ describe("stimpak.generate() (template rendering)", () => {
 	it("should render templates with .answers as template values", () => {
 		const templateFileContents = fileSystem.readFileSync(`${templateDirectoryPath}/colors.js`, { encoding: "utf-8" });
 		const template = newTemplate(templateFileContents);
+
 		const expectedRenderedTemplate = template(stimpak.answers());
 
 		const actualRenderedTemplate = fileSystem.readFileSync(`${temporaryDirectoryPath}/colors.js`, { encoding: "utf-8" });
