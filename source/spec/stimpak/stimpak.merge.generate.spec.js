@@ -5,7 +5,6 @@ import fileSystem from "fs-extra";
 import path from "path";
 import temp from "temp";
 import newTemplate from "lodash.template";
-import glob from "glob";
 
 describe("stimpak.merge() (on .generate)", () => {
 	let stimpak,

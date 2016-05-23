@@ -1,0 +1,36 @@
+$ stimpak generator blah foo
+
+Loading:
+	OK `generator`
+	OK `blah`
+	ERROR `foo` "BLah blah blah happened. fix it you foo!"
+
+$ stimpak generator
+
+Loading:
+
+_______ _______ _____ _______  _____  _______ _     _
+|______    |      |   |  |  | |_____] |_____| |____/
+______|    |    __|__ |  |  | |       |     | |    \_
+
++----------------------------------+
+| THIS IS SOME TEXT FROM `.note()` |
++----------------------------------+
+
+? What do you want to name your project? (something) My Project
+? Will this project have a command line interface? [y/n] Y
+
+	NEW:
+		/some/path/to/file.txt
+		/some/path/to/file2.txt
+		/some/path/to/file3.txt
+		/some/path/to/file4.txt
+
+	MERGED:
+		/some/path/to/file5.txt
+		/some/path/to/file6.txt
+		/some/path/to/file7.txt
+
++------------------------------+
+| All Done! See you next time! |
++------------------------------+

@@ -1,5 +1,4 @@
 import Stimpak from "../../lib/stimpak/stimpak.js";
-import sinon from "sinon";
 import temp from "temp";
 import path from "path";
 import glob from "glob";
