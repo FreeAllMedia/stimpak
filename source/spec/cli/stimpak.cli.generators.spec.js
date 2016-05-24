@@ -100,8 +100,9 @@ describe("(CLI) stimpak generators", function () {
 		command += " 00000 --promptName=Blah";
 
 		runCommand(command, { cwd: temporaryDirectoryPath }, (error, stdout, stderr) => {
-			stderr.should.not.contain("SyntaxError: Unexpected reserved word");
-			done();
+			const allOutput = stdout + stderr;
+			allOutput.should.not.contain("SyntaxError: Unexpected reserved word");
+			done(error);
 		});
 	});
 
@@ -109,8 +110,9 @@ describe("(CLI) stimpak generators", function () {
 		command += " 00000 --promptName=Blah";
 
 		runCommand(command, { cwd: temporaryDirectoryPath }, (error, stdout, stderr) => {
-			stderr.should.not.contain(`"00000" is not installed. Use "npm install stimpak-00000 -g"\n`);
-			done();
+			const allOutput = stdout + stderr;
+			allOutput.should.not.contain(`"00000" is not installed. Use "npm install stimpak-00000 -g"\n`);
+			done(error);
 		});
 	});
 
@@ -119,7 +121,7 @@ describe("(CLI) stimpak generators", function () {
 
 		runCommand(command, { cwd: temporaryDirectoryPath }, (error, stdout, stderr) => {
 			stderr.should.be.empty;
-			done();
+			done(error);
 		});
 	});
 });

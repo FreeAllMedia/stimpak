@@ -44,9 +44,6 @@
     "fs-extra": "^0.30.0",
     "glob": "^7.0.3",
     "global-paths": "^0.1.2",
-    "gulp": "^3.9.1",
-    "gulp-babel": "^6.1.2",
-    "gulp-callback": "0.0.3",
     "incognito": "^0.1.4",
     "inquirer": "^1.0.2",
     "lodash.template": "^4.2.4",
@@ -55,8 +52,5 @@
     "staircase": "^0.1.0",
     "temp": "^0.8.3",
     "vinyl": "^1.1.1"
-  },
-  "fileVersions": {
-    "some/path/to/file.js": "0.1.2"
   }
 }
