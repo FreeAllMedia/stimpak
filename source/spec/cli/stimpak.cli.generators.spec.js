@@ -95,7 +95,7 @@ describe("(CLI) stimpak generators", function () {
 		});
 	});
 
-	it("should be able to require global generators", function (done) {
+	it("should be able to transpile global generators", function (done) {
 		command += " 00000 --promptName=Blah";
 
 		runCommand(command, { cwd: temporaryDirectoryPath }, (error, stdout, stderr) => {
@@ -107,10 +107,17 @@ describe("(CLI) stimpak generators", function () {
 	it("should be able to require global generators", function (done) {
 		command += " 00000 --promptName=Blah";
 
-		const expectedStderr = `"00000" is not installed. Use "npm install stimpak-00000 -g"\n`;
+		runCommand(command, { cwd: temporaryDirectoryPath }, (error, stdout, stderr) => {
+			stderr.should.not.contain(`"00000" is not installed. Use "npm install stimpak-00000 -g"\n`);
+			done();
+		});
+	});
+
+	it("should be able to require global generators without errors", function (done) {
+		command += " 00000 --promptName=Blah";
 
 		runCommand(command, { cwd: temporaryDirectoryPath }, (error, stdout, stderr) => {
-			stderr.should.not.eql(expectedStderr);
+			stderr.should.be.empty;
 			done();
 		});
 	});
