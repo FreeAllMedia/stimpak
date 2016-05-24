@@ -5,7 +5,7 @@ import {
 	exec as runCommand
 } from "child_process";
 
-import { setupCliEnvironment } from "./stimpak.cli.helper.js";
+import { setupCliEnvironment, cleanEnvironment } from "./stimpak.cli.helper.js";
 import glob from "glob";
 
 describe("(CLI) stimpak generators", function () {
@@ -15,16 +15,17 @@ describe("(CLI) stimpak generators", function () {
 			temporaryDirectoryPath,
 			environmentOptions;
 
-	before(done => {
+	beforeEach(done => {
 		setupCliEnvironment((error, options) => {
 			environmentOptions = options;
+			temporaryDirectoryPath = environmentOptions.temporaryDirectoryPath;
+			command = environmentOptions.command;
 			done();
 		});
 	});
 
-	beforeEach(() => {
-		temporaryDirectoryPath = environmentOptions.temporaryDirectoryPath;
-		command = String(environmentOptions.command);
+	afterEach(() => {
+		cleanEnvironment();
 	});
 
 	it("should throw an error if any of the generators aren't installed", done => {

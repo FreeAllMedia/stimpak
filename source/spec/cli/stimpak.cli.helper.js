@@ -6,71 +6,73 @@ import {
 		exec as runCommand
 } from "child_process";
 
+let paths = {};
+
 export function setupCliEnvironment(callback) {
 	runCommand("npm config get prefix", (error, stdout) => {
-		const globalNodeModulesDirectoryPath =
+		paths.globalNodeModulesDirectoryPath =
 			stdout
 				.toString()
 				.replace(/[\n\r]/, "/lib/node_modules");
 
-		const environmentOptions = setupEnvironment(globalNodeModulesDirectoryPath);
+		const environmentOptions = setupEnvironment();
 
 		callback(null, environmentOptions);
 	});
 }
 
-function setupEnvironment(globalNodeModulesDirectoryPath) {
-	const temporaryDirectoryPath = temp.mkdirSync("stimpakgenerators");
-	const projectRootPath = path.normalize(`${__dirname}/../../../`);
-	const sourceDirectoryPath = `${projectRootPath}/source`;
+export function cleanEnvironment() {
+	rimraf.sync(paths.globalGeneratorDirectoryPath);
+}
 
-	const fixtureDirectoryPath =
-		`${sourceDirectoryPath}/spec/cli/fixtures`;
-	const workingGeneratorDirectoryPath =
-		`${fixtureDirectoryPath}/stimpak-generator`;
-	const errorGeneratorDirectoryPath =
-		`${fixtureDirectoryPath}/stimpak-generator-error`;
+function setupEnvironment() {
+	setPaths();
 
-	const temporaryNodeModulesDirectoryPath =
-		`${temporaryDirectoryPath}/node_modules`;
+	cleanEnvironment();
 
-	const stimpakCliPath =
-		`${projectRootPath}/es5/lib/cli/stimpak.cli.js`;
-
-	const symLinkPaths = [
-		[ workingGeneratorDirectoryPath,
-			`${temporaryNodeModulesDirectoryPath}/stimpak-test-1` ],
-		[ workingGeneratorDirectoryPath,
-			`${temporaryNodeModulesDirectoryPath}/stimpak-test-2` ],
-		[ errorGeneratorDirectoryPath,
-			`${temporaryNodeModulesDirectoryPath}/stimpak-test-3` ],
-		[ errorGeneratorDirectoryPath,
-			`${temporaryNodeModulesDirectoryPath}/stimpak-test-4` ]
-	];
-
-	const globalGeneratorDirectoryPath = `${globalNodeModulesDirectoryPath}/stimpak-00000`;
-	rimraf.sync(globalGeneratorDirectoryPath);
+	fileSystem.mkdirsSync(paths.temporaryNodeModulesDirectoryPath);
 
 	fileSystem.copySync(
-		workingGeneratorDirectoryPath,
-		globalGeneratorDirectoryPath
+		paths.workingGeneratorDirectoryPath,
+		paths.globalGeneratorDirectoryPath
 	);
 
-	fileSystem.mkdirSync(temporaryNodeModulesDirectoryPath);
-
-	symLinkPaths.forEach(paths => {
-		const symLinkFromPath = paths[0];
-		const symLinkToPath = paths[1];
+	paths.symLinkPaths.forEach(symlinkPath => {
+		const symLinkFromPath = symlinkPath[0];
+		const symLinkToPath = symlinkPath[1];
 		symLink(symLinkFromPath, symLinkToPath);
 	});
 
-	const command = `node ${stimpakCliPath}`;
+	const command = `node ${paths.stimpakCliPath}`;
 
 	return {
-		temporaryDirectoryPath,
-		globalNodeModulesDirectoryPath,
+		temporaryDirectoryPath: paths.temporaryDirectoryPath,
+		globalNodeModulesDirectoryPath: paths.globalNodeModulesDirectoryPath,
 		command
 	};
+}
+
+function setPaths() {
+	paths.temporaryDirectoryPath = temp.mkdirSync("stimpakgenerators");
+	paths.projectRootDirectoryPath = path.normalize(`${__dirname}/../../..`);
+	paths.sourceDirectoryPath = `${paths.projectRootDirectoryPath}/source`;
+
+	paths.fixtureDirectoryPath = `${paths.sourceDirectoryPath}/spec/cli/fixtures`;
+	paths.workingGeneratorDirectoryPath =	`${paths.fixtureDirectoryPath}/stimpak-generator`;
+	paths.errorGeneratorDirectoryPath =	`${paths.fixtureDirectoryPath}/stimpak-generator-error`;
+
+	paths.temporaryNodeModulesDirectoryPath =	`${paths.temporaryDirectoryPath}/node_modules`;
+
+	paths.stimpakCliPath = `${paths.projectRootDirectoryPath}/es5/lib/cli/stimpak.cli.js`;
+
+	paths.symLinkPaths = [
+		[ paths.workingGeneratorDirectoryPath, `${paths.temporaryNodeModulesDirectoryPath}/stimpak-test-1` ],
+		[ paths.workingGeneratorDirectoryPath, `${paths.temporaryNodeModulesDirectoryPath}/stimpak-test-2` ],
+		[ paths.errorGeneratorDirectoryPath, `${paths.temporaryNodeModulesDirectoryPath}/stimpak-test-3` ],
+		[ paths.errorGeneratorDirectoryPath, `${paths.temporaryNodeModulesDirectoryPath}/stimpak-test-4` ]
+	];
+
+	paths.globalGeneratorDirectoryPath = `${paths.globalNodeModulesDirectoryPath}/stimpak-00000`;
 }
 
 function symLink(sourceDirectoryPath, destinationDirectoryPath) {

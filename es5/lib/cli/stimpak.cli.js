@@ -29,6 +29,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 require("babel-polyfill");
 
+// import temp from "temp";
+
 var Stimpak = require(__dirname + "/../stimpak/stimpak.js").default;
 var firstArgument = process.argv[2];
 

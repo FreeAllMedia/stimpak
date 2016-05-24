@@ -7,6 +7,7 @@ import npmPaths from "global-paths";
 import glob from "glob";
 import path from "path";
 import rimraf from "rimraf";
+// import temp from "temp";
 
 const Stimpak = require(__dirname + "/../stimpak/stimpak.js").default;
 const firstArgument = process.argv[2];
