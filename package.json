@@ -46,6 +46,7 @@
     "global-paths": "^0.1.2",
     "incognito": "^0.1.4",
     "inquirer": "^1.0.2",
+    "lodash": "^4.13.1",
     "lodash.template": "^4.2.4",
     "lodash.templatesettings": "^4.0.1",
     "mrt": "^0.1.6",

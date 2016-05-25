@@ -7,12 +7,12 @@ import npmPaths from "global-paths";
 import glob from "glob";
 import path from "path";
 import rimraf from "rimraf";
-// import temp from "temp";
 
 const Stimpak = require(__dirname + "/../stimpak/stimpak.js").default;
 const firstArgument = process.argv[2];
 
 let tempFiles = [];
+let movedFiles = {};
 
 switch (firstArgument) {
 	case "-V":
@@ -28,8 +28,8 @@ switch (firstArgument) {
 			break;
 
 	default:
-		const nodeModulesDirectoryPath = path.normalize(`${__dirname}/../../../node_modules`);
-		const npmPackageNames = glob.sync("*", { cwd: nodeModulesDirectoryPath });
+		const rootDirectoryPath = path.normalize(`${__dirname}/../../..`);
+		const nodeModulesDirectoryPath = `${rootDirectoryPath}/node_modules`;
 
 		const stimpak = new Stimpak()
 			.destination(process.cwd());
@@ -72,33 +72,18 @@ switch (firstArgument) {
 			};
 		});
 
-		const ignoreTranspilingPaths = glob
-			.sync(`${nodeModulesDirectoryPath}/*`)
-			.filter(npmPath => {
-				let pathFound = false;
-				packagePaths.forEach(packagePath => {
-					if (npmPath === packagePath) {
-						pathFound = true;
-					}
-				});
-				return !pathFound;
-			});
-
-		require("babel-register")({
-			ignore: ignoreTranspilingPaths
-		});
-
 		stimpak.answers(answers);
 
-		process.on("exit", cleanupTempFiles);
+		process.on("exit", cleanup);
 
+		const npmPackageNames = glob.sync("*", { cwd: nodeModulesDirectoryPath });
+
+		const requirePaths = [];
 		for (let packageName in generatorPaths) {
 			const generatorPath = generatorPaths[packageName];
 			const packagePath = generatorPath.path;
 			const generatorName = generatorPath.generatorName;
 			const packageNodeModulesDirectoryPath = `${packagePath}/node_modules`;
-
-			fileSystem.mkdirsSync(packageNodeModulesDirectoryPath);
 
 			if (packagePath) {
 				npmPackageNames.forEach(npmPackageName => {
@@ -108,14 +93,49 @@ switch (firstArgument) {
 					);
 				});
 
-				const requirePath = packagePath;
-				const GeneratorConstructor = require(requirePath).default;
-				stimpak.use(GeneratorConstructor);
+				makeDirectory(packageNodeModulesDirectoryPath);
+
+				const packageDirectoryPath = `${nodeModulesDirectoryPath}/${packageName}`;
+
+				let requirePath = packagePath;
+
+				if (packagePath !== packageDirectoryPath) {
+					moveFile(packagePath, packageDirectoryPath);
+					requirePath = packageDirectoryPath;
+				}
+
+				requirePaths.push(requirePath);
 			} else {
 				const errorMessage = `"${generatorName}" is not installed. Use "npm install ${packageName} -g"\n`;
 				process.stderr.write(errorMessage);
 			}
 		}
+
+		/*
+			Explanation of this monster glob:
+				* Get all files in all directories
+				* Inside of directories that don't have "stimpak" in their name
+				* Inside of a node_modules directory
+				* Anywhere inside of a directory that begins with "stimpak-"
+				* Inside of a node_modules directory
+				* Anywhere inside of the root directory
+		*/
+		const ignoreTranspilingFilesGlob = `${rootDirectoryPath}/**/@(node_modules)/stimpak-*/**/@(node_modules)/!(stimpak)*/**/*`;
+		require("babel-register")({
+			ignore: ignoreTranspilingFilesGlob
+		});
+
+		const generatorConstructors = {};
+		requirePaths.forEach(requirePath => {
+			let GeneratorConstructor = generatorConstructors[requirePath];
+
+			if (!GeneratorConstructor) {
+				GeneratorConstructor = require(requirePath).default;
+				generatorConstructors[requirePath] = GeneratorConstructor;
+			}
+
+			stimpak.use(GeneratorConstructor);
+		});
 
 		stimpak.generate(error => {
 			if (error) { throw error; }
@@ -137,6 +157,30 @@ function linkDirectory(fromPath, toPath) {
 	}
 }
 
+function makeDirectory(directoryPath) {
+	try {
+		fileSystem.accessSync(directoryPath);
+	} catch (exception) {
+		console.log("WTF");
+		fileSystem.mkdirsSync(directoryPath);
+	}
+}
+
+function moveFile(fromPath, toPath) {
+	if (!fileSystem.existsSync(toPath)) {
+		fromPath = fileSystem.realpathSync(fromPath);
+		fileSystem.renameSync(fromPath, toPath);
+		movedFiles[toPath] = fromPath;
+	}
+}
+
+function replaceFiles() {
+	for (let toPath in movedFiles) {
+		const fromPath = movedFiles[toPath];
+		fileSystem.renameSync(toPath, fromPath);
+	}
+}
+
 function symlink(fromPath, toPath) {
 	fileSystem.symlinkSync(fromPath, toPath);
 	addTempFile(toPath);
@@ -145,16 +189,25 @@ function symlink(fromPath, toPath) {
 function unlink(filePath) {
 	// HACK: Using rimraf.sync instead of fileSystem.unlinkSync because of weird behavior by unlinkSync. Rimraf is a slower solution, but it ensures that the file is completely removed before it moves on, unlinke unlinkSync: https://github.com/nodejs/node-v0.x-archive/issues/7164
 	rimraf.sync(filePath);
-	let index = tempFiles.indexOf(filePath);
-	if (index > -1) {
-		tempFiles = tempFiles.splice(index, 1);
-	}
+	removeTempFile(filePath);
 }
 
 function addTempFile(filePath) {
 	if (tempFiles.indexOf(filePath) === -1) {
 		tempFiles.push(filePath);
 	}
+}
+
+function removeTempFile(filePath) {
+	let index = tempFiles.indexOf(filePath);
+	if (index > -1) {
+		tempFiles = tempFiles.splice(index, 1);
+	}
+}
+
+function cleanup() {
+	replaceFiles();
+	cleanupTempFiles();
 }
 
 function cleanupTempFiles() {

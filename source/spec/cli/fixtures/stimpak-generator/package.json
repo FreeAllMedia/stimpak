@@ -3,6 +3,7 @@
 	"version": "0.0.3",
   "main": "generator.js",
 	"dependencies": {
-		"stimpak-subgenerator": "0.0.1"
+		"stimpak-subgenerator": "0.0.1",
+		"should-ignore": "0.0.1"
 	}
 }

@@ -1,4 +1,5 @@
 import StimpakSubGenerator from "stimpak-subgenerator";
+import ShouldIgnore from "should-ignore";
 
 export default class Generator {
 	constructor(stimpak) {

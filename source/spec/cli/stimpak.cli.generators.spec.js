@@ -83,6 +83,15 @@ describe("(CLI) stimpak generators", function () {
 		});
 	});
 
+	it("should run multiple designated generators without errors", done => {
+		command += " test-1 test-2 --promptName=Blah";
+
+		runCommand(command, { cwd: temporaryDirectoryPath }, (error, stdout, stderr) => {
+			stderr.should.eql("");
+			done(error);
+		});
+	});
+
 	it("should throw an error returned by .generate", done => {
 		command += " test-3";
 
@@ -101,7 +110,17 @@ describe("(CLI) stimpak generators", function () {
 
 		runCommand(command, { cwd: temporaryDirectoryPath }, (error, stdout, stderr) => {
 			const allOutput = stdout + stderr;
-			allOutput.should.not.contain("SyntaxError: Unexpected reserved word");
+			allOutput.should.not.contain("import StimpakSubGenerator from \"stimpak-subgenerator\"");
+			done(error);
+		});
+	});
+
+	it("should be able to transpile global subgenerators", function (done) {
+		command += " 00000 --promptName=Blah";
+
+		runCommand(command, { cwd: temporaryDirectoryPath }, (error, stdout, stderr) => {
+			const allOutput = stdout + stderr;
+			allOutput.should.not.contain("export default class StimpakSubGenerator");
 			done(error);
 		});
 	});
