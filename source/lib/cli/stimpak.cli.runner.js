@@ -9,16 +9,45 @@ import Async from "flowsync";
 
 const Stimpak = require(__dirname + "/../stimpak/stimpak.js").default;
 
+let tempFiles = [],
+	movedFiles = {};
+
+function cleanup() {
+	cleanupTempFiles(() => {
+		moveFilesBack(() => {
+			// Process exits here
+		});
+	});
+}
+
+function moveFilesBack(callback) {
+	Async.mapSeries(Object.keys(movedFiles), (toPath, done) => {
+		const fromPath = movedFiles[toPath];
+		fileSystem.rename(toPath, fromPath, () => {
+			let index = tempFiles.indexOf(toPath);
+			if (index > -1) {
+				tempFiles = tempFiles.splice(index, 1);
+			}
+			done();
+		});
+	}, callback);
+}
+
+function cleanupTempFiles(callback) {
+	Async.mapSeries(tempFiles, (tempFile, done) => {
+		this.unlink(tempFile, done);
+	}, callback);
+}
+
+process.on("exit", cleanup);
+
 export default class StimpakCliRunner {
 	constructor() {
 		const _ = privateData(this);
-		_.tempFiles = [];
-		_.movedFiles = {};
 		_.generatorConstructors = {};
 		_.rootDirectoryPath = path.normalize(`${__dirname}/../../..`);
 		_.nodeModulesDirectoryPath = `${_.rootDirectoryPath}/node_modules`;
 		_.npmPackageNames = glob.sync("*", { cwd: _.nodeModulesDirectoryPath });
-		process.on("exit", this.cleanup);
 	}
 
 	run(argv, callback) {
@@ -27,7 +56,7 @@ export default class StimpakCliRunner {
 
 	routeCommand(argv, callback) {
 		const parsedArguments = this.parseArgv(argv);
-		switch (parsedArguments.command) {
+		switch (parsedArguments.first) {
 			case "-V":
 			case "--version":
 				this.showVersion(callback);
@@ -89,7 +118,7 @@ export default class StimpakCliRunner {
 	loadGenerators(generatorNames, callback) {
 		Async.mapSeries(
 			generatorNames,
-			this.loadGenerator,
+			this.loadGenerator.bind(this),
 			callback
 		);
 	}
@@ -100,7 +129,12 @@ export default class StimpakCliRunner {
 				this.resolveGeneratorPath(generatorName, done);
 			},
 			(generatorPath, done) => {
-				this.setupGenerator(generatorName, generatorPath, done);
+				this.setupGenerator(generatorName, generatorPath, error => {
+					done(error, generatorPath);
+				});
+			},
+			(generatorPath, done) => {
+				this.useGenerator(generatorName, generatorPath, done);
 			}
 		], callback);
 	}
@@ -109,16 +143,15 @@ export default class StimpakCliRunner {
 		const packageNodeModulesDirectoryPath = `${generatorPath}/node_modules`;
 		Async.series([
 			done => { this.makeDirectory(packageNodeModulesDirectoryPath, done); },
-			done => { this.linkDependencies(packageNodeModulesDirectoryPath, done); },
-			done => { this.moveGenerator(generatorName, generatorPath, done); },
-			done => { this.useGenerator(generatorPath, done); }
+			done => { this.linkDependencies(packageNodeModulesDirectoryPath, done); }
 		], callback);
 	}
 
 	linkDependencies(packageDirectoryPath, callback) {
 		const _ = privateData(this);
 		const nodeModulesDirectoryPath = _.nodeModulesDirectoryPath;
-		Async.mapSeries(_.npmPackageNames, (npmPackageName, directoryLinked) => {
+		const npmPackageNames = _.npmPackageNames;
+		Async.mapSeries(npmPackageNames, (npmPackageName, directoryLinked) => {
 			this.linkDirectory(
 				`${nodeModulesDirectoryPath}/${npmPackageName}`,
 				`${packageDirectoryPath}/${npmPackageName}`,
@@ -127,35 +160,48 @@ export default class StimpakCliRunner {
 		}, callback);
 	}
 
-	moveGenerator(generatorName, generatorPath, callback) {
+	packageDirectoryPath(generatorName) {
 		const _ = privateData(this);
-		const packageDirectoryPath = `${_.nodeModulesDirectoryPath}/${generatorName}`;
-
-		if (generatorPath !== _.packageDirectoryPath) {
-			this.moveFile(generatorPath, packageDirectoryPath, callback);
-		}
+		const packageName = this.generatorPackageName(generatorName);
+		return `${_.nodeModulesDirectoryPath}/${packageName}`;
 	}
 
-	useGenerator(generatorPath, callback) {
+	useGenerator(generatorName, generatorPath, callback) {
 		const _ = privateData(this);
 
 		const generatorConstructors = _.generatorConstructors;
 		const stimpak = _.stimpak;
 
-		try {
-			let GeneratorConstructor = generatorConstructors[generatorPath];
+		const packageDirectoryPath = this.packageDirectoryPath(generatorName);
 
-			if (!GeneratorConstructor) {
-				GeneratorConstructor = require(generatorPath).default;
-				generatorConstructors[generatorPath] = GeneratorConstructor;
+		Async.waterfall([
+			done => {
+				if (generatorPath !== packageDirectoryPath) {
+					this.moveFiles(generatorPath, packageDirectoryPath, done);
+				} else {
+					done();
+				}
+			},
+			done => {
+				try {
+					let GeneratorConstructor = generatorConstructors[packageDirectoryPath];
+
+					if (!GeneratorConstructor) {
+						GeneratorConstructor = require(packageDirectoryPath).default;
+						generatorConstructors[packageDirectoryPath] = GeneratorConstructor;
+					}
+
+					stimpak.use(GeneratorConstructor);
+
+					done();
+				} catch (exception) {
+					done(exception);
+				}
+			},
+			done => {
+				moveFilesBack(done);
 			}
-
-			stimpak.use(GeneratorConstructor);
-
-			callback();
-		} catch (exception) {
-			callback(exception);
-		}
+		], callback);
 	}
 
 	/**
@@ -164,11 +210,21 @@ export default class StimpakCliRunner {
 	 */
 	linkDirectory(fromPath, toPath, callback) {
 		Async.waterfall([
-			done => { fileSystem.lstat(toPath, done); },
+			done => {
+				fileSystem.lstat(toPath, (error, stats) => {
+					if (error) {
+						done(null, null);
+					} else {
+						done(null, stats);
+					}
+				});
+			},
 			(link, done) => {
 				if (link) {
 					if (link.isSymbolicLink()) {
 						this.unlink(toPath, done);
+					} else {
+						done();
 					}
 				} else {
 					done();
@@ -178,27 +234,38 @@ export default class StimpakCliRunner {
 		], callback);
 	}
 
-	makeDirectory(directoryPath) {
-		let stats = fileSystem.statSync(directoryPath);
-		if (!stats.isDirectory()) {
-			fileSystem.mkdirSync(directoryPath);
-		}
+	makeDirectory(directoryPath, callback) {
+		fileSystem.stat(directoryPath, (error, stats) => {
+			if (!error) {
+				if (!stats.isDirectory()) {
+					fileSystem.mkdir(directoryPath, callback);
+				} else {
+					callback();
+				}
+			} else {
+				callback(error);
+			}
+		});
 	}
 
-	moveFile(fromPath, toPath, callback) {
-		const _ = privateData(this);
-		Async.waterfall([
-			done => { fileSystem.exists(toPath, done); },
-			(fileExists, done) => {
-				fileSystem.realpath(toPath, done);
-			},
-			(realPath, done) => {
-				fileSystem.rename(realPath, toPath, error => {
-					done(error, realPath);
-					_.movedFiles[toPath] = realPath;
-				});
+	moveFiles(fromPath, toPath, callback) {
+		fileSystem.exists(toPath, fileExists => {
+			if (!fileExists) {
+				Async.waterfall([
+					done => {
+						fileSystem.realpath(fromPath, done);
+					},
+					(realPath, done) => {
+						fileSystem.rename(realPath, toPath, error => {
+							done(error, realPath);
+							movedFiles[toPath] = realPath;
+						});
+					}
+				], callback);
+			} else {
+				callback();
 			}
-		], callback);
+		});
 	}
 
 	showVersion(callback) {
@@ -224,7 +291,7 @@ export default class StimpakCliRunner {
 			first: argv[2],
 			remaining: argv.splice(2),
 			generatorNames: [],
-			answers: []
+			answers: {}
 		};
 
 		for (let argumentIndex in parsedArguments.remaining) {
@@ -258,17 +325,36 @@ export default class StimpakCliRunner {
 		this.resolvePackagePath(generatorName, packageName, callback);
 	}
 
-	moveFilesBack() {
-		const _ = privateData(this);
-		for (let toPath in _.movedFiles) {
-			const fromPath = _.movedFiles[toPath];
-			fileSystem.renameSync(toPath, fromPath);
-		}
+	resolvePackagePath(generatorName, packageName, callback) {
+		Async.mapSeries(npmPaths(), (npmPath, done) => {
+			const generatorFilePath = `${npmPath}/${packageName}`;
+			fileSystem.exists(generatorFilePath, fileExists => {
+				if (fileExists) {
+					done(null, generatorFilePath);
+				} else {
+					done(null);
+				}
+			});
+		}, (existsError, paths) => {
+			if (!existsError) {
+				const firstPathFound = paths[0];
+				if (firstPathFound) {
+					callback(null, firstPathFound);
+				} else {
+					const error = new Error(`"${generatorName}" is not installed. Use "npm install ${packageName} -g"\n`);
+					callback(error);
+				}
+			} else {
+				callback(existsError);
+			}
+		});
 	}
 
-	symlink(fromPath, toPath) {
-		fileSystem.symlinkSync(fromPath, toPath);
-		this.addTempFile(toPath);
+	symlink(fromPath, toPath, callback) {
+		fileSystem.symlink(fromPath, toPath, error => {
+			this.addTempFile(toPath);
+			callback(error);
+		});
 	}
 
 	unlink(filePath, callback) {
@@ -280,53 +366,15 @@ export default class StimpakCliRunner {
 	}
 
 	addTempFile(filePath) {
-		const _ = privateData(this);
-		if (_.tempFiles.indexOf(filePath) === -1) {
-			_.tempFiles.push(filePath);
+		if (tempFiles.indexOf(filePath) === -1) {
+			tempFiles.push(filePath);
 		}
 	}
 
 	removeTempFile(filePath) {
-		const _ = privateData(this);
-		let index = _.tempFiles.indexOf(filePath);
+		let index = tempFiles.indexOf(filePath);
 		if (index > -1) {
-			_.tempFiles = _.tempFiles.splice(index, 1);
+			tempFiles = tempFiles.splice(index, 1);
 		}
-	}
-
-	cleanup() {
-		this.moveFilesBack();
-		this.cleanupTempFiles();
-	}
-
-	cleanupTempFiles() {
-		const _ = privateData(this);
-		_.tempFiles.forEach(tempFile => {
-			this.unlink(tempFile);
-		});
-	}
-
-	resolvePackagePath(generatorName, packageName, callback) {
-		let foundPackagePath = false;
-
-		npmPaths().forEach(npmPath => {
-			const generatorFilePath = `${npmPath}/${packageName}`;
-
-			fileSystem.exists(generatorFilePath, (existsError, fileExists) => {
-				if (!existsError) {
-					if (fileExists) {
-						foundPackagePath = generatorFilePath;
-						callback(null, foundPackagePath);
-					} else {
-						const error = new Error(`"${generatorName}" is not installed. Use "npm install ${packageName} -g"\n`);
-						callback(error, false);
-					}
-				} else {
-					callback(existsError);
-				}
-			});
-		});
-
-		return foundPackagePath;
 	}
 }

@@ -28,7 +28,7 @@ describe("(CLI) stimpak generators", function () {
 		cleanEnvironment();
 	});
 
-	it("should throw an error if any of the generators aren't installed", done => {
+	xit("should throw an error if any of the generators aren't installed", done => {
 		const invalidGeneratorName = "not-a-real-generator";
 		command += ` ${invalidGeneratorName}`;
 
@@ -39,7 +39,7 @@ describe("(CLI) stimpak generators", function () {
 		});
 	});
 
-	it("should use the current working directory as the destination", done => {
+	xit("should use the current working directory as the destination", done => {
 		command += " test-1 --promptName=Blah";
 		const expectedFilePath = `${temporaryDirectoryPath}/generated.js`;
 
@@ -83,7 +83,7 @@ describe("(CLI) stimpak generators", function () {
 		});
 	});
 
-	it("should run multiple designated generators without errors", done => {
+	xit("should run multiple designated generators without errors", done => {
 		command += " test-1 test-2 --promptName=Blah";
 
 		runCommand(command, { cwd: temporaryDirectoryPath }, (error, stdout, stderr) => {
@@ -92,7 +92,7 @@ describe("(CLI) stimpak generators", function () {
 		});
 	});
 
-	it("should throw an error returned by .generate", done => {
+	xit("should throw an error returned by .generate", done => {
 		command += " test-3";
 
 		runCommand(command, { cwd: temporaryDirectoryPath }, error => {
@@ -105,7 +105,7 @@ describe("(CLI) stimpak generators", function () {
 		});
 	});
 
-	it("should be able to transpile global generators", function (done) {
+	xit("should be able to transpile global generators", function (done) {
 		command += " 00000 --promptName=Blah";
 
 		runCommand(command, { cwd: temporaryDirectoryPath }, (error, stdout, stderr) => {
@@ -115,7 +115,7 @@ describe("(CLI) stimpak generators", function () {
 		});
 	});
 
-	it("should be able to transpile global subgenerators", function (done) {
+	xit("should be able to transpile global subgenerators", function (done) {
 		command += " 00000 --promptName=Blah";
 
 		runCommand(command, { cwd: temporaryDirectoryPath }, (error, stdout, stderr) => {
@@ -125,7 +125,7 @@ describe("(CLI) stimpak generators", function () {
 		});
 	});
 
-	it("should be able to require global generators", function (done) {
+	xit("should be able to require global generators", function (done) {
 		command += " 00000 --promptName=Blah";
 
 		runCommand(command, { cwd: temporaryDirectoryPath }, (error, stdout, stderr) => {
@@ -135,7 +135,7 @@ describe("(CLI) stimpak generators", function () {
 		});
 	});
 
-	it("should be able to require global generators without errors", function (done) {
+	xit("should be able to require global generators without errors", function (done) {
 		command += " 00000 --promptName=Blah";
 
 		runCommand(command, { cwd: temporaryDirectoryPath }, (error, stdout, stderr) => {
