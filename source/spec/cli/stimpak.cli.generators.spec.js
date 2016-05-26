@@ -34,7 +34,7 @@ describe("(CLI) stimpak generators", function () {
 
 		runCommand(command, { cwd: temporaryDirectoryPath }, (error, stdout, stderr) => {
 			const expectedStderr = `"${invalidGeneratorName}" is not installed. Use "npm install stimpak-${invalidGeneratorName} -g"\n`;
-			stderr.should.eql(expectedStderr);
+			stderr.should.contain(expectedStderr);
 			done();
 		});
 	});
@@ -83,16 +83,21 @@ describe("(CLI) stimpak generators", function () {
 		});
 	});
 
+	it("should run multiple designated generators without errors", done => {
+		command += " test-1 test-2 --promptName=Blah";
+
+		runCommand(command, { cwd: temporaryDirectoryPath }, (error, stdout, stderr) => {
+			stderr.should.eql("");
+			done(error);
+		});
+	});
+
 	it("should throw an error returned by .generate", done => {
 		command += " test-3";
 
-		runCommand(command, { cwd: temporaryDirectoryPath }, error => {
-			try {
-				error.message.should.contain("Generator 3 Error!");
-				done();
-			} catch (caughtError) {
-				done(caughtError);
-			}
+		runCommand(command, { cwd: temporaryDirectoryPath }, (error, stdout, stderr) => {
+			stderr.should.contain("Generator Error!");
+			done();
 		});
 	});
 
@@ -101,7 +106,17 @@ describe("(CLI) stimpak generators", function () {
 
 		runCommand(command, { cwd: temporaryDirectoryPath }, (error, stdout, stderr) => {
 			const allOutput = stdout + stderr;
-			allOutput.should.not.contain("SyntaxError: Unexpected reserved word");
+			allOutput.should.not.contain("import StimpakSubGenerator from \"stimpak-subgenerator\"");
+			done(error);
+		});
+	});
+
+	it("should be able to transpile global subgenerators", function (done) {
+		command += " 00000 --promptName=Blah";
+
+		runCommand(command, { cwd: temporaryDirectoryPath }, (error, stdout, stderr) => {
+			const allOutput = stdout + stderr;
+			allOutput.should.not.contain("export default class StimpakSubGenerator");
 			done(error);
 		});
 	});

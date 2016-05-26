@@ -40,7 +40,7 @@ function setupEnvironment() {
 	paths.symLinkPaths.forEach(symlinkPath => {
 		const symLinkFromPath = symlinkPath[0];
 		const symLinkToPath = symlinkPath[1];
-		symLink(symLinkFromPath, symLinkToPath);
+		fileSystem.copySync(symLinkFromPath, symLinkToPath);
 	});
 
 	const command = `node ${paths.stimpakCliPath}`;
