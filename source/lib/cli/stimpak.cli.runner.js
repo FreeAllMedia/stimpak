@@ -15,7 +15,7 @@ let tempFiles = [],
 function cleanup() {
 	cleanupTempFiles(() => {
 		moveFilesBack(() => {
-			// Process exits here
+		// Process exits here
 		});
 	});
 }
@@ -24,10 +24,7 @@ function moveFilesBack(callback) {
 	Async.mapSeries(Object.keys(movedFiles), (toPath, done) => {
 		const fromPath = movedFiles[toPath];
 		fileSystem.rename(toPath, fromPath, () => {
-			let index = tempFiles.indexOf(toPath);
-			if (index > -1) {
-				tempFiles = tempFiles.splice(index, 1);
-			}
+			delete movedFiles[toPath];
 			done();
 		});
 	}, callback);
@@ -35,8 +32,32 @@ function moveFilesBack(callback) {
 
 function cleanupTempFiles(callback) {
 	Async.mapSeries(tempFiles, (tempFile, done) => {
-		this.unlink(tempFile, done);
+		deleteFiles(tempFile, done);
 	}, callback);
+}
+
+function deleteFiles(filePath, callback) {
+	if (filePath) {
+		rimraf(filePath, error => {
+			removeTempFile(filePath);
+			callback(error);
+		});
+	} else {
+		callback();
+	}
+}
+
+function addTempFile(filePath) {
+	if (tempFiles.indexOf(filePath) === -1) {
+		tempFiles.push(filePath);
+	}
+}
+
+function removeTempFile(filePath) {
+	let index = tempFiles.indexOf(filePath);
+	if (index > -1) {
+		tempFiles = tempFiles.splice(index, 1);
+	}
 }
 
 process.on("exit", cleanup);
@@ -70,7 +91,14 @@ export default class StimpakCliRunner {
 			default:
 				this.runGenerators(
 					parsedArguments.generatorNames,
-					this.showDone
+					parsedArguments.answers,
+					error => {
+						if (!error) {
+							this.showDone(callback);
+						} else {
+							callback(error);
+						}
+					}
 				);
 		}
 	}
@@ -173,8 +201,7 @@ export default class StimpakCliRunner {
 		const stimpak = _.stimpak;
 
 		const packageDirectoryPath = this.packageDirectoryPath(generatorName);
-
-		Async.waterfall([
+		Async.series([
 			done => {
 				if (generatorPath !== packageDirectoryPath) {
 					this.moveFiles(generatorPath, packageDirectoryPath, done);
@@ -183,23 +210,24 @@ export default class StimpakCliRunner {
 				}
 			},
 			done => {
-				try {
-					let GeneratorConstructor = generatorConstructors[packageDirectoryPath];
+				let GeneratorConstructor = generatorConstructors[packageDirectoryPath];
 
+				try {
 					if (!GeneratorConstructor) {
 						GeneratorConstructor = require(packageDirectoryPath).default;
 						generatorConstructors[packageDirectoryPath] = GeneratorConstructor;
 					}
 
 					stimpak.use(GeneratorConstructor);
-
 					done();
 				} catch (exception) {
 					done(exception);
 				}
 			},
 			done => {
-				moveFilesBack(done);
+				cleanupTempFiles(() => {
+					moveFilesBack(done);
+				});
 			}
 		], callback);
 	}
@@ -222,7 +250,7 @@ export default class StimpakCliRunner {
 			(link, done) => {
 				if (link) {
 					if (link.isSymbolicLink()) {
-						this.unlink(toPath, done);
+						deleteFiles(toPath, done);
 					} else {
 						done();
 					}
@@ -280,9 +308,10 @@ export default class StimpakCliRunner {
 		callback();
 	}
 
-	showDone() {
+	showDone(callback) {
 		fileSystem.readFile(`${__dirname}/templates/done.txt`, { encoding: "utf-8" }, (error, fileContents) => {
 			process.stdout.write(fileContents);
+			callback(error);
 		});
 	}
 
@@ -326,25 +355,36 @@ export default class StimpakCliRunner {
 	}
 
 	resolvePackagePath(generatorName, packageName, callback) {
+
 		Async.mapSeries(npmPaths(), (npmPath, done) => {
+
 			const generatorFilePath = `${npmPath}/${packageName}`;
 			fileSystem.exists(generatorFilePath, fileExists => {
+
 				if (fileExists) {
+
 					done(null, generatorFilePath);
 				} else {
+
 					done(null);
 				}
 			});
 		}, (existsError, paths) => {
+			paths = paths.filter(foundPath => { return foundPath !== undefined; });
+
 			if (!existsError) {
+
 				const firstPathFound = paths[0];
 				if (firstPathFound) {
+
 					callback(null, firstPathFound);
 				} else {
+
 					const error = new Error(`"${generatorName}" is not installed. Use "npm install ${packageName} -g"\n`);
 					callback(error);
 				}
 			} else {
+
 				callback(existsError);
 			}
 		});
@@ -352,29 +392,8 @@ export default class StimpakCliRunner {
 
 	symlink(fromPath, toPath, callback) {
 		fileSystem.symlink(fromPath, toPath, error => {
-			this.addTempFile(toPath);
+			addTempFile(toPath);
 			callback(error);
 		});
-	}
-
-	unlink(filePath, callback) {
-		// HACK: Using rimraf.sync instead of fileSystem.unlinkSync because of weird behavior by unlinkSync. Rimraf is a slower solution, but it ensures that the file is completely removed before it moves on, unlinke unlinkSync: https://github.com/nodejs/node-v0.x-archive/issues/7164
-		rimraf(filePath, error => {
-			this.removeTempFile(filePath);
-			callback(error);
-		});
-	}
-
-	addTempFile(filePath) {
-		if (tempFiles.indexOf(filePath) === -1) {
-			tempFiles.push(filePath);
-		}
-	}
-
-	removeTempFile(filePath) {
-		let index = tempFiles.indexOf(filePath);
-		if (index > -1) {
-			tempFiles = tempFiles.splice(index, 1);
-		}
 	}
 }

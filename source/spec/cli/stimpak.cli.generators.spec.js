@@ -28,18 +28,18 @@ describe("(CLI) stimpak generators", function () {
 		cleanEnvironment();
 	});
 
-	xit("should throw an error if any of the generators aren't installed", done => {
+	it("should throw an error if any of the generators aren't installed", done => {
 		const invalidGeneratorName = "not-a-real-generator";
 		command += ` ${invalidGeneratorName}`;
 
 		runCommand(command, { cwd: temporaryDirectoryPath }, (error, stdout, stderr) => {
 			const expectedStderr = `"${invalidGeneratorName}" is not installed. Use "npm install stimpak-${invalidGeneratorName} -g"\n`;
-			stderr.should.eql(expectedStderr);
+			stderr.should.contain(expectedStderr);
 			done();
 		});
 	});
 
-	xit("should use the current working directory as the destination", done => {
+	it("should use the current working directory as the destination", done => {
 		command += " test-1 --promptName=Blah";
 		const expectedFilePath = `${temporaryDirectoryPath}/generated.js`;
 
@@ -83,7 +83,7 @@ describe("(CLI) stimpak generators", function () {
 		});
 	});
 
-	xit("should run multiple designated generators without errors", done => {
+	it("should run multiple designated generators without errors", done => {
 		command += " test-1 test-2 --promptName=Blah";
 
 		runCommand(command, { cwd: temporaryDirectoryPath }, (error, stdout, stderr) => {
@@ -92,20 +92,16 @@ describe("(CLI) stimpak generators", function () {
 		});
 	});
 
-	xit("should throw an error returned by .generate", done => {
+	it("should throw an error returned by .generate", done => {
 		command += " test-3";
 
-		runCommand(command, { cwd: temporaryDirectoryPath }, error => {
-			try {
-				error.message.should.contain("Generator 3 Error!");
-				done();
-			} catch (caughtError) {
-				done(caughtError);
-			}
+		runCommand(command, { cwd: temporaryDirectoryPath }, (error, stdout, stderr) => {
+			stderr.should.contain("Generator Error!");
+			done();
 		});
 	});
 
-	xit("should be able to transpile global generators", function (done) {
+	it("should be able to transpile global generators", function (done) {
 		command += " 00000 --promptName=Blah";
 
 		runCommand(command, { cwd: temporaryDirectoryPath }, (error, stdout, stderr) => {
@@ -115,7 +111,7 @@ describe("(CLI) stimpak generators", function () {
 		});
 	});
 
-	xit("should be able to transpile global subgenerators", function (done) {
+	it("should be able to transpile global subgenerators", function (done) {
 		command += " 00000 --promptName=Blah";
 
 		runCommand(command, { cwd: temporaryDirectoryPath }, (error, stdout, stderr) => {
@@ -125,7 +121,7 @@ describe("(CLI) stimpak generators", function () {
 		});
 	});
 
-	xit("should be able to require global generators", function (done) {
+	it("should be able to require global generators", function (done) {
 		command += " 00000 --promptName=Blah";
 
 		runCommand(command, { cwd: temporaryDirectoryPath }, (error, stdout, stderr) => {
@@ -135,7 +131,7 @@ describe("(CLI) stimpak generators", function () {
 		});
 	});
 
-	xit("should be able to require global generators without errors", function (done) {
+	it("should be able to require global generators without errors", function (done) {
 		command += " 00000 --promptName=Blah";
 
 		runCommand(command, { cwd: temporaryDirectoryPath }, (error, stdout, stderr) => {

@@ -59,21 +59,40 @@ function moveFilesBack(callback) {
 	_flowsync2.default.mapSeries(Object.keys(movedFiles), function (toPath, done) {
 		var fromPath = movedFiles[toPath];
 		_fsExtra2.default.rename(toPath, fromPath, function () {
-			var index = tempFiles.indexOf(toPath);
-			if (index > -1) {
-				tempFiles = tempFiles.splice(index, 1);
-			}
+			delete movedFiles[toPath];
 			done();
 		});
 	}, callback);
 }
 
 function cleanupTempFiles(callback) {
-	var _this = this;
-
 	_flowsync2.default.mapSeries(tempFiles, function (tempFile, done) {
-		_this.unlink(tempFile, done);
+		deleteFiles(tempFile, done);
 	}, callback);
+}
+
+function deleteFiles(filePath, callback) {
+	if (filePath) {
+		(0, _rimraf2.default)(filePath, function (error) {
+			removeTempFile(filePath);
+			callback(error);
+		});
+	} else {
+		callback();
+	}
+}
+
+function addTempFile(filePath) {
+	if (tempFiles.indexOf(filePath) === -1) {
+		tempFiles.push(filePath);
+	}
+}
+
+function removeTempFile(filePath) {
+	var index = tempFiles.indexOf(filePath);
+	if (index > -1) {
+		tempFiles = tempFiles.splice(index, 1);
+	}
 }
 
 process.on("exit", cleanup);
@@ -97,6 +116,8 @@ var StimpakCliRunner = function () {
 	}, {
 		key: "routeCommand",
 		value: function routeCommand(argv, callback) {
+			var _this = this;
+
 			var parsedArguments = this.parseArgv(argv);
 			switch (parsedArguments.first) {
 				case "-V":
@@ -110,7 +131,13 @@ var StimpakCliRunner = function () {
 					break;
 
 				default:
-					this.runGenerators(parsedArguments.generatorNames, this.showDone);
+					this.runGenerators(parsedArguments.generatorNames, parsedArguments.answers, function (error) {
+						if (!error) {
+							_this.showDone(callback);
+						} else {
+							callback(error);
+						}
+					});
 			}
 		}
 	}, {
@@ -215,30 +242,30 @@ var StimpakCliRunner = function () {
 			var stimpak = _.stimpak;
 
 			var packageDirectoryPath = this.packageDirectoryPath(generatorName);
-
-			_flowsync2.default.waterfall([function (done) {
+			_flowsync2.default.series([function (done) {
 				if (generatorPath !== packageDirectoryPath) {
 					_this6.moveFiles(generatorPath, packageDirectoryPath, done);
 				} else {
 					done();
 				}
 			}, function (done) {
-				try {
-					var GeneratorConstructor = generatorConstructors[packageDirectoryPath];
+				var GeneratorConstructor = generatorConstructors[packageDirectoryPath];
 
+				try {
 					if (!GeneratorConstructor) {
 						GeneratorConstructor = require(packageDirectoryPath).default;
 						generatorConstructors[packageDirectoryPath] = GeneratorConstructor;
 					}
 
 					stimpak.use(GeneratorConstructor);
-
 					done();
 				} catch (exception) {
 					done(exception);
 				}
 			}, function (done) {
-				moveFilesBack(done);
+				cleanupTempFiles(function () {
+					moveFilesBack(done);
+				});
 			}], callback);
 		}
 
@@ -263,7 +290,7 @@ var StimpakCliRunner = function () {
 			}, function (link, done) {
 				if (link) {
 					if (link.isSymbolicLink()) {
-						_this7.unlink(toPath, done);
+						deleteFiles(toPath, done);
 					} else {
 						done();
 					}
@@ -321,9 +348,10 @@ var StimpakCliRunner = function () {
 		}
 	}, {
 		key: "showDone",
-		value: function showDone() {
+		value: function showDone(callback) {
 			_fsExtra2.default.readFile(__dirname + "/templates/done.txt", { encoding: "utf-8" }, function (error, fileContents) {
 				process.stdout.write(fileContents);
+				callback(error);
 			});
 		}
 	}, {
@@ -371,25 +399,38 @@ var StimpakCliRunner = function () {
 	}, {
 		key: "resolvePackagePath",
 		value: function resolvePackagePath(generatorName, packageName, callback) {
+
 			_flowsync2.default.mapSeries((0, _globalPaths2.default)(), function (npmPath, done) {
+
 				var generatorFilePath = npmPath + "/" + packageName;
 				_fsExtra2.default.exists(generatorFilePath, function (fileExists) {
+
 					if (fileExists) {
+
 						done(null, generatorFilePath);
 					} else {
+
 						done(null);
 					}
 				});
 			}, function (existsError, paths) {
+				paths = paths.filter(function (foundPath) {
+					return foundPath !== undefined;
+				});
+
 				if (!existsError) {
+
 					var firstPathFound = paths[0];
 					if (firstPathFound) {
+
 						callback(null, firstPathFound);
 					} else {
+
 						var error = new Error("\"" + generatorName + "\" is not installed. Use \"npm install " + packageName + " -g\"\n");
 						callback(error);
 					}
 				} else {
+
 					callback(existsError);
 				}
 			});
@@ -397,38 +438,10 @@ var StimpakCliRunner = function () {
 	}, {
 		key: "symlink",
 		value: function symlink(fromPath, toPath, callback) {
-			var _this8 = this;
-
 			_fsExtra2.default.symlink(fromPath, toPath, function (error) {
-				_this8.addTempFile(toPath);
+				addTempFile(toPath);
 				callback(error);
 			});
-		}
-	}, {
-		key: "unlink",
-		value: function unlink(filePath, callback) {
-			var _this9 = this;
-
-			// HACK: Using rimraf.sync instead of fileSystem.unlinkSync because of weird behavior by unlinkSync. Rimraf is a slower solution, but it ensures that the file is completely removed before it moves on, unlinke unlinkSync: https://github.com/nodejs/node-v0.x-archive/issues/7164
-			(0, _rimraf2.default)(filePath, function (error) {
-				_this9.removeTempFile(filePath);
-				callback(error);
-			});
-		}
-	}, {
-		key: "addTempFile",
-		value: function addTempFile(filePath) {
-			if (tempFiles.indexOf(filePath) === -1) {
-				tempFiles.push(filePath);
-			}
-		}
-	}, {
-		key: "removeTempFile",
-		value: function removeTempFile(filePath) {
-			var index = tempFiles.indexOf(filePath);
-			if (index > -1) {
-				tempFiles = tempFiles.splice(index, 1);
-			}
 		}
 	}]);
 
