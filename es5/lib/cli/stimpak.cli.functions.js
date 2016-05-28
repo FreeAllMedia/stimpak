@@ -1,149 +1,179 @@
-"use strict";Object.defineProperty(exports, "__esModule", { value: true });exports.
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+exports.run = run;
+
+var _fsExtra = require("fs-extra");
+
+var _fsExtra2 = _interopRequireDefault(_fsExtra);
+
+var _globalPaths = require("global-paths");
+
+var _globalPaths2 = _interopRequireDefault(_globalPaths);
+
+var _glob = require("glob");
+
+var _glob2 = _interopRequireDefault(_glob);
+
+var _path = require("path");
+
+var _path2 = _interopRequireDefault(_path);
+
+var _rimraf = require("rimraf");
+
+var _rimraf2 = _interopRequireDefault(_rimraf);
+
+var _flowsync = require("flowsync");
+
+var _flowsync2 = _interopRequireDefault(_flowsync);
+
+var _child_process = require("child_process");
+
+var _colors = require("colors");
+
+var _colors2 = _interopRequireDefault(_colors);
+
+var _package = require("../../../package.json");
+
+var _package2 = _interopRequireDefault(_package);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var Stimpak = require(__dirname + "/../stimpak/stimpak.js").default;
+
+/**
+ * On process "exit", reset generators.
+ */
 
 
+/**
+ * Local Dependencies
+ */
+/**
+ * 3rd-Party Dependencies
+ */
+process.on("beforeExit", resetGenerators);
 
+/**
+ * Constants
+ */
+var parsedArguments = parseArgv(process.argv);
 
+var stimpak = new Stimpak().destination(process.cwd()).answers(parsedArguments.answers);
 
+/**
+ * Variables
+ */
+var generators = {},
+    temporaryDependencyPaths = [],
+    globalNodeModulesDirectory = void 0,
+    rootDirectoryPath = _path2.default.normalize(__dirname + "/../../.."),
+    nodeModulesDirectoryPath = rootDirectoryPath + "/node_modules",
+    npmPackageNames = _glob2.default.sync("*", { cwd: nodeModulesDirectoryPath }),
+    showDebugInformation = false;
 
+/*
+	Explanation of this monster glob (from right to left):
+		* Get all files in all directories
+		* Inside of directories that don't have "stimpak" in their name
+		* Inside of a node_modules directory
+		* Anywhere inside of a directory that begins with "stimpak-"
+		* Inside of a node_modules directory
+		* Anywhere inside of the root directory
+*/
+var ignoreTranspilingFilesGlob = rootDirectoryPath + "/**/@(node_modules)/stimpak-*/**/@(node_modules)/!(stimpak)*/**/*";
+require("babel-register")({
+	ignore: ignoreTranspilingFilesGlob
+});
 
+/** ------------------------------------------------------------------------ **/
 
+function run(callback) {
+	debug(".run");
 
+	_flowsync2.default.series([function (done) {
+		determineGlobalNodeModulesDirectory(done);
+	}, function (done) {
+		routeCommand(done);
+	}], callback);
+}
 
+function routeCommand(callback) {
+	debug(".routeCommand");
 
+	switch (parsedArguments.first) {
+		case "-V":
+		case "--version":
+			showVersion(callback);
+			break;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-run = run;var _fsExtra = require("fs-extra");var _fsExtra2 = _interopRequireDefault(_fsExtra);var _globalPaths = require("global-paths");var _globalPaths2 = _interopRequireDefault(_globalPaths);var _glob = require("glob");var _glob2 = _interopRequireDefault(_glob);var _path = require("path");var _path2 = _interopRequireDefault(_path);var _rimraf = require("rimraf");var _rimraf2 = _interopRequireDefault(_rimraf);var _flowsync = require("flowsync");var _flowsync2 = _interopRequireDefault(_flowsync);var _child_process = require("child_process");var _colors = require("colors");var _colors2 = _interopRequireDefault(_colors);var _package = require("../../../package.json");var _package2 = _interopRequireDefault(_package);function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}var Stimpak = require(__dirname + "/../stimpak/stimpak.js").default; /**
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       * On process "exit", reset generators.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       */ /**
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           * Local Dependencies
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           */ /**
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               * 3rd-Party Dependencies
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               */process.on("beforeExit", resetGenerators); /**
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             * Constants
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             */var parsedArguments = parseArgv(process.argv);var stimpak = new Stimpak().destination(process.cwd()).answers(parsedArguments.answers); /**
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       * Variables
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       */var generators = {}, temporaryDependencyPaths = [], globalNodeModulesDirectory = void 0, rootDirectoryPath = _path2.default.normalize(__dirname + "/../../.."), nodeModulesDirectoryPath = rootDirectoryPath + "/node_modules", npmPackageNames = _glob2.default.sync("*", { cwd: nodeModulesDirectoryPath }), showDebugInformation = false; /*
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      	Explanation of this monster glob (from right to left):
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      		* Get all files in all directories
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      		* Inside of directories that don't have "stimpak" in their name
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      		* Inside of a node_modules directory
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      		* Anywhere inside of a directory that begins with "stimpak-"
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      		* Inside of a node_modules directory
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      		* Anywhere inside of the root directory
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      */var ignoreTranspilingFilesGlob = rootDirectoryPath + "/**/@(node_modules)/stimpak-*/**/@(node_modules)/!(stimpak)*/**/*";require("babel-register")({ ignore: ignoreTranspilingFilesGlob }); /** ------------------------------------------------------------------------ **/function run(callback) {debug(".run");_flowsync2.default.series([function (done) {determineGlobalNodeModulesDirectory(done);}, function (done) {routeCommand(done);}], callback);}function routeCommand(callback) {debug(".routeCommand");switch (parsedArguments.first) {case "-V":case "--version":showVersion(callback);break;case "-h":
+		case "-h":
 		case "--help":
 		case undefined:
 			showHelp(callback);
 			break;
 
 		default:
-			runGenerators(
-			function (error) {
+			runGenerators(function (error) {
 				if (!error) {
-					showDone(callback);} else 
-				{
-					callback(error);}});}}
-
-
-
-
-
+					showDone(callback);
+				} else {
+					callback(error);
+				}
+			});
+	}
+}
 
 function determineGlobalNodeModulesDirectory(callback) {
 	debug(".determineGlobalNodeModulesDirectory");
 
 	(0, _child_process.exec)("npm config get prefix", function (error, stdout) {
-		globalNodeModulesDirectory = 
-		stdout.
-		toString().
-		replace(/[\n\r]/, "/lib/node_modules");
+		globalNodeModulesDirectory = stdout.toString().replace(/[\n\r]/, "/lib/node_modules");
 
 		debugCallback("globalNodeModulesDirectory", globalNodeModulesDirectory);
 
-		callback();});}
-
-
+		callback();
+	});
+}
 
 function runGenerators(callback) {
 	debug(".runGenerators");
 
-	_flowsync2.default.series([
-	function (done) {loadGenerators(parsedArguments.generatorNames, done);}, 
-	function (done) {stimpak.generate(done);}], 
-	callback);}
-
+	_flowsync2.default.series([function (done) {
+		loadGenerators(parsedArguments.generatorNames, done);
+	}, function (done) {
+		stimpak.generate(done);
+	}], callback);
+}
 
 function loadGenerators(generatorNames, callback) {
 	debug(".loadGenerators", generatorNames);
 
-	_flowsync2.default.mapSeries(
-	generatorNames, 
-	loadGenerator.bind(this), 
-	callback);}
-
-
+	_flowsync2.default.mapSeries(generatorNames, loadGenerator.bind(this), callback);
+}
 
 function loadGenerator(generatorName, callback) {
 	debug(".loadGenerator", generatorName);
 
-	var generator = generators[generatorName] = { 
-		name: generatorName, 
-		packageName: generatorPackageName(generatorName) };
+	var generator = generators[generatorName] = {
+		name: generatorName,
+		packageName: generatorPackageName(generatorName)
+	};
 
-
-	_flowsync2.default.series([
-	function (done) {resolveGeneratorPaths(generator, done);}, 
-	function (done) {makeDirectory(generator.paths.nodeModulesDirectory, done);}, 
-	function (done) {linkDependencies(generator, done);}, 
-	function (done) {linkOrMoveIfGlobalGenerator(generator, done);}, 
-	function (done) {requireGenerator(generator, done);}], 
-	callback);}
-
+	_flowsync2.default.series([function (done) {
+		resolveGeneratorPaths(generator, done);
+	}, function (done) {
+		makeDirectory(generator.paths.nodeModulesDirectory, done);
+	}, function (done) {
+		linkDependencies(generator, done);
+	}, function (done) {
+		linkOrMoveIfGlobalGenerator(generator, done);
+	}, function (done) {
+		requireGenerator(generator, done);
+	}], callback);
+}
 
 function linkOrMoveIfGlobalGenerator(generator, callback) {
 	debug(".linkOrMoveIfGlobalGenerator", generator);
@@ -154,183 +184,173 @@ function linkOrMoveIfGlobalGenerator(generator, callback) {
 	if (isGlobalGenerator(generator)) {
 		moveDirectory(originalDirectory, temporaryDirectory, function (error) {
 			generator.paths.currentDirectory = temporaryDirectory;
-			callback(error);});} else 
-
-	{
-		forceSymlink(originalDirectory, temporaryDirectory, callback);}}
-
-
+			callback(error);
+		});
+	} else {
+		forceSymlink(originalDirectory, temporaryDirectory, callback);
+	}
+}
 
 function forceSymlink(fromPath, toPath, callback) {
 	_fsExtra2.default.exists(toPath, function (exists) {
 		if (!exists) {
 			symlink(fromPath, toPath, function (error) {
-				callback(error);});} else 
-
-		{
-			_flowsync2.default.series([
-			function (done) {deleteFiles(toPath, done);}, 
-			function (done) {
+				callback(error);
+			});
+		} else {
+			_flowsync2.default.series([function (done) {
+				deleteFiles(toPath, done);
+			}, function (done) {
 				symlink(fromPath, toPath, function (error) {
-					done(error);});}], 
-
-
-			callback);}});}
-
-
-
+					done(error);
+				});
+			}], callback);
+		}
+	});
+}
 
 function requireGenerator(generator, callback) {
 	debug(".requireGenerator", generator);
 
 	try {
 		if (!generator.Constructor) {
-			generator.Constructor = require(generator.paths.temporaryDirectory).default;}
-
+			generator.Constructor = require(generator.paths.temporaryDirectory).default;
+		}
 
 		stimpak.use(generator.Constructor);
 
-		callback();} 
-	catch (exception) {
-		callback(exception);}}
-
-
+		callback();
+	} catch (exception) {
+		callback(exception);
+	}
+}
 
 function resetGenerators() {
 	debug(".resetGenerators");
 
 	_flowsync2.default.mapSeries(Object.keys(generators), function (generatorName, done) {
 		var generator = generators[generatorName];
-		resetGenerator(generator, done);}, 
-	function () {
-		process.exit();});}
-
-
+		resetGenerator(generator, done);
+	}, function () {
+		process.exit();
+	});
+}
 
 function resetGenerator(generator, callback) {
 	debug(".resetGenerator", generator);
 
-	_flowsync2.default.series([
-	function (done) {
+	_flowsync2.default.series([function (done) {
 		if (generator.paths.currentDirectory !== generator.paths.originalDirectory) {
 			moveDirectory(generator.paths.currentDirectory, generator.paths.originalDirectory, function (error) {
-				done(error);});} else 
-
-		{
-			done();}}, 
-
-
-	function (done) {unlinkDependencies(generator, done);}], 
-	callback);}
-
+				done(error);
+			});
+		} else {
+			done();
+		}
+	}, function (done) {
+		unlinkDependencies(generator, done);
+	}], callback);
+}
 
 function moveDirectory(fromPath, toPath, callback) {
 	debug(".moveDirectory", fromPath, toPath);
 
-	_fsExtra2.default.rename(fromPath, toPath, callback);}
-
+	_fsExtra2.default.rename(fromPath, toPath, callback);
+}
 
 function isGlobalGenerator(generator) {
 	debug(".isGlobalGenerator", generator);
 	var isGlobal = generator.paths.realDirectory.indexOf(globalNodeModulesDirectory) !== -1;
 	debugCallback("isGlobal", isGlobal);
-	return isGlobal;}
-
+	return isGlobal;
+}
 
 function linkDependencies(generator, callback) {
 	debug(".linkDependencies", generator);
 
 	_flowsync2.default.mapSeries(npmPackageNames, function (npmPackageName, done) {
-		linkIfNotExisting(
-		nodeModulesDirectoryPath + "/" + npmPackageName, 
-		generator.paths.nodeModulesDirectory + "/" + npmPackageName, 
-		function (error) {
+		linkIfNotExisting(nodeModulesDirectoryPath + "/" + npmPackageName, generator.paths.nodeModulesDirectory + "/" + npmPackageName, function (error) {
 			if (!error) {
 				temporaryDependencyPaths.push(generator.paths.nodeModulesDirectory + "/" + npmPackageName);
-				done();} else 
-			{
-				done(error);}});}, 
-
-
-
-	callback);}
-
+				done();
+			} else {
+				done(error);
+			}
+		});
+	}, callback);
+}
 
 function unlinkDependencies(generator, callback) {
 	debug(".unlinkDependencies", generator);
 
 	_flowsync2.default.mapSeries(temporaryDependencyPaths, function (temporaryDependencyPath, dependencyUnlinked) {
-		deleteFiles(temporaryDependencyPath, dependencyUnlinked);}, 
-	callback);}
-
+		deleteFiles(temporaryDependencyPath, dependencyUnlinked);
+	}, callback);
+}
 
 function generatorPackageName(generatorName) {
 	debug(".generatorPackageName", generatorName);
 
-	return "stimpak-" + generatorName;}
-
+	return "stimpak-" + generatorName;
+}
 
 function linkIfNotExisting(fromPath, toPath, callback) {
-	//debug(".linkIfNotExisting", fromPath, toPath);
+	// debug(".linkIfNotExisting", fromPath, toPath);
 
-	_flowsync2.default.waterfall([
-	function (done) {
+	_flowsync2.default.waterfall([function (done) {
 		_fsExtra2.default.lstat(toPath, function (error, stats) {
 			if (error) {
-				done(null, null);} else 
-			{
-				done(null, stats);}});}, 
-
-
-
-	function (link, done) {
+				done(null, null);
+			} else {
+				done(null, stats);
+			}
+		});
+	}, function (link, done) {
 		if (link) {
-			done();} else 
-		{
-			symlink(fromPath, toPath, done);}}], 
-
-
-	callback);}
-
+			done();
+		} else {
+			symlink(fromPath, toPath, done);
+		}
+	}], callback);
+}
 
 function makeDirectory(directoryPath, callback) {
 	debug(".makeDirectory", directoryPath);
 
 	_fsExtra2.default.stat(directoryPath, function (error) {
 		if (error) {
-			_fsExtra2.default.mkdir(directoryPath, callback);} else 
-		{
-			callback();}});}
-
-
-
+			_fsExtra2.default.mkdir(directoryPath, callback);
+		} else {
+			callback();
+		}
+	});
+}
 
 function resolveGeneratorPaths(generator, callback) {
 	debug(".resolveGeneratorPaths", generator);
 
-	_flowsync2.default.waterfall([
-	function (done) {resolveGeneratorPath(generator, done);}, 
-	function (generatorPath, done) {
+	_flowsync2.default.waterfall([function (done) {
+		resolveGeneratorPath(generator, done);
+	}, function (generatorPath, done) {
 		_fsExtra2.default.realpath(generatorPath, function (error, realPath) {
-			generator.paths = { 
-				originalDirectory: generatorPath, 
-				nodeModulesDirectory: generatorPath + "/node_modules", 
-				temporaryDirectory: _path2.default.normalize(__dirname + "/../../../generators/" + generator.packageName), 
-				currentDirectory: generatorPath, 
-				realDirectory: realPath };
-
+			generator.paths = {
+				originalDirectory: generatorPath,
+				nodeModulesDirectory: generatorPath + "/node_modules",
+				temporaryDirectory: _path2.default.normalize(__dirname + "/../../../generators/" + generator.packageName),
+				currentDirectory: generatorPath,
+				realDirectory: realPath
+			};
 			debugCallback("paths", generator.paths);
-			done(error);});}], 
-
-
-	callback);}
-
+			done(error);
+		});
+	}], callback);
+}
 
 function resolveGeneratorPath(generator, callback) {
 	debug(".resolveGeneratorPath", generator);
 
-	resolvePackagePath(generator, callback);}
-
+	resolvePackagePath(generator, callback);
+}
 
 function resolvePackagePath(generator, callback) {
 	debug(".resolvePackagePath", generator);
@@ -340,29 +360,31 @@ function resolvePackagePath(generator, callback) {
 
 		_fsExtra2.default.exists(generatorFilePath, function (fileExists) {
 			if (fileExists) {
-				done(null, generatorFilePath);} else 
-			{
-				done(null);}});}, 
-
-
-	function (existsError, paths) {
-		paths = paths.filter(function (foundPath) {return foundPath !== undefined;});
+				done(null, generatorFilePath);
+			} else {
+				done(null);
+			}
+		});
+	}, function (existsError, paths) {
+		paths = paths.filter(function (foundPath) {
+			return foundPath !== undefined;
+		});
 
 		debugCallback("paths", paths);
 
 		if (!existsError) {
 			var firstPathFound = paths[0];
 			if (firstPathFound) {
-				callback(null, firstPathFound);} else 
-			{
+				callback(null, firstPathFound);
+			} else {
 				var error = new Error("\"" + generator.name + "\" is not installed. Use \"npm install " + generator.packageName + " -g\"\n");
-				callback(error);}} else 
-
-		{
-			callback(existsError);}});}
-
-
-
+				callback(error);
+			}
+		} else {
+			callback(existsError);
+		}
+	});
+}
 
 function deleteFiles(filePath, callback) {
 	//debug(".deleteFiles", filePath);
@@ -372,29 +394,27 @@ function deleteFiles(filePath, callback) {
 			if (!error) {
 				var index = temporaryDependencyPaths.indexOf(filePath);
 				if (index !== -1) {
-					temporaryDependencyPaths = temporaryDependencyPaths.splice(index, 1);}
-
-				callback();} else 
-			{
-				callback(error);}});} else 
-
-
-	{
-		callback();}}
-
-
+					temporaryDependencyPaths = temporaryDependencyPaths.splice(index, 1);
+				}
+				callback();
+			} else {
+				callback(error);
+			}
+		});
+	} else {
+		callback();
+	}
+}
 
 function symlink(fromPath, toPath, callback) {
 	//debug(".symlink", fromPath, toPath);
-
 	_fsExtra2.default.symlink(fromPath, toPath, function (error) {
 		if (!error) {
-			temporaryDependencyPaths.push(toPath);} else 
-		{
-			callback(error);}});}
-
-
-
+			temporaryDependencyPaths.push(toPath);
+		}
+		callback(error);
+	});
+}
 
 /**
  * CLI UTILITY FUNCTIONS
@@ -403,14 +423,14 @@ function symlink(fromPath, toPath, callback) {
 function parseArgv(argv) {
 	debug(".parseArgv", argv);
 
-	var parsedArgv = { 
-		first: argv[2], 
-		remaining: argv.splice(2), 
-		generatorNames: [], 
-		answers: {}, 
-		debug: argv[2] === "--debug" };
+	var parsedArgv = {
+		first: argv[2],
+		remaining: argv.splice(2),
+		generatorNames: [],
+		answers: {},
+		debug: argv[2] === "--debug"
 
-
+	};
 
 	for (var argumentIndex in parsedArgv.remaining) {
 		var argument = parsedArgv.remaining[argumentIndex];
@@ -421,18 +441,18 @@ function parseArgv(argv) {
 			if (answerMatchData) {
 				var answerName = answerMatchData[1];
 				var answerValue = answerMatchData[2];
-				parsedArgv.answers[answerName] = answerValue;} else 
-			{
+				parsedArgv.answers[answerName] = answerValue;
+			} else {
 				var errorMessage = "The provided answer \"" + argument + "\" is malformed, please use \"--key=value\".\n";
-				process.stderr.write(errorMessage);}} else 
+				process.stderr.write(errorMessage);
+			}
+		} else {
+			parsedArgv.generatorNames.push(argument);
+		}
+	}
 
-		{
-			parsedArgv.generatorNames.push(argument);}}
-
-
-
-	return parsedArgv;}
-
+	return parsedArgv;
+}
 
 /**
  * SHOW MESSAGES FUNCTIONS
@@ -442,37 +462,45 @@ function showVersion(callback) {
 	debug(".showVersion");
 
 	process.stdout.write(_package2.default.version + "\n");
-	callback();}
-
+	callback();
+}
 
 function showHelp(callback) {
 	debug(".showHelp");
 
-	_fsExtra2.default.
-	createReadStream(__dirname + "/templates/help.txt").
-	pipe(process.stdout);
-	callback();}
-
+	_fsExtra2.default.createReadStream(__dirname + "/templates/help.txt").pipe(process.stdout);
+	callback();
+}
 
 function showDone(callback) {
 	debug(".showDone");
 
 	_fsExtra2.default.readFile(__dirname + "/templates/done.txt", { encoding: "utf-8" }, function (error, fileContents) {
 		process.stdout.write(fileContents);
-		callback(error);});}
-
-
+		callback(error);
+	});
+}
 
 /**
  * DEVELOPER FUNCTIONS
  */
 
 function debug(message) {
-	if (showDebugInformation) {for (var _len = arguments.length, extra = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {extra[_key - 1] = arguments[_key];}
-		console.log("" + _colors2.default.gray(message + "(") + _colors2.default.yellow(extra.join(", ")) + _colors2.default.gray(")"));}}
+	if (showDebugInformation) {
+		for (var _len = arguments.length, extra = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+			extra[_key - 1] = arguments[_key];
+		}
 
-
+		console.log("" + _colors2.default.gray(message + "(") + _colors2.default.yellow(extra.join(", ")) + _colors2.default.gray(")"));
+	}
+}
 
 function debugCallback(message) {
-	if (showDebugInformation) {for (var _len2 = arguments.length, extra = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {extra[_key2 - 1] = arguments[_key2];}
-		console.log("  " + _colors2.default.red(message) + ": ", _colors2.default.red(extra.join(", ")));}}
+	if (showDebugInformation) {
+		for (var _len2 = arguments.length, extra = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+			extra[_key2 - 1] = arguments[_key2];
+		}
+
+		console.log("  " + _colors2.default.red(message) + ": ", _colors2.default.red(extra.join(", ")));
+	}
+}

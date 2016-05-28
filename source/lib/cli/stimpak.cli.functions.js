@@ -271,7 +271,7 @@ function generatorPackageName(generatorName) {
 }
 
 function linkIfNotExisting(fromPath, toPath, callback) {
-	//debug(".linkIfNotExisting", fromPath, toPath);
+	// debug(".linkIfNotExisting", fromPath, toPath);
 
 	Async.waterfall([
 		done => {
@@ -386,13 +386,11 @@ function deleteFiles(filePath, callback) {
 
 function symlink(fromPath, toPath, callback) {
 	//debug(".symlink", fromPath, toPath);
-
 	fileSystem.symlink(fromPath, toPath, error => {
 		if (!error) {
 			temporaryDependencyPaths.push(toPath);
-		} else {
-			callback(error);
 		}
+		callback(error);
 	});
 }
 

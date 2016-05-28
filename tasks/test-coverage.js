@@ -14,7 +14,7 @@ gulp.task("test-coverage", ["build"], callback => {
 		.on("finish", () => {
 			gulp.src(paths.source.allSpec)
 				.pipe(mocha())
-				.pipe(istanbul.writeReports({dir: `${__dirname}/../`, reporters: ["html", "text"]})) // Creating the reports after tests ran
+				.pipe(istanbul.writeReports({dir: `${__dirname}/../coverage`, reporters: ["html", "text"]})) // Creating the reports after tests ran
 				// .pipe(istanbul.enforceThresholds({ thresholds: { global: 100 } })) // Enforce a coverage of 100%
 				.once("end", error => {
 					callback(error);
