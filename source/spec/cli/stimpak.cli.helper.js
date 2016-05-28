@@ -74,13 +74,3 @@ function setPaths() {
 
 	paths.globalGeneratorDirectoryPath = `${paths.globalNodeModulesDirectoryPath}/stimpak-00000`;
 }
-
-function symLink(sourceDirectoryPath, destinationDirectoryPath) {
-	try {
-		fileSystem.unlinkSync(destinationDirectoryPath);
-	} catch (ex) {
-		// nop
-	}
-
-	fileSystem.symlinkSync(sourceDirectoryPath, destinationDirectoryPath);
-}
