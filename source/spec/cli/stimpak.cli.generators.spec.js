@@ -39,7 +39,7 @@ describe("(CLI) stimpak generators", function () {
 		});
 	});
 
-	it("should use the current working directory as the destination", done => {
+	it("should run a single local generator", done => {
 		command += " test-1 --promptName=Blah";
 		const expectedFilePath = `${temporaryDirectoryPath}/generated.js`;
 
@@ -67,7 +67,7 @@ describe("(CLI) stimpak generators", function () {
 		});
 	});
 
-	it("should run multiple designated generators", done => {
+	it("should run multiple designated local generators", done => {
 		command += " test-1 test-2 --promptName=Blah";
 
 		const expectedFilePaths = [
@@ -83,7 +83,7 @@ describe("(CLI) stimpak generators", function () {
 		});
 	});
 
-	it("should run multiple designated generators without errors", done => {
+	it("should run multiple designated local generators without errors", done => {
 		command += " test-1 test-2 --promptName=Blah";
 
 		runCommand(command, { cwd: temporaryDirectoryPath }, (error, stdout, stderr) => {

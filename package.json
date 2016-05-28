@@ -40,6 +40,7 @@
   "dependencies": {
     "babel-polyfill": "^6.9.0",
     "babel-register": "^6.9.0",
+    "colors": "^1.1.2",
     "flowsync": "^0.1.12",
     "fs-extra": "^0.30.0",
     "glob": "^7.0.3",
