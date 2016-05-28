@@ -144,8 +144,16 @@ function runGenerators(callback) {
 	_flowsync2.default.series([function (done) {
 		loadGenerators(parsedArguments.generatorNames, done);
 	}, function (done) {
-		stimpak.generate(done);
+		generateFiles(done);
 	}], callback);
+}
+
+function generateFiles(callback) {
+	try {
+		stimpak.generate(callback);
+	} catch (exception) {
+		callback(exception);
+	}
 }
 
 function loadGenerators(generatorNames, callback) {

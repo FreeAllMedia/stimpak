@@ -114,8 +114,16 @@ function runGenerators(callback) {
 
 	Async.series([
 		done => { loadGenerators(parsedArguments.generatorNames, done); },
-		done => { stimpak.generate(done); }
+		done => { generateFiles(done); }
 	], callback);
+}
+
+function generateFiles(callback) {
+	try {
+		stimpak.generate(callback);
+	} catch (exception) {
+		callback(exception);
+	}
 }
 
 function loadGenerators(generatorNames, callback) {
