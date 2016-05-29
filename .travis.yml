@@ -1,23 +1,23 @@
 language: node_js
 node_js:
-- '6'
+# - '6' TODO: See if this has ever been fixed: https://github.com/gulpjs/gulp/issues/1571
 - '5'
 - '4'
 - '0.12'
 - '0.11'
-- '0.10'
+# - '0.10' TODO: https://travis-ci.org/FreeAllMedia/stimpak/jobs/133763968
 - iojs-v1
 - iojs-v2
 - iojs-v3
 script: npm test
-before_script:
-- gulp -v
-- rm -fR ./node_modules
-- npm i -g npm
-- npm -v
-- npm install
-after_success:
-- ./node_modules/coveralls/bin/coveralls.js < ./lcov.info
+#before_script:
+#- gulp -v
+#- rm -fR ./node_modules
+#- npm i -g npm
+#- npm -v
+#- npm install
+#after_success:
+# - ./node_modules/coveralls/bin/coveralls.js < ./lcov.info
 branches:
   only:
     - master

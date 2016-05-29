@@ -17,11 +17,9 @@ export default function prompt(...prompts) {
 			inquirer
 				.prompt(prompts)
 				.then(questionAnswers => {
-					for (let answerName in questionAnswers) {
-						const answer = questionAnswers[answerName];
-						const answers = this.answers();
-						answers[answerName] = answer;
-					}
+					this.answers(questionAnswers);
+
+					process.stdout.write("\n");
 
 					stepDone();
 				});

@@ -5,7 +5,7 @@ import {
 	exec as runCommand
 } from "child_process";
 
-import { setupCliEnvironment } from "./stimpak.cli.helper.js";
+import { setupCliEnvironment, cleanEnvironment } from "./stimpak.cli.helper.js";
 import glob from "glob";
 
 describe("(CLI) stimpak generators", function () {
@@ -15,16 +15,17 @@ describe("(CLI) stimpak generators", function () {
 			temporaryDirectoryPath,
 			environmentOptions;
 
-	before(done => {
+	beforeEach(done => {
 		setupCliEnvironment((error, options) => {
 			environmentOptions = options;
+			temporaryDirectoryPath = environmentOptions.temporaryDirectoryPath;
+			command = environmentOptions.command;
 			done();
 		});
 	});
 
-	beforeEach(() => {
-		temporaryDirectoryPath = environmentOptions.temporaryDirectoryPath;
-		command = String(environmentOptions.command);
+	afterEach(() => {
+		cleanEnvironment();
 	});
 
 	it("should throw an error if any of the generators aren't installed", done => {
@@ -33,12 +34,12 @@ describe("(CLI) stimpak generators", function () {
 
 		runCommand(command, { cwd: temporaryDirectoryPath }, (error, stdout, stderr) => {
 			const expectedStderr = `"${invalidGeneratorName}" is not installed. Use "npm install stimpak-${invalidGeneratorName} -g"\n`;
-			stderr.should.eql(expectedStderr);
+			stderr.should.contain(expectedStderr);
 			done();
 		});
 	});
 
-	it("should use the current working directory as the destination", done => {
+	it("should run a single local generator", done => {
 		command += " test-1 --promptName=Blah";
 		const expectedFilePath = `${temporaryDirectoryPath}/generated.js`;
 
@@ -66,12 +67,13 @@ describe("(CLI) stimpak generators", function () {
 		});
 	});
 
-	it("should run multiple designated generators", done => {
+	it("should run multiple designated local generators", done => {
 		command += " test-1 test-2 --promptName=Blah";
 
 		const expectedFilePaths = [
 			`${temporaryDirectoryPath}/generated.js`,
-			`${temporaryDirectoryPath}/generated2.js`
+			`${temporaryDirectoryPath}/generated2.js`,
+			`${temporaryDirectoryPath}/subgenerated.js`
 		];
 
 		runCommand(command, { cwd: temporaryDirectoryPath }, error => {
@@ -81,16 +83,41 @@ describe("(CLI) stimpak generators", function () {
 		});
 	});
 
+	it("should run multiple designated local generators without errors", done => {
+		command += " test-1 test-2 --promptName=Blah";
+
+		runCommand(command, { cwd: temporaryDirectoryPath }, (error, stdout, stderr) => {
+			stderr.should.eql("");
+			done(error);
+		});
+	});
+
 	it("should throw an error returned by .generate", done => {
 		command += " test-3";
 
-		runCommand(command, { cwd: temporaryDirectoryPath }, error => {
-			try {
-				error.message.should.contain("Generator 3 Error!");
-				done();
-			} catch (caughtError) {
-				done(caughtError);
-			}
+		runCommand(command, { cwd: temporaryDirectoryPath }, (error, stdout, stderr) => {
+			stderr.should.contain("Generator Error!");
+			done();
+		});
+	});
+
+	it("should be able to transpile global generators", function (done) {
+		command += " 00000 --promptName=Blah";
+
+		runCommand(command, { cwd: temporaryDirectoryPath }, (error, stdout, stderr) => {
+			const allOutput = stdout + stderr;
+			allOutput.should.not.contain("import StimpakSubGenerator from \"stimpak-subgenerator\"");
+			done(error);
+		});
+	});
+
+	it("should be able to transpile global subgenerators", function (done) {
+		command += " 00000 --promptName=Blah";
+
+		runCommand(command, { cwd: temporaryDirectoryPath }, (error, stdout, stderr) => {
+			const allOutput = stdout + stderr;
+			allOutput.should.not.contain("export default class StimpakSubGenerator");
+			done(error);
 		});
 	});
 
@@ -98,8 +125,18 @@ describe("(CLI) stimpak generators", function () {
 		command += " 00000 --promptName=Blah";
 
 		runCommand(command, { cwd: temporaryDirectoryPath }, (error, stdout, stderr) => {
-			stderr.should.not.contain("SyntaxError: Unexpected reserved word");
-			done();
+			const allOutput = stdout + stderr;
+			allOutput.should.not.contain(`"00000" is not installed. Use "npm install stimpak-00000 -g"\n`);
+			done(error);
+		});
+	});
+
+	it("should be able to require global generators without errors", function (done) {
+		command += " 00000 --promptName=Blah";
+
+		runCommand(command, { cwd: temporaryDirectoryPath }, (error, stdout, stderr) => {
+			stderr.should.be.empty;
+			done(error);
 		});
 	});
 });
