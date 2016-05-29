@@ -34,6 +34,7 @@ import rimraf from "rimraf";
 import Async from "flowsync";
 import { exec } from "child_process";
 import colors from "colors";
+import util from "util";
 
 /**
  * Local Dependencies
@@ -60,20 +61,6 @@ let generators = {},
 		nodeModulesDirectoryPath = `${rootDirectoryPath}/node_modules`,
 		npmPackageNames = glob.sync("*", { cwd: nodeModulesDirectoryPath }),
 		showDebugInformation = false;
-
-/*
-	Explanation of this monster glob (from right to left):
-		* Get all files in all directories
-		* Inside of directories that don't have "stimpak" in their name
-		* Inside of a node_modules directory
-		* Anywhere inside of a directory that begins with "stimpak-"
-		* Inside of a node_modules directory
-		* Anywhere inside of the root directory
-*/
-let ignoreTranspilingFilesGlob = `${rootDirectoryPath}/**/@(node_modules)/stimpak-*/**/@(node_modules)/!(stimpak)*/**/*`;
-require("babel-register")({
-	ignore: ignoreTranspilingFilesGlob
-});
 
 /** ------------------------------------------------------------------------ **/
 
@@ -102,6 +89,7 @@ function routeCommand(callback) {
 			break;
 
 		default:
+			enableJustInTimeTranspiling();
 			runGenerators(
 				(error) => {
 					if (!error) {
@@ -112,6 +100,15 @@ function routeCommand(callback) {
 				}
 			);
 	}
+}
+
+function enableJustInTimeTranspiling() {
+	require("babel-register")({
+		ignore: [
+			`${rootDirectoryPath}/generators/**/node_modules/!(stimpak)*/**/*.*`,
+			`${rootDirectoryPath}/node_modules/**/*`
+		]
+	});
 }
 
 function determineGlobalNodeModulesDirectory(callback) {
@@ -497,6 +494,7 @@ function showDone(callback) {
 
 function debug(message, ...extra) {
 	if (showDebugInformation) {
+		extra = extra.map(extraData => { return util.inspect(extraData) });
 		console.log(`${colors.gray(message+"(")}${colors.yellow(extra.join(", "))}${colors.gray(")")}`);
 	}
 }
