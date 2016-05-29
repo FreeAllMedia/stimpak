@@ -1,11 +1,11 @@
 language: node_js
 node_js:
-# - '6' https://github.com/gulpjs/gulp/issues/1571
+# - '6' TODO: See if this has ever been fixed: https://github.com/gulpjs/gulp/issues/1571
 - '5'
 - '4'
 - '0.12'
 - '0.11'
-- '0.10'
+# - '0.10' TODO: https://travis-ci.org/FreeAllMedia/stimpak/jobs/133763968
 - iojs-v1
 - iojs-v2
 - iojs-v3
