@@ -139,4 +139,13 @@ describe("(CLI) stimpak generators", function () {
 			done(error);
 		});
 	});
+
+	it("should transpile symlinked subgenerators", function (done) {
+		command += " test-5 --promptName=Blah";
+
+		runCommand(command, { cwd: temporaryDirectoryPath }, (error, stdout, stderr) => {
+			stderr.should.be.empty;
+			done(error);
+		});
+	});
 });

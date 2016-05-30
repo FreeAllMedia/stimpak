@@ -1,6 +1,6 @@
 {
   "name": "stimpak",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "Generate and re-generate code of any language with ease!",
   "main": "./es5/lib/index.js",
   "bin": {
