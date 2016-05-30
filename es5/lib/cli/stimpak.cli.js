@@ -140,7 +140,10 @@ function routeCommand(callback) {
 
 function enableJustInTimeTranspiling() {
 	require("babel-register")({
-		ignore: [rootDirectoryPath + "/generators/**/node_modules/!(stimpak)*/**/*.*", rootDirectoryPath + "/node_modules/**/*"]
+
+		// /Users/dcrockwell/Dropbox/Code/stimpak-project-basic-information/node_modules/babylon/.babelrc
+
+		ignore: ["**/node_modules/!(stimpak)*/**/*.*", rootDirectoryPath + "/node_modules/**/*"]
 	});
 }
 
@@ -191,7 +194,7 @@ function loadGenerator(generatorName, callback) {
 	_flowsync2.default.series([function (done) {
 		resolveGeneratorPaths(generator, done);
 	}, function (done) {
-		makeDirectory(generator.paths.nodeModulesDirectory, done);
+		makeNodeModuleDirectories(generator, done);
 	}, function (done) {
 		linkDependencies(generator, done);
 	}, function (done) {
@@ -199,6 +202,10 @@ function loadGenerator(generatorName, callback) {
 	}, function (done) {
 		requireGenerator(generator, done);
 	}], callback);
+}
+
+function makeNodeModuleDirectories(generator, callback) {
+	_flowsync2.default.mapSeries(generator.paths.nodeModulesDirectories, makeDirectory, callback);
 }
 
 function linkOrMoveIfGlobalGenerator(generator, callback) {
@@ -294,12 +301,17 @@ function isGlobalGenerator(generator) {
 }
 
 function linkDependencies(generator, callback) {
-	debug(".linkDependencies", generator);
+	debug(".linkDependencies", generator.paths.nodeModulesDirectories);
+	_flowsync2.default.mapSeries(generator.paths.nodeModulesDirectories, linkTranspilingDependencies, callback);
+}
 
+function linkTranspilingDependencies(generatorNodeModulesDirectoryPath, callback) {
+	debug(".linkTranspilingDependencies", generatorNodeModulesDirectoryPath);
 	_flowsync2.default.mapSeries(npmPackageNames, function (npmPackageName, done) {
-		linkIfNotExisting(nodeModulesDirectoryPath + "/" + npmPackageName, generator.paths.nodeModulesDirectory + "/" + npmPackageName, function (error) {
+		debugCallback("npmPackageName", npmPackageName);
+		linkIfNotExisting(nodeModulesDirectoryPath + "/" + npmPackageName, generatorNodeModulesDirectoryPath + "/" + npmPackageName, function (error) {
 			if (!error) {
-				temporaryDependencyPaths.push(generator.paths.nodeModulesDirectory + "/" + npmPackageName);
+				temporaryDependencyPaths.push(generatorNodeModulesDirectoryPath + "/" + npmPackageName);
 				done();
 			} else {
 				done(error);
@@ -363,11 +375,15 @@ function resolveGeneratorPaths(generator, callback) {
 		_fsExtra2.default.realpath(generatorPath, function (error, realPath) {
 			generator.paths = {
 				originalDirectory: generatorPath,
-				nodeModulesDirectory: generatorPath + "/node_modules",
-				temporaryDirectory: _path2.default.normalize(__dirname + "/../../../generators/" + generator.packageName),
+				temporaryDirectory: rootDirectoryPath + "/generators/" + generator.packageName,
 				currentDirectory: generatorPath,
-				realDirectory: realPath
+				realDirectory: realPath,
+				stimpakDirectories: _glob2.default.sync(realPath + "{/,/**/stimpak-*/}", { follow: true })
 			};
+			generator.paths.nodeModulesDirectories = generator.paths.stimpakDirectories.map(function (stimpakDirectoryPath) {
+				return stimpakDirectoryPath + "node_modules";
+			});
+
 			debugCallback("paths", generator.paths);
 			done(error);
 		});
