@@ -36,13 +36,21 @@ var _flowsync2 = _interopRequireDefault(_flowsync);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function generate(callback) {
+	var _this = this;
+
 	this.debug("generate");
 
 	if (this.destination()) {
 		var _ = (0, _incognito2.default)(this);
 		var action = _.action;
 
-		action.step(renderFiles.bind(this)).results(callback);
+		action.results(function (error) {
+			if (!error) {
+				renderFiles.call(_this, _this, callback);
+			} else {
+				callback(error);
+			}
+		});
 	} else {
 		callback(new Error("You must set .destination() before you can .generate()"));
 	}
@@ -55,7 +63,7 @@ function renderFiles(stimpak, done) {
 }
 
 function renderSource(source, done) {
-	var _this = this;
+	var _this2 = this;
 
 	var templateFileNames = _glob2.default.sync(source.glob(), {
 		cwd: source.directory(),
@@ -63,13 +71,13 @@ function renderSource(source, done) {
 	});
 
 	_flowsync2.default.mapSeries(templateFileNames, function (fileName, fileNameDone) {
-		renderFile.call(_this, fileName, source, fileNameDone);
+		renderFile.call(_this2, fileName, source, fileNameDone);
 	}, done);
 }
 
 // TODO: Clean up function by breaking it up into smaller ones
 function renderFile(fileName, source, done) {
-	var _this2 = this;
+	var _this3 = this;
 
 	var templateFilePath = source.directory() + "/" + fileName;
 	var templateFileStats = _fsExtra2.default.statSync(templateFilePath);
@@ -88,12 +96,12 @@ function renderFile(fileName, source, done) {
 		done();
 	} else {
 		(function () {
-			var fileContents = renderTemplateFile.call(_this2, templateFilePath);
+			var fileContents = renderTemplateFile.call(_this3, templateFilePath);
 
 			var newFile = new _vinyl2.default({
-				cwd: _this2.destination(),
-				base: _this2.destination(),
-				path: _this2.destination() + "/" + filePath,
+				cwd: _this3.destination(),
+				base: _this3.destination(),
+				path: _this3.destination() + "/" + filePath,
 				contents: new Buffer(fileContents)
 			});
 
@@ -101,7 +109,7 @@ function renderFile(fileName, source, done) {
 				(function () {
 					var oldFileContents = _fsExtra2.default.readFileSync(newFile.path);
 
-					var mergeStrategies = _this2.merge();
+					var mergeStrategies = _this3.merge();
 
 					if (mergeStrategies.length > 0) {
 						_flowsync2.default.mapSeries(mergeStrategies, function (mergeStrategy, mergeDone) {
@@ -116,7 +124,7 @@ function renderFile(fileName, source, done) {
 									contents: oldFileContents
 								});
 
-								mergeFunction(_this2, newFile, oldFile, function (error, mergedFile) {
+								mergeFunction(_this3, newFile, oldFile, function (error, mergedFile) {
 									if (error) {
 										mergeDone(error);
 									} else {
