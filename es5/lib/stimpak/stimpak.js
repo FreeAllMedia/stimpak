@@ -36,7 +36,8 @@ exports.Source = _source2.default;
 
 var externalFunction = Symbol(),
     initializePrivateData = Symbol(),
-    initializeInterface = Symbol();
+    initializeInterface = Symbol(),
+    parseOptions = Symbol();
 
 var Stimpak = function (_ChainLink) {
 	_inherits(Stimpak, _ChainLink);
@@ -49,9 +50,10 @@ var Stimpak = function (_ChainLink) {
 
 	_createClass(Stimpak, [{
 		key: "initialize",
-		value: function initialize() {
+		value: function initialize(options) {
 			this[initializePrivateData]();
 			this[initializeInterface]();
+			this[parseOptions](options);
 		}
 	}, {
 		key: initializePrivateData,
@@ -67,11 +69,19 @@ var Stimpak = function (_ChainLink) {
 
 			this.link("source", _source2.default).into("sources");
 
-			this.parameters("destination");
+			this.parameters("destination", "debugStream", "logStream");
 
 			this.parameters("answers").mergeKeyValues;
 
 			this.parameters("merge").multiValue.aggregate;
+		}
+	}, {
+		key: parseOptions,
+		value: function value() {
+			var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+			this.debugStream(options.debugStream);
+			this.logStream(options.logStream || process.stdout);
 		}
 	}, {
 		key: externalFunction,
@@ -82,6 +92,7 @@ var Stimpak = function (_ChainLink) {
 				options[_key - 1] = arguments[_key];
 			}
 
+			this.debug("externalFunction: " + functionFilePath, options);
 			return (_require$default = require(functionFilePath).default).call.apply(_require$default, [this].concat(options));
 		}
 	}, {
@@ -130,6 +141,16 @@ var Stimpak = function (_ChainLink) {
 		key: "logo",
 		value: function logo(message) {
 			return this[externalFunction]("./stimpak.logo.js", message);
+		}
+	}, {
+		key: "log",
+		value: function log(message, payload) {
+			return this[externalFunction]("./stimpak.log.js", message, payload);
+		}
+	}, {
+		key: "debug",
+		value: function debug(message, payload) {
+			return require("./stimpak.debug.js").default.call(this, message, payload);
 		}
 	}]);
 

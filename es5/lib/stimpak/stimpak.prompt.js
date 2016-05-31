@@ -22,6 +22,7 @@ function prompt() {
 		prompts[_key] = arguments[_key];
 	}
 
+	this.debug("prompt", prompts);
 	var _ = (0, _incognito2.default)(this);
 
 	var action = _.action;

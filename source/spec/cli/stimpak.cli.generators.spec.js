@@ -8,7 +8,7 @@ import {
 import { setupCliEnvironment, cleanEnvironment } from "./stimpak.cli.helper.js";
 import glob from "glob";
 
-describe("(CLI) stimpak generators", function () {
+xdescribe("(CLI) stimpak generators", function () {
 	this.timeout(20000);
 
 	let command,

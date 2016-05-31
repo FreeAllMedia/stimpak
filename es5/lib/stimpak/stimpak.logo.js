@@ -22,6 +22,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function logo() {
 	var message = arguments.length <= 0 || arguments[0] === undefined ? "" : arguments[0];
 
+	this.debug("logo", message);
+
 	var templateContents = _fs2.default.readFileSync(__dirname + "/../cli/templates/logo.txt");
 	var template = (0, _lodash2.default)(templateContents);
 	var renderedNote = template({
