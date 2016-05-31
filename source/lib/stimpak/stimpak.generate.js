@@ -14,8 +14,13 @@ export default function generate(callback) {
 		const action = _.action;
 
 		action
-			.step(renderFiles.bind(this))
-			.results(callback);
+			.results(error => {
+				if (!error) {
+					renderFiles.call(this, this, callback);
+				} else {
+					callback(error);
+				}
+			});
 	} else {
 		callback(new Error("You must set .destination() before you can .generate()"));
 	}

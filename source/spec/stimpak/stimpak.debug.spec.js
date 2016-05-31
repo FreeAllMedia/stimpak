@@ -25,7 +25,7 @@ describe(".debug(message, ...payload)", () => {
 			.debugStream(debugStream)
 			.debug(expectedOutput);
 
-		actualOutput.should.eql(expectedOutput);
+		actualOutput.should.eql(`${expectedOutput}\n`);
 	});
 
 	it("should return this to enable chaining", () => {

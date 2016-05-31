@@ -32,7 +32,7 @@ describe("stimpak.command()", () => {
 	});
 
 	it("should add its step to .steps", () => {
-		stimpak.steps.length.should.eql(2);
+		stimpak.steps.length.should.eql(1);
 	});
 
 	it("should run the command and callback with stimpak", () => {
