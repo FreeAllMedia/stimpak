@@ -7,6 +7,8 @@ import File from "vinyl";
 import Async from "flowsync";
 
 export default function generate(callback) {
+	this.debug("generate");
+
 	if (this.destination()) {
 		const _ = privateData(this);
 		const action = _.action;

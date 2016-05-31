@@ -48,16 +48,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 require("babel-polyfill");
 
-/**
- * It all starts with calling `.runCommand()`
- */
-run(function (error) {
-	if (error) {
-		resetGenerators(function () {
-			throw error;
-		});
-	}
-});
+var parsedArguments = parseArgv(process.argv);
 
 /**
  * On process "exit", reset generators.
@@ -84,7 +75,6 @@ var Stimpak = require(__dirname + "/../stimpak/stimpak.js").default;
 /**
  * Constants
  */
-var parsedArguments = parseArgv(process.argv);
 
 var stimpak = new Stimpak().destination(process.cwd()).answers(parsedArguments.answers);
 
@@ -96,8 +86,18 @@ var generators = {},
     globalNodeModulesDirectory = void 0,
     rootDirectoryPath = _path2.default.normalize(__dirname + "/../../.."),
     nodeModulesDirectoryPath = rootDirectoryPath + "/node_modules",
-    npmPackageNames = _glob2.default.sync("*", { cwd: nodeModulesDirectoryPath }),
-    showDebugInformation = false;
+    npmPackageNames = _glob2.default.sync("*", { cwd: nodeModulesDirectoryPath });
+
+/** ------------------------------------------------------------------------ **/
+
+enableDebug();
+run(function (error) {
+	if (error) {
+		resetGenerators(function () {
+			throw error;
+		});
+	}
+});
 
 /** ------------------------------------------------------------------------ **/
 
@@ -109,6 +109,13 @@ function run(callback) {
 	}, function (done) {
 		routeCommand(done);
 	}], callback);
+}
+
+function enableDebug() {
+	if (parsedArguments.debug) {
+		stimpak.debugStream(process.stdout);
+		process.stdout.write("STIMPAK DEBUG MODE\n");
+	}
 }
 
 function routeCommand(callback) {
@@ -308,7 +315,7 @@ function linkDependencies(generator, callback) {
 function linkTranspilingDependencies(generatorNodeModulesDirectoryPath, callback) {
 	debug(".linkTranspilingDependencies", generatorNodeModulesDirectoryPath);
 	_flowsync2.default.mapSeries(npmPackageNames, function (npmPackageName, done) {
-		debugCallback("npmPackageName", npmPackageName);
+		// debugCallback("npmPackageName", npmPackageName);
 		linkIfNotExisting(nodeModulesDirectoryPath + "/" + npmPackageName, generatorNodeModulesDirectoryPath + "/" + npmPackageName, function (error) {
 			if (!error) {
 				temporaryDependencyPaths.push(generatorNodeModulesDirectoryPath + "/" + npmPackageName);
@@ -465,15 +472,14 @@ function symlink(fromPath, toPath, callback) {
  */
 
 function parseArgv(argv) {
-	debug(".parseArgv", argv);
+	var useDebug = argv.indexOf("--debug") !== -1;
 
 	var parsedArgv = {
 		first: argv[2],
 		remaining: argv.splice(2),
 		generatorNames: [],
 		answers: {},
-		debug: argv[2] === "--debug"
-
+		debug: useDebug
 	};
 
 	for (var argumentIndex in parsedArgv.remaining) {
@@ -533,7 +539,7 @@ function debug(message) {
 		extra[_key - 1] = arguments[_key];
 	}
 
-	if (showDebugInformation) {
+	if (parsedArguments.debug) {
 		extra = extra.map(function (extraData) {
 			return _util2.default.inspect(extraData);
 		});
@@ -542,7 +548,7 @@ function debug(message) {
 }
 
 function debugCallback(message) {
-	if (showDebugInformation) {
+	if (parsedArguments.debug) {
 		for (var _len2 = arguments.length, extra = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
 			extra[_key2 - 1] = arguments[_key2];
 		}

@@ -1,7 +1,7 @@
 import { exec as runCommand } from "child_process";
 import { setupCliEnvironment } from "./stimpak.cli.helper.js";
 
-describe("(CLI) stimpak --answers", function () {
+xdescribe("(CLI) stimpak --answers", function () {
 	this.timeout(20000);
 
 	let command,

@@ -8,11 +8,16 @@ import chai from "chai";
 chai.should(); // This enables should-style syntax
 
 gulp.task("test-coverage", ["build"], callback => {
-	gulp.src(paths.source.javascript)
-		.pipe(istanbul()) // Covering files
+	gulp.src(paths.source.library)
+		.pipe(istanbul({
+			"verbose": false,
+			"instrumentation": {
+				"default-excludes": false
+			}
+		})) // Covering files
 		.pipe(istanbul.hookRequire()) // Force `require` to return covered files
 		.on("finish", () => {
-			gulp.src(paths.source.allSpec)
+			gulp.src(paths.source.librarySpec)
 				.pipe(mocha())
 				.pipe(istanbul.writeReports({dir: `${__dirname}/../coverage`, reporters: ["html", "text"]})) // Creating the reports after tests ran
 				// .pipe(istanbul.enforceThresholds({ thresholds: { global: 100 } })) // Enforce a coverage of 100%

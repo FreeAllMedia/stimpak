@@ -36,6 +36,8 @@ var _flowsync2 = _interopRequireDefault(_flowsync);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function generate(callback) {
+	this.debug("generate");
+
 	if (this.destination()) {
 		var _ = (0, _incognito2.default)(this);
 		var action = _.action;

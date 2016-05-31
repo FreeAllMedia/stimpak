@@ -8,12 +8,14 @@ export { Source };
 
 const externalFunction = Symbol(),
 			initializePrivateData = Symbol(),
-			initializeInterface = Symbol();
+			initializeInterface = Symbol(),
+			parseOptions = Symbol();
 
 export default class Stimpak extends ChainLink {
-	initialize() {
+	initialize(options) {
 		this[initializePrivateData]();
 		this[initializeInterface]();
+		this[parseOptions](options);
 	}
 
 	[initializePrivateData]() {
@@ -30,7 +32,9 @@ export default class Stimpak extends ChainLink {
 				.into("sources");
 
 		this.parameters(
-			"destination"
+			"destination",
+			"debugStream",
+			"logStream"
 		);
 
 		this.parameters(
@@ -42,7 +46,13 @@ export default class Stimpak extends ChainLink {
 		).multiValue.aggregate;
 	}
 
+	[parseOptions](options = {}) {
+		this.debugStream(options.debugStream);
+		this.logStream(options.logStream || process.stdout);
+	}
+
 	[externalFunction](functionFilePath, ...options) {
+		this.debug(`externalFunction: ${functionFilePath}`, options);
 		return require(functionFilePath).default.call(this, ...options);
 	}
 
@@ -72,5 +82,13 @@ export default class Stimpak extends ChainLink {
 
 	logo(message) {
 		return this[externalFunction]("./stimpak.logo.js", message);
+	}
+
+	log(message, payload) {
+		return this[externalFunction]("./stimpak.log.js", message, payload);
+	}
+
+	debug(message, payload) {
+		return require("./stimpak.debug.js").default.call(this, message, payload);
 	}
 }

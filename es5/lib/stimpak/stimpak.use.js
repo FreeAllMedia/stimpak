@@ -11,6 +11,7 @@ function use() {
 		generators[_key] = arguments[_key];
 	}
 
+	this.debug("use", generators);
 	generators.forEach(function (GeneratorConstructor) {
 		_this.generators.push(new GeneratorConstructor(_this));
 	});

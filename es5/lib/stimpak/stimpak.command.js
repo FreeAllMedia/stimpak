@@ -16,6 +16,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function command(commandString, afterCommand) {
 	var _this = this;
 
+	this.debug("commandString");
 	var _ = (0, _incognito2.default)(this);
 	_.action.step(function (stimpak, done) {
 		(0, _child_process.exec)(commandString, function (error, stdout, stderr) {

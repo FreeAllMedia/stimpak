@@ -2,6 +2,7 @@ import privateData from "incognito";
 import inquirer from "inquirer";
 
 export default function prompt(...prompts) {
+	this.debug("prompt", prompts);
 	const _ = privateData(this);
 
 	const action = _.action;

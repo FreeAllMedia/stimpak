@@ -3,6 +3,8 @@ import newTemplate from "lodash.template";
 import fileSystem from "fs";
 
 export default function note(message) {
+	this.debug("note", message);
+
 	const templateContents = fileSystem.readFileSync(`${__dirname}/../cli/templates/note.txt`);
 	const template = newTemplate(templateContents);
 	const renderedNote = template({

@@ -20,6 +20,8 @@ var _fs2 = _interopRequireDefault(_fs);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function note(message) {
+	this.debug("note", message);
+
 	var templateContents = _fs2.default.readFileSync(__dirname + "/../cli/templates/note.txt");
 	var template = (0, _lodash2.default)(templateContents);
 	var renderedNote = template({
