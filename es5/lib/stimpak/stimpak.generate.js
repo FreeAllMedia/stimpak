@@ -182,7 +182,7 @@ function shouldSkipFile(filePath) {
 	for (var index in flattenedSkips) {
 		var skipGlob = flattenedSkips[index];
 
-		if ((0, _minimatch2.default)(filePath, skipGlob)) {
+		if ((0, _minimatch2.default)(filePath, skipGlob, { dot: true })) {
 			skipFile = true;
 			break;
 		}

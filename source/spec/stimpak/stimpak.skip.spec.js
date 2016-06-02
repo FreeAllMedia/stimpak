@@ -27,7 +27,8 @@ describe(".skip(globOrGlobs)", () => {
 			.skip("**/!(colors.js)")
 			.generate(error => {
 				const generatedFileNames = glob.sync("**/*", {
-					cwd: temporaryDirectoryPath
+					cwd: temporaryDirectoryPath,
+					dot: true
 				});
 
 				generatedFileNames.should.eql([
@@ -42,12 +43,14 @@ describe(".skip(globOrGlobs)", () => {
 		stimpak
 			.skip([
 				"**/package.json",
+				"**/.someFile",
 				"**/{existingDirectory,existingDirectory/**/*}",
 				"**/{someFolder,someFolder/**/*}"
 			])
 			.generate(error => {
 				const generatedFileNames = glob.sync("**/*", {
-					cwd: temporaryDirectoryPath
+					cwd: temporaryDirectoryPath,
+					dot: true
 				});
 
 				generatedFileNames.should.eql([
