@@ -4,9 +4,9 @@ const initializeInterface = Symbol(),
 			initializeDefaults = Symbol();
 
 export default class Source extends ChainLink {
-	initialize(globString) {
+	initialize(globString, directory) {
 		this[initializeInterface]();
-		this[initializeDefaults](globString);
+		this[initializeDefaults](globString, directory);
 	}
 
 	[initializeInterface]() {
@@ -17,9 +17,9 @@ export default class Source extends ChainLink {
 		);
 	}
 
-	[initializeDefaults](globString = "**/*") {
+	[initializeDefaults](globString = "**/*", directory) {
 		this.glob(globString);
-		this.directory(process.cwd());
+		this.directory(directory);
 		this.basePath(this.directory());
 	}
 }

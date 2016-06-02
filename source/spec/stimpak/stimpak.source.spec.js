@@ -18,4 +18,10 @@ describe("stimpak.source()", () => {
 		const source = stimpak.source(globString);
 		stimpak.sources.should.eql([source]);
 	});
+
+	it("should be able to set the directory at the same time", () => {
+		const directoryPath = __dirname;
+		const source = stimpak.source(globString, directoryPath);
+		source.directory().should.eql(directoryPath);
+	});
 });

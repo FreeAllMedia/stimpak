@@ -6,7 +6,7 @@ describe("Source.basePath()", () => {
 
 	beforeEach(() => {
 		globString = "**/*";
-		source = new Source(globString);
+		source = new Source(globString, __dirname);
 	});
 
 	it("should set basePath to directory by default", () => {
@@ -15,6 +15,7 @@ describe("Source.basePath()", () => {
 
 	it("should be settable", () => {
 		const newBasePath = "/some/directory";
+
 		source.basePath(newBasePath);
 		source.basePath().should.eql(newBasePath);
 	});

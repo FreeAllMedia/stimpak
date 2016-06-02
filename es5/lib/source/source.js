@@ -32,9 +32,9 @@ var Source = function (_ChainLink) {
 
 	_createClass(Source, [{
 		key: "initialize",
-		value: function initialize(globString) {
+		value: function initialize(globString, directory) {
 			this[initializeInterface]();
-			this[initializeDefaults](globString);
+			this[initializeDefaults](globString, directory);
 		}
 	}, {
 		key: initializeInterface,
@@ -45,9 +45,10 @@ var Source = function (_ChainLink) {
 		key: initializeDefaults,
 		value: function value() {
 			var globString = arguments.length <= 0 || arguments[0] === undefined ? "**/*" : arguments[0];
+			var directory = arguments[1];
 
 			this.glob(globString);
-			this.directory(process.cwd());
+			this.directory(directory);
 			this.basePath(this.directory());
 		}
 	}]);

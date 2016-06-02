@@ -71,6 +71,8 @@ var Stimpak = function (_ChainLink) {
 
 			this.parameters("destination", "debugStream", "logStream");
 
+			this.parameters("skip").aggregate;
+
 			this.parameters("answers").mergeKeyValues;
 
 			this.parameters("merge").multiValue.aggregate;

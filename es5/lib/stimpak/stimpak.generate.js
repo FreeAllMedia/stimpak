@@ -33,6 +33,14 @@ var _flowsync = require("flowsync");
 
 var _flowsync2 = _interopRequireDefault(_flowsync);
 
+var _minimatch = require("minimatch");
+
+var _minimatch2 = _interopRequireDefault(_minimatch);
+
+var _lodash5 = require("lodash.flattendeep");
+
+var _lodash6 = _interopRequireDefault(_lodash5);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function generate(callback) {
@@ -91,58 +99,62 @@ function renderFile(fileName, source, done) {
 		filePath = filePath.replace(answerRegExp, answerValue);
 	}
 
-	if (templateFileStats.isDirectory()) {
-		_fsExtra2.default.mkdirsSync(this.destination() + "/" + filePath);
-		done();
+	if (!shouldSkipFile.call(this, filePath)) {
+		if (templateFileStats.isDirectory()) {
+			_fsExtra2.default.mkdirsSync(this.destination() + "/" + filePath);
+			done();
+		} else {
+			(function () {
+				var fileContents = renderTemplateFile.call(_this3, templateFilePath);
+
+				var newFile = new _vinyl2.default({
+					cwd: _this3.destination(),
+					base: _this3.destination(),
+					path: _this3.destination() + "/" + filePath,
+					contents: new Buffer(fileContents)
+				});
+
+				if (_fsExtra2.default.existsSync(newFile.path)) {
+					(function () {
+						var oldFileContents = _fsExtra2.default.readFileSync(newFile.path);
+
+						var mergeStrategies = _this3.merge();
+
+						if (mergeStrategies.length > 0) {
+							_flowsync2.default.mapSeries(mergeStrategies, function (mergeStrategy, mergeDone) {
+								var mergePattern = new RegExp(mergeStrategy[0]);
+
+								if (newFile.path.match(mergePattern)) {
+									var mergeFunction = mergeStrategy[1];
+									var oldFile = new _vinyl2.default({
+										cwd: newFile.cwd,
+										base: newFile.base,
+										path: newFile.path,
+										contents: oldFileContents
+									});
+
+									mergeFunction(_this3, newFile, oldFile, function (error, mergedFile) {
+										if (error) {
+											mergeDone(error);
+										} else {
+											writeFile(mergedFile.path, mergedFile.contents, mergeDone);
+										}
+									});
+								} else {
+									writeFile(newFile.path, newFile.contents, mergeDone);
+								}
+							}, done);
+						} else {
+							writeFile(newFile.path, newFile.contents, done);
+						}
+					})();
+				} else {
+					writeFile(newFile.path, newFile.contents, done);
+				}
+			})();
+		}
 	} else {
-		(function () {
-			var fileContents = renderTemplateFile.call(_this3, templateFilePath);
-
-			var newFile = new _vinyl2.default({
-				cwd: _this3.destination(),
-				base: _this3.destination(),
-				path: _this3.destination() + "/" + filePath,
-				contents: new Buffer(fileContents)
-			});
-
-			if (_fsExtra2.default.existsSync(newFile.path)) {
-				(function () {
-					var oldFileContents = _fsExtra2.default.readFileSync(newFile.path);
-
-					var mergeStrategies = _this3.merge();
-
-					if (mergeStrategies.length > 0) {
-						_flowsync2.default.mapSeries(mergeStrategies, function (mergeStrategy, mergeDone) {
-							var mergePattern = new RegExp(mergeStrategy[0]);
-
-							if (newFile.path.match(mergePattern)) {
-								var mergeFunction = mergeStrategy[1];
-								var oldFile = new _vinyl2.default({
-									cwd: newFile.cwd,
-									base: newFile.base,
-									path: newFile.path,
-									contents: oldFileContents
-								});
-
-								mergeFunction(_this3, newFile, oldFile, function (error, mergedFile) {
-									if (error) {
-										mergeDone(error);
-									} else {
-										writeFile(mergedFile.path, mergedFile.contents, mergeDone);
-									}
-								});
-							} else {
-								writeFile(newFile.path, newFile.contents, mergeDone);
-							}
-						}, done);
-					} else {
-						writeFile(newFile.path, newFile.contents, done);
-					}
-				})();
-			} else {
-				writeFile(newFile.path, newFile.contents, done);
-			}
-		})();
+		done();
 	}
 }
 
@@ -159,4 +171,22 @@ function renderTemplateFile(templateFilePath) {
 function writeFile(filePath, fileContents, done) {
 	_fsExtra2.default.writeFileSync(filePath, fileContents);
 	done();
+}
+
+function shouldSkipFile(filePath) {
+	var skips = this.skip();
+	var skipFile = false;
+
+	var flattenedSkips = (0, _lodash6.default)(skips);
+
+	for (var index in flattenedSkips) {
+		var skipGlob = flattenedSkips[index];
+
+		if ((0, _minimatch2.default)(filePath, skipGlob)) {
+			skipFile = true;
+			break;
+		}
+	}
+
+	return skipFile;
 }
