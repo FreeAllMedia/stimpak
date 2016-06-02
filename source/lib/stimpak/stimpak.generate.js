@@ -149,7 +149,7 @@ function shouldSkipFile(filePath) {
 	for (let index in flattenedSkips) {
 		const skipGlob = flattenedSkips[index];
 
-		if (minimatch(filePath, skipGlob)) {
+		if (minimatch(filePath, skipGlob, { dot: true })) {
 			skipFile = true;
 			break;
 		}
