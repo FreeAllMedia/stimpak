@@ -1,6 +1,6 @@
 {
   "name": "stimpak",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "description": "Generate and re-generate code of any language with ease!",
   "main": "./es5/lib/index.js",
   "bin": {
@@ -48,12 +48,14 @@
     "incognito": "^0.1.4",
     "inquirer": "^1.0.2",
     "lodash": "^4.13.1",
+    "lodash.flattendeep": "^4.2.0",
     "lodash.template": "^4.2.4",
     "lodash.templatesettings": "^4.0.1",
+    "minimatch": "^3.0.0",
     "mrt": "^0.1.6",
+    "rimraf": "^2.5.2",
     "staircase": "^0.1.0",
     "temp": "^0.8.3",
-    "vinyl": "^1.1.1",
-    "rimraf": "^2.5.2"
+    "vinyl": "^1.1.1"
   }
 }

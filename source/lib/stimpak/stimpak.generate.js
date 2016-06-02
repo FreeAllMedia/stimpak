@@ -5,6 +5,8 @@ import glob from "glob";
 import fileSystem from "fs-extra";
 import File from "vinyl";
 import Async from "flowsync";
+import minimatch from "minimatch";
+import flattenDeep from "lodash.flattendeep";
 
 export default function generate(callback) {
 	this.debug("generate");
@@ -65,54 +67,58 @@ function renderFile(fileName, source, done) {
 		filePath = filePath.replace(answerRegExp, answerValue);
 	}
 
-	if (templateFileStats.isDirectory()) {
-		fileSystem.mkdirsSync(`${this.destination()}/${filePath}`);
-		done();
-	} else {
-		const fileContents = renderTemplateFile.call(this, templateFilePath);
+	if (!shouldSkipFile.call(this, filePath)) {
+		if (templateFileStats.isDirectory()) {
+			fileSystem.mkdirsSync(`${this.destination()}/${filePath}`);
+			done();
+		} else {
+			const fileContents = renderTemplateFile.call(this, templateFilePath);
 
-		const newFile = new File({
-			cwd: this.destination(),
-			base: this.destination(),
-			path: `${this.destination()}/${filePath}`,
-			contents: new Buffer(fileContents)
-		});
+			const newFile = new File({
+				cwd: this.destination(),
+				base: this.destination(),
+				path: `${this.destination()}/${filePath}`,
+				contents: new Buffer(fileContents)
+			});
 
-		if (fileSystem.existsSync(newFile.path)) {
-			const oldFileContents = fileSystem.readFileSync(newFile.path);
+			if (fileSystem.existsSync(newFile.path)) {
+				const oldFileContents = fileSystem.readFileSync(newFile.path);
 
-			const mergeStrategies = this.merge();
+				const mergeStrategies = this.merge();
 
-			if (mergeStrategies.length > 0) {
-				Async.mapSeries(mergeStrategies, (mergeStrategy, mergeDone) => {
-					const mergePattern = new RegExp(mergeStrategy[0]);
+				if (mergeStrategies.length > 0) {
+					Async.mapSeries(mergeStrategies, (mergeStrategy, mergeDone) => {
+						const mergePattern = new RegExp(mergeStrategy[0]);
 
-					if (newFile.path.match(mergePattern)) {
-						const mergeFunction = mergeStrategy[1];
-						const oldFile = new File({
-							cwd: newFile.cwd,
-							base: newFile.base,
-							path: newFile.path,
-							contents: oldFileContents
-						});
+						if (newFile.path.match(mergePattern)) {
+							const mergeFunction = mergeStrategy[1];
+							const oldFile = new File({
+								cwd: newFile.cwd,
+								base: newFile.base,
+								path: newFile.path,
+								contents: oldFileContents
+							});
 
-						mergeFunction(this, newFile, oldFile, (error, mergedFile) => {
-							if (error) {
-								mergeDone(error);
-							} else {
-								writeFile(mergedFile.path, mergedFile.contents, mergeDone);
-							}
-						});
-					} else {
-						writeFile(newFile.path, newFile.contents, mergeDone);
-					}
-				}, done);
+							mergeFunction(this, newFile, oldFile, (error, mergedFile) => {
+								if (error) {
+									mergeDone(error);
+								} else {
+									writeFile(mergedFile.path, mergedFile.contents, mergeDone);
+								}
+							});
+						} else {
+							writeFile(newFile.path, newFile.contents, mergeDone);
+						}
+					}, done);
+				} else {
+					writeFile(newFile.path, newFile.contents, done);
+				}
 			} else {
 				writeFile(newFile.path, newFile.contents, done);
 			}
-		} else {
-			writeFile(newFile.path, newFile.contents, done);
 		}
+	} else {
+		done();
 	}
 }
 
@@ -132,4 +138,22 @@ function writeFile(filePath, fileContents, done) {
 		fileContents
 	);
 	done();
+}
+
+function shouldSkipFile(filePath) {
+	const skips = this.skip();
+	let skipFile = false;
+
+	const flattenedSkips = flattenDeep(skips);
+
+	for (let index in flattenedSkips) {
+		const skipGlob = flattenedSkips[index];
+
+		if (minimatch(filePath, skipGlob)) {
+			skipFile = true;
+			break;
+		}
+	}
+
+	return skipFile;
 }

@@ -38,6 +38,10 @@ export default class Stimpak extends ChainLink {
 		);
 
 		this.parameters(
+			"skip"
+		).aggregate;
+
+		this.parameters(
 			"answers"
 		).mergeKeyValues;
 
