@@ -27,25 +27,33 @@ function prompt() {
 
 	var action = _.action;
 
-	var _loop = function _loop(answerName) {
-		prompts = prompts.filter(function (promptDefinition) {
-			return promptDefinition.name !== answerName;
-		});
-	};
-
-	for (var answerName in this.answers()) {
-		_loop(answerName);
-	}
-
 	if (prompts.length > 0) {
 		action.step(function (generator, stepDone) {
-			_inquirer2.default.prompt(prompts).then(function (questionAnswers) {
-				_this.answers(questionAnswers);
+			var unansweredPrompts = prompts;
 
-				process.stdout.write("\n");
+			var answers = _this.answers();
 
+			var _loop = function _loop(answerName) {
+				unansweredPrompts = unansweredPrompts.filter(function (promptDefinition) {
+					return promptDefinition.name !== answerName;
+				});
+			};
+
+			for (var answerName in answers) {
+				_loop(answerName);
+			}
+
+			if (unansweredPrompts.length > 0) {
+				_inquirer2.default.prompt(prompts).then(function (questionAnswers) {
+					_this.answers(questionAnswers);
+
+					process.stdout.write("\n");
+
+					stepDone();
+				});
+			} else {
 				stepDone();
-			});
+			}
 		});
 	}
 
