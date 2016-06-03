@@ -30,7 +30,7 @@ function note(message) {
 
 	var _ = (0, _incognito2.default)(this);
 	_.action.step(function (stimpak, done) {
-		process.stdout.write(renderedNote);
+		process.stdout.write("\n" + renderedNote);
 		done();
 	});
 	return this;

@@ -23,6 +23,7 @@ function prompt() {
 	}
 
 	this.debug("prompt", prompts);
+
 	var _ = (0, _incognito2.default)(this);
 
 	var action = _.action;
@@ -46,9 +47,6 @@ function prompt() {
 			if (unansweredPrompts.length > 0) {
 				_inquirer2.default.prompt(prompts).then(function (questionAnswers) {
 					_this.answers(questionAnswers);
-
-					process.stdout.write("\n");
-
 					stepDone();
 				});
 			} else {

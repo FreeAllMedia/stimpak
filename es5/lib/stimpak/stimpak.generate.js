@@ -83,25 +83,25 @@ function renderSource(source, done) {
 	}, done);
 }
 
-// TODO: Clean up function by breaking it up into smaller ones
-function renderFile(fileName, source, done) {
+// TODO: Clean up renderFile by breaking it up into smaller functions
+function renderFile(templateFileName, source, done) {
 	var _this3 = this;
 
-	var templateFilePath = source.directory() + "/" + fileName;
+	var templateFilePath = source.directory() + "/" + templateFileName;
 	var templateFileStats = _fsExtra2.default.statSync(templateFilePath);
 	var answers = this.answers();
 
-	var filePath = "" + fileName;
+	var destinationFileName = String(templateFileName);
 
 	for (var answerName in answers) {
 		var answerValue = answers[answerName];
 		var answerRegExp = new RegExp("##" + answerName + "##", "g");
-		filePath = filePath.replace(answerRegExp, answerValue);
+		destinationFileName = destinationFileName.replace(answerRegExp, answerValue);
 	}
 
-	if (!shouldSkipFile.call(this, filePath)) {
+	if (!shouldSkipFile.call(this, destinationFileName, templateFileName)) {
 		if (templateFileStats.isDirectory()) {
-			_fsExtra2.default.mkdirsSync(this.destination() + "/" + filePath);
+			_fsExtra2.default.mkdirsSync(this.destination() + "/" + destinationFileName);
 			done();
 		} else {
 			(function () {
@@ -110,7 +110,7 @@ function renderFile(fileName, source, done) {
 				var newFile = new _vinyl2.default({
 					cwd: _this3.destination(),
 					base: _this3.destination(),
-					path: _this3.destination() + "/" + filePath,
+					path: _this3.destination() + "/" + destinationFileName,
 					contents: new Buffer(fileContents)
 				});
 
@@ -173,7 +173,7 @@ function writeFile(filePath, fileContents, done) {
 	done();
 }
 
-function shouldSkipFile(filePath) {
+function shouldSkipFile(filePath, templateFileName) {
 	var skips = this.skip();
 	var skipFile = false;
 
@@ -182,7 +182,7 @@ function shouldSkipFile(filePath) {
 	for (var index in flattenedSkips) {
 		var skipGlob = flattenedSkips[index];
 
-		if ((0, _minimatch2.default)(filePath, skipGlob, { dot: true })) {
+		if ((0, _minimatch2.default)(filePath, skipGlob, { dot: true }) || (0, _minimatch2.default)(templateFileName, skipGlob, { dot: true })) {
 			skipFile = true;
 			break;
 		}
