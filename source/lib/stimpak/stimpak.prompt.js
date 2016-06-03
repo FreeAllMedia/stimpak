@@ -7,24 +7,33 @@ export default function prompt(...prompts) {
 
 	const action = _.action;
 
-	for (let answerName in this.answers()) {
-		prompts = prompts.filter(promptDefinition => {
-			return (promptDefinition.name !== answerName);
-		});
-	}
-
 	if (prompts.length > 0) {
 		action.step((generator, stepDone) => {
-			inquirer
-				.prompt(prompts)
-				.then(questionAnswers => {
-					this.answers(questionAnswers);
+			let unansweredPrompts = prompts;
 
-					process.stdout.write("\n");
+			const answers = this.answers();
 
-					stepDone();
+			for (let answerName in answers) {
+				unansweredPrompts = unansweredPrompts.filter(promptDefinition => {
+					return (promptDefinition.name !== answerName);
 				});
-			});
+			}
+
+			if (unansweredPrompts.length > 0) {
+				inquirer
+					.prompt(prompts)
+					.then(questionAnswers => {
+						this.answers(questionAnswers);
+
+						process.stdout.write("\n");
+
+						stepDone();
+					});
+
+			} else {
+				stepDone();
+			}
+		});
 	}
 
 	return this;
