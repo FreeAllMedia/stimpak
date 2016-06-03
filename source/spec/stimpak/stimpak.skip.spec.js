@@ -39,13 +39,35 @@ describe(".skip(globOrGlobs)", () => {
 			});
 	});
 
-	it("should skip files from an array of globs", done => {
+	it("should skip files by destination file name", done => {
 		stimpak
 			.skip([
 				"**/package.json",
 				"**/.someFile",
 				"**/{existingDirectory,existingDirectory/**/*}",
 				"**/{someFolder,someFolder/**/*}"
+			])
+			.generate(error => {
+				const generatedFileNames = glob.sync("**/*", {
+					cwd: temporaryDirectoryPath,
+					dot: true
+				});
+
+				generatedFileNames.should.eql([
+					"colors.js"
+				]);
+
+				done(error);
+			});
+	});
+
+	it("should skip files by template name", done => {
+		stimpak
+			.skip([
+				"**/package.json",
+				"**/.##dynamicFileName##",
+				"**/{existingDirectory,existingDirectory/**/*}",
+				"**/{##dynamicFolderName##,##dynamicFolderName##/**/*}"
 			])
 			.generate(error => {
 				const generatedFileNames = glob.sync("**/*", {

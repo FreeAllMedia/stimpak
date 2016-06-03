@@ -3,6 +3,7 @@ import inquirer from "inquirer";
 
 export default function prompt(...prompts) {
 	this.debug("prompt", prompts);
+
 	const _ = privateData(this);
 
 	const action = _.action;
@@ -24,9 +25,6 @@ export default function prompt(...prompts) {
 					.prompt(prompts)
 					.then(questionAnswers => {
 						this.answers(questionAnswers);
-
-						//process.stdout.write("\n");
-
 						stepDone();
 					});
 
