@@ -62,7 +62,7 @@ describe("(CLI) stimpak generators", function () {
 		);
 
 		runCommand(command, { cwd: temporaryDirectoryPath }, (error, stdout) => {
-			stdout.should.eql(expectedStdout);
+			stdout.should.eql(`\n${expectedStdout}`);
 			done(error);
 		});
 	});

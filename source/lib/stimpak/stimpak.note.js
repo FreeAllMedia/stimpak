@@ -14,7 +14,7 @@ export default function note(message) {
 	const _ = privateData(this);
 	_.action
 		.step((stimpak, done) => {
-			process.stdout.write(renderedNote);
+			process.stdout.write(`\n${renderedNote}`);
 			done();
 		});
 	return this;

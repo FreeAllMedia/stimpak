@@ -25,7 +25,7 @@ export default function prompt(...prompts) {
 					.then(questionAnswers => {
 						this.answers(questionAnswers);
 
-						process.stdout.write("\n");
+						//process.stdout.write("\n");
 
 						stepDone();
 					});

@@ -510,7 +510,7 @@ function showDone(callback) {
 	debug(".showDone");
 
 	fileSystem.readFile(`${__dirname}/templates/done.txt`, { encoding: "utf-8" }, (error, fileContents) => {
-		process.stdout.write(fileContents);
+		process.stdout.write(`\n${fileContents}`);
 		callback(error);
 	});
 }

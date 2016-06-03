@@ -525,7 +525,7 @@ function showDone(callback) {
 	debug(".showDone");
 
 	_fsExtra2.default.readFile(__dirname + "/templates/done.txt", { encoding: "utf-8" }, function (error, fileContents) {
-		process.stdout.write(fileContents);
+		process.stdout.write("\n" + fileContents);
 		callback(error);
 	});
 }

@@ -102,39 +102,4 @@ describe("stimpak.prompt() (input)", () => {
 			process.stdin.emit("data", `${answers.lastName}\n`);
 		}, 200);
 	});
-
-	it("should have a line return at the end of questioning", done => {
-		let stdout = "";
-
-		const stopIntercept = intercept(data => {
-			stdout += data.toString();
-		});
-
-		stimpak
-			// .answers({
-			// 	firstName: "Bob",
-			// 	lastName: "Belcher"
-			// })
-			.prompt(...prompts)
-			.generate(error => {
-				stopIntercept();
-
-				try {
-					process.stdout.write(stdout);
-					const lastTwoCharacters = stdout.slice(stdout.length - 2);
-					lastTwoCharacters.should.eql("\n\n");
-					done(error);
-				} catch (exception) {
-					done(exception);
-				}
-			});
-
-		setTimeout(() => {
-			process.stdin.emit("data", `${answers.firstName}\n`);
-		}, 100);
-
-		setTimeout(() => {
-			process.stdin.emit("data", `${answers.lastName}\n`);
-		}, 200);
-	});
 });

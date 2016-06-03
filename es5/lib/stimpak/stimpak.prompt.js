@@ -47,7 +47,7 @@ function prompt() {
 				_inquirer2.default.prompt(prompts).then(function (questionAnswers) {
 					_this.answers(questionAnswers);
 
-					process.stdout.write("\n");
+					//process.stdout.write("\n");
 
 					stepDone();
 				});

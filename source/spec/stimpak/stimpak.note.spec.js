@@ -39,6 +39,6 @@ describe("stimpak.note()", () => {
 			message
 		});
 
-		actualStdout.should.eql(expectedStdout);
+		actualStdout.should.eql(`\n${expectedStdout}`);
 	});
 });
