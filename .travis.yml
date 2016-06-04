@@ -5,7 +5,7 @@ node_js:
 - '4'
 - '0.12'
 - '0.11'
-# - '0.10' TODO: https://travis-ci.org/FreeAllMedia/stimpak/jobs/133763968
+- '0.10'
 - iojs-v1
 - iojs-v2
 - iojs-v3
