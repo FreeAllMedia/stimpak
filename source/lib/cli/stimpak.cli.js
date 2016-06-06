@@ -297,7 +297,6 @@ function linkTranspilingDependencies(generatorNodeModulesDirectoryPath, callback
 			`${generatorNodeModulesDirectoryPath}/${npmPackageName}`,
 			error => {
 				if (!error) {
-					temporaryDependencyPaths.push(`${generatorNodeModulesDirectoryPath}/${npmPackageName}`);
 					done();
 				} else {
 					done(error);
@@ -338,6 +337,7 @@ function linkIfNotExisting(fromPath, toPath, callback) {
 			if (link) {
 				done();
 			} else {
+				temporaryDependencyPaths.push(toPath);
 				symlink(fromPath, toPath, done);
 			}
 		}

@@ -318,7 +318,6 @@ function linkTranspilingDependencies(generatorNodeModulesDirectoryPath, callback
 		// debugCallback("npmPackageName", npmPackageName);
 		linkIfNotExisting(nodeModulesDirectoryPath + "/" + npmPackageName, generatorNodeModulesDirectoryPath + "/" + npmPackageName, function (error) {
 			if (!error) {
-				temporaryDependencyPaths.push(generatorNodeModulesDirectoryPath + "/" + npmPackageName);
 				done();
 			} else {
 				done(error);
@@ -356,6 +355,7 @@ function linkIfNotExisting(fromPath, toPath, callback) {
 		if (link) {
 			done();
 		} else {
+			temporaryDependencyPaths.push(toPath);
 			symlink(fromPath, toPath, done);
 		}
 	}], callback);
