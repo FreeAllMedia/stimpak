@@ -1,12 +1,12 @@
 import Stimpak from "../../lib/stimpak/stimpak.js";
 
-// @TODO: remove .only
-describe.only("stimpak.generate() (changed context)", () => {
+describe("stimpak.generate() (changed context)", () => {
   let stimpak;
   let object = { "foo": "bar" };
 
 	beforeEach(() => {
 		stimpak = new Stimpak();
+		stimpak.destination('some/path');
 	});
 
   it("should run each step with the given context", done => {
@@ -17,7 +17,10 @@ describe.only("stimpak.generate() (changed context)", () => {
     });
 
     stimpak.generate(error => {
-      (object.called === undefined).should.not.be.true;
+      object.should.eql({
+        "foo": "bar",
+        called: true,
+      });
 
       done(error);
     });
