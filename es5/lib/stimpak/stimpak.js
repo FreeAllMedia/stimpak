@@ -116,14 +116,11 @@ var Stimpak = function (_ChainLink) {
 
 			return this[externalFunction].apply(this, ["./stimpak.then.js"].concat(stepFunctions));
 		}
-
-		/*
-  context(object) {
-  	privateData(this).context(object);
-  		return this;
-  }
-  */
-
+	}, {
+		key: "context",
+		value: function context(object) {
+			return this[externalFunction]("./stimpak.context.js", object);
+		}
 	}, {
 		key: "command",
 		value: function command(_command, callback) {
