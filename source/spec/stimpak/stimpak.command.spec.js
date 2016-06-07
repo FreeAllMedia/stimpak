@@ -52,4 +52,13 @@ describe("stimpak.command()", () => {
 				done();
 			});
 	});
+
+	it("should run the command without a command callback", done => {
+		stimpak = new Stimpak()
+			.command(command)
+			.destination("/some/path")
+			.generate(error => {
+				done(error);
+			});
+	});
 });
