@@ -285,7 +285,6 @@ function linkDependencies(generator, callback) {
 		linkTranspilingDependencies,
 		callback
 	);
-
 }
 
 function linkTranspilingDependencies(generatorNodeModulesDirectoryPath, callback) {
@@ -296,6 +295,7 @@ function linkTranspilingDependencies(generatorNodeModulesDirectoryPath, callback
 			`${nodeModulesDirectoryPath}/${npmPackageName}`,
 			`${generatorNodeModulesDirectoryPath}/${npmPackageName}`,
 			error => {
+				// debugCallback("dependencies linked");
 				if (!error) {
 					done();
 				} else {
@@ -321,7 +321,7 @@ function generatorPackageName(generatorName) {
 }
 
 function linkIfNotExisting(fromPath, toPath, callback) {
-	// debug(".linkIfNotExisting", fromPath, toPath);
+	//debug(".linkIfNotExisting", fromPath, toPath);
 
 	Async.waterfall([
 		done => {
@@ -337,11 +337,15 @@ function linkIfNotExisting(fromPath, toPath, callback) {
 			if (link) {
 				done();
 			} else {
+				//debugCallback("dependency linked", toPath);
 				temporaryDependencyPaths.push(toPath);
 				symlink(fromPath, toPath, done);
 			}
 		}
-	], callback);
+	], error => {
+		//debugCallback("link if not existing done");
+		callback(error);
+	});
 }
 
 function makeDirectory(directoryPath, callback) {
@@ -349,7 +353,10 @@ function makeDirectory(directoryPath, callback) {
 
 	fileSystem.stat(directoryPath, error => {
 		if (error) {
-			fileSystem.mkdir(directoryPath, callback);
+			fileSystem.mkdir(directoryPath, makeDirectoryError => {
+				debugCallback("directory made", directoryPath);
+				callback(makeDirectoryError);
+			});
 		} else {
 			callback();
 		}
@@ -360,25 +367,35 @@ function resolveGeneratorPaths(generator, callback) {
 	debug(".resolveGeneratorPaths", generator);
 
 	Async.waterfall([
-		done => { resolveGeneratorPath(generator, done); },
+		done => { resolveGeneratorPath(generator, (error, generatorPath) => {
+			debugCallback("resolve generator path", generatorPath);
+			done(error, generatorPath);
+		}); },
 		(generatorPath, done) => {
+			debugCallback("path resolved", generatorPath);
 			fileSystem.realpath(generatorPath, (error, realPath) => {
+				debugCallback("real path resolved", realPath);
+				const stimpakDirectories = glob.sync(`${realPath}{/,/**/stimpak-*/}`);
+				debugCallback("stimpak directories", stimpakDirectories);
 				generator.paths = {
 					originalDirectory: generatorPath,
 					temporaryDirectory: `${rootDirectoryPath}/generators/${generator.packageName}`,
 					currentDirectory: generatorPath,
 					realDirectory: realPath,
-					stimpakDirectories: glob.sync(`${realPath}{/,/**/stimpak-*/}`, { follow: true })
+					stimpakDirectories: stimpakDirectories
 				};
+
 				generator.paths.nodeModulesDirectories = generator.paths.stimpakDirectories.map(stimpakDirectoryPath => {
 					return `${stimpakDirectoryPath}node_modules`;
 				});
 
-				debugCallback("paths", generator.paths);
 				done(error);
 			});
 		}
-	], callback);
+	], error => {
+		debugCallback("resolve generator paths done");
+		callback(error);
+	});
 }
 
 function resolveGeneratorPath(generator, callback) {
@@ -390,33 +407,49 @@ function resolveGeneratorPath(generator, callback) {
 function resolvePackagePath(generator, callback) {
 	debug(".resolvePackagePath", generator);
 
-	Async.mapSeries(npmPaths(), (npmPath, done) => {
-		const generatorFilePath = `${npmPath}/${generator.packageName}`;
+	Async.mapSeries(
+		npmPaths(),
+		checkGeneratorPath(generator),
+		returnGeneratorPath(generator, (error, packagePath) => {
+			debugCallback("returned generator path", packagePath);
+			callback(error, packagePath);
+		})
+	);
+}
 
+function returnGeneratorPath(generator, callback) {
+	return (error, paths) => {
+		debug(".returnGeneratorPath");
+		paths = paths.filter(foundPath => { return foundPath !== undefined; });
+
+		if (!error) {
+			const firstPathFound = paths[0];
+			debugCallback("firstPathFound", firstPathFound);
+			if (firstPathFound) {
+				callback(null, firstPathFound);
+			} else {
+				const generatorNotFoundError = new Error(`"${generator.name}" is not installed. Use "npm install ${generator.packageName} -g"\n`);
+				callback(generatorNotFoundError);
+			}
+		} else {
+			callback(error);
+		}
+	};
+}
+
+function checkGeneratorPath(generator) {
+	return (npmPath, done) => {
+		debug(".checkGeneratorPath", npmPath);
+		const generatorFilePath = `${npmPath}/${generator.packageName}`;
 		fileSystem.exists(generatorFilePath, fileExists => {
+			debugCallback("fileExists", generatorFilePath, fileExists);
 			if (fileExists) {
 				done(null, generatorFilePath);
 			} else {
 				done(null);
 			}
 		});
-	}, (existsError, paths) => {
-		paths = paths.filter(foundPath => { return foundPath !== undefined; });
-
-		debugCallback("paths", paths);
-
-		if (!existsError) {
-			const firstPathFound = paths[0];
-			if (firstPathFound) {
-				callback(null, firstPathFound);
-			} else {
-				const error = new Error(`"${generator.name}" is not installed. Use "npm install ${generator.packageName} -g"\n`);
-				callback(error);
-			}
-		} else {
-			callback(existsError);
-		}
-	});
+	};
 }
 
 function deleteFiles(filePath, callback) {
@@ -519,15 +552,21 @@ function showDone(callback) {
  * DEVELOPER FUNCTIONS
  */
 
+let startTime = new Date(),
+		endTime;
+
 function debug(message, ...extra) {
 	if (parsedArguments.debug) {
-		extra = extra.map(extraData => { return util.inspect(extraData) });
+		startTime = new Date();
+		extra = extra.map(extraData => { return util.inspect(extraData); });
 		console.log(`${colors.gray(message+"(")}${colors.yellow(extra.join(", "))}${colors.gray(")")}`);
 	}
 }
 
 function debugCallback(message, ...extra) {
 	if (parsedArguments.debug) {
-		console.log(`  ${colors.red(message)}: `, colors.red(extra.join(", ")));
+		endTime = new Date();
+		const secondsElapsed = (endTime - startTime) / 1000;
+		console.log(`  ${colors.red(message)}: `, colors.red(extra.join(", ")) + colors.gray(` [${secondsElapsed}]`));
 	}
 }
