@@ -1,5 +1,6 @@
 import privateData from "incognito";
 import inquirer from "inquirer";
+import Async from "flowsync";
 
 export default function prompt(...prompts) {
 	this.debug("prompt", prompts);
@@ -20,17 +21,14 @@ export default function prompt(...prompts) {
 				});
 			}
 
-			if (unansweredPrompts.length > 0) {
+			Async.mapSeries(unansweredPrompts, (unansweredPrompt, done) => {
 				inquirer
-					.prompt(prompts)
+					.prompt(unansweredPrompt)
 					.then(questionAnswers => {
 						this.answers(questionAnswers);
-						stepDone();
+						done();
 					});
-
-			} else {
-				stepDone();
-			}
+			}, stepDone);
 		});
 	}
 

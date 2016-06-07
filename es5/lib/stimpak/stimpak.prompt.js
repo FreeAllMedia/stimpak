@@ -13,6 +13,10 @@ var _inquirer = require("inquirer");
 
 var _inquirer2 = _interopRequireDefault(_inquirer);
 
+var _flowsync = require("flowsync");
+
+var _flowsync2 = _interopRequireDefault(_flowsync);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function prompt() {
@@ -44,14 +48,12 @@ function prompt() {
 				_loop(answerName);
 			}
 
-			if (unansweredPrompts.length > 0) {
-				_inquirer2.default.prompt(prompts).then(function (questionAnswers) {
+			_flowsync2.default.mapSeries(unansweredPrompts, function (unansweredPrompt, done) {
+				_inquirer2.default.prompt(unansweredPrompt).then(function (questionAnswers) {
 					_this.answers(questionAnswers);
-					stepDone();
+					done();
 				});
-			} else {
-				stepDone();
-			}
+			}, stepDone);
 		});
 	}
 

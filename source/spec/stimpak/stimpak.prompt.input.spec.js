@@ -65,6 +65,7 @@ describe("stimpak.prompt() (input)", () => {
 
 				stopIntercept();
 
+				// HACK: Find out why this try catch block is necessary to prevent a timeout
 				try {
 					results.should.eql({
 						promptOne: true,
@@ -90,8 +91,13 @@ describe("stimpak.prompt() (input)", () => {
 		stimpak
 			.prompt(...prompts)
 			.generate(error => {
-				stimpak.answers().should.eql(answers);
-				done(error);
+				try {
+					stimpak.answers().should.eql(answers);
+
+					done(error);
+				} catch (exception) {
+					done(exception);
+				}
 			});
 
 		setTimeout(() => {
