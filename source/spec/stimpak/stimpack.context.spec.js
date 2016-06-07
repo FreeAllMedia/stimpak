@@ -12,18 +12,18 @@ describe("stimpak.context()", () => {
 		stimpak.context(object).should.eql(stimpak);
 	});
 
-	it.only("should bind the correct context into then() callbacks", done => {
-    stimpak
-      .context(object)
-      .then(function (self, stepDone) {
-        this.should.eql(object);
-        console.log("this", this, object);
-        stepDone();
-      });
+  it("should run each step with the given context", done => {
+    stimpak.context(object);
+		stimpak.then(function (self, stepDone) {
+			this.called = true;
+			stepDone();
+		});
 
-      stimpak
-  			.generate(() => {
-  				done();
-  			});
+		stimpak
+			.generate(error => {
+				(object.called === undefined).should.not.be.true;
+
+				done(error);
+			});
 	});
 });
