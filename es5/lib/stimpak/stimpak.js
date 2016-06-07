@@ -60,6 +60,7 @@ var Stimpak = function (_ChainLink) {
 		value: function value() {
 			var _ = (0, _incognito2.default)(this);
 			_.action = new _staircase2.default(this);
+			_.action.context(this);
 		}
 	}, {
 		key: initializeInterface,

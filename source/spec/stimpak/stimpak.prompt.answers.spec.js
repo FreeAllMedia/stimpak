@@ -102,4 +102,35 @@ describe("stimpak.prompt() (answers)", () => {
 				});
 			});
 	});
+
+	it("should add each prompt's answers to stimpak.answers() before moving on to the next prompt", done => {
+		const results = {};
+		stimpak
+			.prompt({
+				type: "input",
+				name: "firstName",
+				message: "What is your first name?",
+				default: "Bob"
+			},
+			{
+				type: "input",
+				name: "lastName",
+				message: "What is your last name?",
+				default: "Belcher",
+				when: () => {
+					results.firstName = stimpak.answers().firstName;
+					return false;
+				}
+			})
+			.generate(error => {
+				results.should.eql({
+					firstName: stimpak.answers().firstName
+				});
+				done(error);
+			});
+
+		setTimeout(() => {
+			process.stdin.emit("data", `${answers.firstName}\n`);
+		}, 100);
+	});
 });

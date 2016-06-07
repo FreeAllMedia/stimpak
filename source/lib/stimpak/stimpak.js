@@ -21,6 +21,7 @@ export default class Stimpak extends ChainLink {
 	[initializePrivateData]() {
 		const _ = privateData(this);
 		_.action = new Action(this);
+		_.action.context(this);
 	}
 
 	[initializeInterface]() {
