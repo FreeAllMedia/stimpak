@@ -60,7 +60,6 @@ function exitCallback() {
 
 process.on("exit", exitCallback);
 process.on("SIGINT", exitCallback);
-process.on("uncaughtException", exitCallback);
 
 /* -------------------------------------------------------------------------- */
 

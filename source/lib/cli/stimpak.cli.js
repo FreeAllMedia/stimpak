@@ -11,9 +11,8 @@ function exitCallback() {
 	resetGenerators();
 };
 
-process.on("exit",              exitCallback);
-process.on("SIGINT",            exitCallback);
-process.on("uncaughtException", exitCallback);
+process.on("exit",   exitCallback);
+process.on("SIGINT", exitCallback);
 
 /* -------------------------------------------------------------------------- */
 
