@@ -24,7 +24,7 @@ describe("stimpak.generate() (template rendering)", () => {
 		const existingProjectPath = path.normalize(`${__dirname}/fixtures/existingProject/`);
 		fileSystem.copySync(existingProjectPath, temporaryDirectoryPath);
 
-existingFileNames = glob.sync("**/*", { cwd: temporaryDirectoryPath, dot: true });
+		existingFileNames = glob.sync("**/*", { cwd: temporaryDirectoryPath, dot: true });
 
 		templateDirectoryPath = path.normalize(`${__dirname}/fixtures/templates`);
 

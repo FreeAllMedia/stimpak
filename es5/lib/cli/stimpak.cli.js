@@ -317,8 +317,8 @@ function linkTranspilingDependencies(generatorNodeModulesDirectoryPath, callback
 	_flowsync2.default.mapSeries(npmPackageNames, function (npmPackageName, done) {
 		// debugCallback("npmPackageName", npmPackageName);
 		linkIfNotExisting(nodeModulesDirectoryPath + "/" + npmPackageName, generatorNodeModulesDirectoryPath + "/" + npmPackageName, function (error) {
+			// debugCallback("dependencies linked");
 			if (!error) {
-				temporaryDependencyPaths.push(generatorNodeModulesDirectoryPath + "/" + npmPackageName);
 				done();
 			} else {
 				done(error);
@@ -342,7 +342,7 @@ function generatorPackageName(generatorName) {
 }
 
 function linkIfNotExisting(fromPath, toPath, callback) {
-	// debug(".linkIfNotExisting", fromPath, toPath);
+	//debug(".linkIfNotExisting", fromPath, toPath);
 
 	_flowsync2.default.waterfall([function (done) {
 		_fsExtra2.default.lstat(toPath, function (error, stats) {
@@ -356,9 +356,14 @@ function linkIfNotExisting(fromPath, toPath, callback) {
 		if (link) {
 			done();
 		} else {
+			//debugCallback("dependency linked", toPath);
+			temporaryDependencyPaths.push(toPath);
 			symlink(fromPath, toPath, done);
 		}
-	}], callback);
+	}], function (error) {
+		//debugCallback("link if not existing done");
+		callback(error);
+	});
 }
 
 function makeDirectory(directoryPath, callback) {
@@ -366,7 +371,10 @@ function makeDirectory(directoryPath, callback) {
 
 	_fsExtra2.default.stat(directoryPath, function (error) {
 		if (error) {
-			_fsExtra2.default.mkdir(directoryPath, callback);
+			_fsExtra2.default.mkdir(directoryPath, function (makeDirectoryError) {
+				debugCallback("directory made", directoryPath);
+				callback(makeDirectoryError);
+			});
 		} else {
 			callback();
 		}
@@ -377,24 +385,34 @@ function resolveGeneratorPaths(generator, callback) {
 	debug(".resolveGeneratorPaths", generator);
 
 	_flowsync2.default.waterfall([function (done) {
-		resolveGeneratorPath(generator, done);
+		resolveGeneratorPath(generator, function (error, generatorPath) {
+			debugCallback("resolve generator path", generatorPath);
+			done(error, generatorPath);
+		});
 	}, function (generatorPath, done) {
+		debugCallback("path resolved", generatorPath);
 		_fsExtra2.default.realpath(generatorPath, function (error, realPath) {
+			debugCallback("real path resolved", realPath);
+			var stimpakDirectories = _glob2.default.sync(realPath + "{/,/**/stimpak-*/}");
+			debugCallback("stimpak directories", stimpakDirectories);
 			generator.paths = {
 				originalDirectory: generatorPath,
 				temporaryDirectory: rootDirectoryPath + "/generators/" + generator.packageName,
 				currentDirectory: generatorPath,
 				realDirectory: realPath,
-				stimpakDirectories: _glob2.default.sync(realPath + "{/,/**/stimpak-*/}", { follow: true })
+				stimpakDirectories: stimpakDirectories
 			};
+
 			generator.paths.nodeModulesDirectories = generator.paths.stimpakDirectories.map(function (stimpakDirectoryPath) {
 				return stimpakDirectoryPath + "node_modules";
 			});
 
-			debugCallback("paths", generator.paths);
 			done(error);
 		});
-	}], callback);
+	}], function (error) {
+		debugCallback("resolve generator paths done");
+		callback(error);
+	});
 }
 
 function resolveGeneratorPath(generator, callback) {
@@ -406,35 +424,47 @@ function resolveGeneratorPath(generator, callback) {
 function resolvePackagePath(generator, callback) {
 	debug(".resolvePackagePath", generator);
 
-	_flowsync2.default.mapSeries((0, _globalPaths2.default)(), function (npmPath, done) {
-		var generatorFilePath = npmPath + "/" + generator.packageName;
+	_flowsync2.default.mapSeries((0, _globalPaths2.default)(), checkGeneratorPath(generator), returnGeneratorPath(generator, function (error, packagePath) {
+		debugCallback("returned generator path", packagePath);
+		callback(error, packagePath);
+	}));
+}
 
+function returnGeneratorPath(generator, callback) {
+	return function (error, paths) {
+		debug(".returnGeneratorPath");
+		paths = paths.filter(function (foundPath) {
+			return foundPath !== undefined;
+		});
+
+		if (!error) {
+			var firstPathFound = paths[0];
+			debugCallback("firstPathFound", firstPathFound);
+			if (firstPathFound) {
+				callback(null, firstPathFound);
+			} else {
+				var generatorNotFoundError = new Error("\"" + generator.name + "\" is not installed. Use \"npm install " + generator.packageName + " -g\"\n");
+				callback(generatorNotFoundError);
+			}
+		} else {
+			callback(error);
+		}
+	};
+}
+
+function checkGeneratorPath(generator) {
+	return function (npmPath, done) {
+		debug(".checkGeneratorPath", npmPath);
+		var generatorFilePath = npmPath + "/" + generator.packageName;
 		_fsExtra2.default.exists(generatorFilePath, function (fileExists) {
+			debugCallback("fileExists", generatorFilePath, fileExists);
 			if (fileExists) {
 				done(null, generatorFilePath);
 			} else {
 				done(null);
 			}
 		});
-	}, function (existsError, paths) {
-		paths = paths.filter(function (foundPath) {
-			return foundPath !== undefined;
-		});
-
-		debugCallback("paths", paths);
-
-		if (!existsError) {
-			var firstPathFound = paths[0];
-			if (firstPathFound) {
-				callback(null, firstPathFound);
-			} else {
-				var error = new Error("\"" + generator.name + "\" is not installed. Use \"npm install " + generator.packageName + " -g\"\n");
-				callback(error);
-			}
-		} else {
-			callback(existsError);
-		}
-	});
+	};
 }
 
 function deleteFiles(filePath, callback) {
@@ -534,12 +564,16 @@ function showDone(callback) {
  * DEVELOPER FUNCTIONS
  */
 
+var startTime = new Date(),
+    endTime = void 0;
+
 function debug(message) {
 	for (var _len = arguments.length, extra = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
 		extra[_key - 1] = arguments[_key];
 	}
 
 	if (parsedArguments.debug) {
+		startTime = new Date();
 		extra = extra.map(function (extraData) {
 			return _util2.default.inspect(extraData);
 		});
@@ -549,10 +583,13 @@ function debug(message) {
 
 function debugCallback(message) {
 	if (parsedArguments.debug) {
+		endTime = new Date();
+		var secondsElapsed = (endTime - startTime) / 1000;
+
 		for (var _len2 = arguments.length, extra = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
 			extra[_key2 - 1] = arguments[_key2];
 		}
 
-		console.log("  " + _colors2.default.red(message) + ": ", _colors2.default.red(extra.join(", ")));
+		console.log("  " + _colors2.default.red(message) + ": ", _colors2.default.red(extra.join(", ")) + _colors2.default.gray(" [" + secondsElapsed + "]"));
 	}
 }

@@ -1,6 +1,6 @@
 {
   "name": "stimpak",
-  "version": "0.0.19",
+  "version": "0.0.21",
   "description": "Generate and re-generate code of any language with ease!",
   "main": "./es5/lib/index.js",
   "bin": {
@@ -54,7 +54,7 @@
     "minimatch": "^3.0.0",
     "mrt": "^0.1.6",
     "rimraf": "^2.5.2",
-    "staircase": "^0.1.0",
+    "staircase": "^0.1.1",
     "temp": "^0.8.3",
     "vinyl": "^1.1.1"
   }
