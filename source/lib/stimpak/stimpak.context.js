@@ -1,3 +1,5 @@
+import privateData from "incognito";
+
 export default function context(object) {
   const action = privateData(this).action;
   if (object) {

@@ -1,6 +1,6 @@
 import Stimpak from "../../lib/stimpak/stimpak.js";
 
-describe.only("stimpak.context()", () => {
+describe("stimpak.context()", () => {
 	let stimpak;
   let object = { "foo": "bar" };
 
@@ -19,19 +19,5 @@ describe.only("stimpak.context()", () => {
 
 	it("should use itself as the context by default", () => {
 		stimpak.context().should.eql(stimpak);
-	});
-
-  it("should run each step with the given context", done => {
-    stimpak.context(object);
-		stimpak.then(function (self, stepDone) {
-			this.called = true;
-			stepDone();
-		});
-
-		stimpak.generate(error => {
-			(object.called === undefined).should.not.be.true;
-
-			done(error);
-		});
 	});
 });
