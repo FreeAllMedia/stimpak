@@ -6,11 +6,13 @@ const parsedArguments = parseArgv(process.argv);
 /**
  * On process "exit", reset generators.
  */
-process.on("beforeExit", () => {
-	resetGenerators(() => {
-		process.exit();
-	});
-});
+
+function exitCallback() {
+	resetGenerators();
+};
+
+process.on("exit",   exitCallback);
+process.on("SIGINT", exitCallback);
 
 /* -------------------------------------------------------------------------- */
 

@@ -53,11 +53,13 @@ var parsedArguments = parseArgv(process.argv);
 /**
  * On process "exit", reset generators.
  */
-process.on("beforeExit", function () {
-	resetGenerators(function () {
-		process.exit();
-	});
-});
+
+function exitCallback() {
+	resetGenerators();
+};
+
+process.on("exit", exitCallback);
+process.on("SIGINT", exitCallback);
 
 /* -------------------------------------------------------------------------- */
 
