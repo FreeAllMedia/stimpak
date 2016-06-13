@@ -3,6 +3,7 @@ import temp from "temp";
 import path from "path";
 import rimraf from "rimraf";
 import ChainLink from "mrt";
+import glob from "glob";
 
 import {
 		execSync as runCommandSync
@@ -52,6 +53,7 @@ export default class StimpakSandbox extends ChainLink {
 			this.debug(`\t${directoryPath}`);
 			fileSystem.mkdirsSync(directoryPath);
 		});
+		console.log(glob.sync("**/*", { cwd: this.paths().root, follow: true }));
 	}
 
 	copyFiles() {
@@ -64,6 +66,7 @@ export default class StimpakSandbox extends ChainLink {
 			this.debug("");
 			fileSystem.copySync(copyFromPath, copyToPath);
 		});
+		console.log(glob.sync("**/*", { cwd: this.paths().root, follow: true }));
 	}
 
 	symlinkFiles() {
@@ -76,6 +79,7 @@ export default class StimpakSandbox extends ChainLink {
 			this.debug("");
 			fileSystem.symlinkSync(symlinkFromPath, symlinkToPath);
 		});
+		console.log(glob.sync("**/*", { cwd: this.paths().root, follow: true }));
 	}
 
 	unSymlinkFiles() {
