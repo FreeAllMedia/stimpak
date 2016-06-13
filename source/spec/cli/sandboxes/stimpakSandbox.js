@@ -2,8 +2,8 @@ import fileSystem from "fs-extra";
 import temp from "temp";
 import path from "path";
 import rimraf from "rimraf";
-
 import ChainLink from "mrt";
+
 import {
 		execSync as runCommandSync
 } from "child_process";
@@ -19,6 +19,12 @@ export default class StimpakSandbox extends ChainLink {
 		this[setDefaultPaths]();
 
 		this.configure();
+
+		this.showDebug = true;
+
+		if (this.showDebug) {
+			console.log("StimpakSandbox DEBUG:");
+		}
 	}
 
 	configure() { /* STUB */ }
@@ -41,23 +47,33 @@ export default class StimpakSandbox extends ChainLink {
 	}
 
 	makeDirectories() {
+		this.debug("makeDirectories");
 		this.makeDirectory().forEach(directoryPath => {
+			this.debug(`\t${directoryPath}`);
 			fileSystem.mkdirsSync(directoryPath);
 		});
 	}
 
 	copyFiles() {
+		this.debug("copyFiles");
 		this.copy().forEach(copyPath => {
 			const copyFromPath = copyPath[0];
 			const copyToPath = copyPath[1];
+			this.debug(`\tFrom: ${copyFromPath}`);
+			this.debug(`\tTo: ${copyToPath}`);
+			this.debug("");
 			fileSystem.copySync(copyFromPath, copyToPath);
 		});
 	}
 
 	symlinkFiles() {
+		this.debug("symlinkFiles");
 		this.symlink().forEach(symlinkPath => {
 			const symlinkFromPath = symlinkPath[0];
 			const symlinkToPath = symlinkPath[1];
+			this.debug(`\tFrom: ${symlinkFromPath}`);
+			this.debug(`\tTo: ${symlinkToPath}`);
+			this.debug("");
 			fileSystem.symlinkSync(symlinkFromPath, symlinkToPath);
 		});
 	}
@@ -113,5 +129,11 @@ export default class StimpakSandbox extends ChainLink {
 			).toString().replace(/[\n\r]/, "/lib/node_modules");
 
 		this.paths(defaultPaths);
+	}
+
+	debug(message) {
+		if (this.showDebug) {
+			console.log(`\t${message}`);
+		}
 	}
 }
