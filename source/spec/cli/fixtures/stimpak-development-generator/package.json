@@ -1,0 +1,5 @@
+{
+  "name": "stimpak-generator",
+	"version": "0.0.3",
+  "main": "generator.js"
+}

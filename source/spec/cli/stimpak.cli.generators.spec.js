@@ -130,22 +130,4 @@ describe("(CLI) stimpak generators", function () {
 			done(error);
 		});
 	});
-
-	it("should be able to require global generators without errors", function (done) {
-		command += " 00000 --promptName=Blah";
-
-		runCommand(command, { cwd: temporaryDirectoryPath }, (error, stdout, stderr) => {
-			stderr.should.be.empty;
-			done(error);
-		});
-	});
-
-	it("should transpile symlinked subgenerators", function (done) {
-		command += " test-5 --promptName=Blah";
-
-		runCommand(command, { cwd: temporaryDirectoryPath }, (error, stdout, stderr) => {
-			stderr.should.be.empty;
-			done(error);
-		});
-	});
 });

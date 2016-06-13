@@ -111,9 +111,6 @@ function routeCommand(callback) {
 
 function enableJustInTimeTranspiling() {
 	require("babel-register")({
-
-		// /Users/dcrockwell/Dropbox/Code/stimpak-project-basic-information/node_modules/babylon/.babelrc
-
 		ignore: [
 			"**/node_modules/!(stimpak)*/**/*.*",
 			`${rootDirectoryPath}/node_modules/**/*`
@@ -375,7 +372,7 @@ function resolveGeneratorPaths(generator, callback) {
 			debugCallback("path resolved", generatorPath);
 			fileSystem.realpath(generatorPath, (error, realPath) => {
 				debugCallback("real path resolved", realPath);
-				const stimpakDirectories = glob.sync(`${realPath}{/,/**/stimpak-*/}`);
+				const stimpakDirectories = glob.sync(`${realPath}{/,/**/stimpak-*/}`, { follow: true });
 				debugCallback("stimpak directories", stimpakDirectories);
 				generator.paths = {
 					originalDirectory: generatorPath,
@@ -487,7 +484,11 @@ function symlink(fromPath, toPath, callback) {
  */
 
 function parseArgv(argv) {
-	const useDebug = argv.indexOf("--debug") !== -1;
+	//let parsedArgs = argv;
+	const debugIndex = argv.indexOf("--debug");
+	const useDebug = debugIndex !== -1;
+
+	//if (useDebug) { delete parsedArgs[debugIndex]; }
 
 	const parsedArgv = {
 		first: argv[2],
