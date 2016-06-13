@@ -23,9 +23,7 @@ export default class StimpakSandbox extends ChainLink {
 
 		this.showDebug = true;
 
-		if (this.showDebug) {
-			console.log("StimpakSandbox DEBUG:");
-		}
+		this.debug("StimpakSandbox DEBUG:");
 	}
 
 	configure() { /* STUB */ }
@@ -53,7 +51,7 @@ export default class StimpakSandbox extends ChainLink {
 			this.debug(`\t${directoryPath}`);
 			fileSystem.mkdirsSync(directoryPath);
 		});
-		console.log(glob.sync("**/*", { cwd: this.paths().root, follow: true }));
+		this.debug(glob.sync("**/*", { cwd: this.paths().root, follow: true }));
 	}
 
 	copyFiles() {
@@ -66,7 +64,7 @@ export default class StimpakSandbox extends ChainLink {
 			this.debug("");
 			fileSystem.copySync(copyFromPath, copyToPath);
 		});
-		console.log(glob.sync("**/*", { cwd: this.paths().root, follow: true }));
+		this.debug(glob.sync("**/*", { cwd: this.paths().root, follow: true }));
 	}
 
 	symlinkFiles() {
@@ -79,7 +77,7 @@ export default class StimpakSandbox extends ChainLink {
 			this.debug("");
 			fileSystem.symlinkSync(symlinkFromPath, symlinkToPath);
 		});
-		console.log(glob.sync("**/*", { cwd: this.paths().root, follow: true }));
+		this.debug(glob.sync("**/*", { cwd: this.paths().root, follow: true }));
 	}
 
 	unSymlinkFiles() {
