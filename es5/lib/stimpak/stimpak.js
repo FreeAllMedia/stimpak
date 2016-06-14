@@ -146,6 +146,11 @@ var Stimpak = function (_ChainLink) {
 			return this[externalFunction]("./stimpak.note.js", message);
 		}
 	}, {
+		key: "info",
+		value: function info(message, payload) {
+			return this[externalFunction]("./stimpak.info.js", message, payload);
+		}
+	}, {
 		key: "logo",
 		value: function logo(message) {
 			return this[externalFunction]("./stimpak.logo.js", message);

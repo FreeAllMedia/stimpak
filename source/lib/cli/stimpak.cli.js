@@ -3,11 +3,10 @@ require("babel-polyfill");
 
 const parsedArguments = parseArgv(process.argv);
 
-/**
- * On process "exit", reset generators.
- */
 process.on("beforeExit", () => {
-	resetGenerators(() => {
+	/* eslint-disable no-process-exit */
+	resetGenerators((error) => {
+		if (error) { throw error; }
 		process.exit();
 	});
 });
@@ -56,8 +55,9 @@ let generators = {},
 enableDebug();
 run(error => {
 	if (error) {
-		resetGenerators(() => {
-			throw error;
+		resetGenerators((resetError) => {
+			if (error) { throw error; }
+			if (resetError) { throw resetError; }
 		});
 	}
 });

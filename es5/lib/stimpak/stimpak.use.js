@@ -13,7 +13,13 @@ function use() {
 
 	this.debug("use", generators);
 	generators.forEach(function (GeneratorConstructor) {
-		_this.generators.push(new GeneratorConstructor(_this));
+		var originalContext = _this.context();
+		var generator = new GeneratorConstructor(_this);
+		_this.generators.push(generator);
+
+		_this.context(generator);
+		generator.setup(_this);
+		_this.context(originalContext);
 	});
 	return this;
 }

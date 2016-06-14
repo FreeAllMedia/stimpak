@@ -1,5 +1,5 @@
 export default class SubGenerator {
-	constructor(stimpak) {
+	setup(stimpak) {
 		stimpak
 			.prompt({
 				type: "input",

@@ -21,7 +21,7 @@ export default class StimpakSandbox extends ChainLink {
 
 		this.configure();
 
-		this.showDebug = true;
+		this.showDebug = false;
 
 		this.debug("StimpakSandbox DEBUG:");
 	}

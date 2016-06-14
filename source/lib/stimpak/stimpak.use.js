@@ -1,7 +1,13 @@
 export default function use(...generators) {
 	this.debug("use", generators);
 	generators.forEach(GeneratorConstructor => {
-		this.generators.push(new GeneratorConstructor(this));
+		const originalContext = this.context();
+		const generator = new GeneratorConstructor(this);
+		this.generators.push(generator);
+
+		this.context(generator);
+		generator.setup(this);
+		this.context(originalContext);
 	});
 	return this;
 }

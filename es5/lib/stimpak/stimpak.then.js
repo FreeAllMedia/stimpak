@@ -19,6 +19,8 @@ function then() {
 	this.debug("then", stepFunctions);
 	var action = (0, _incognito2.default)(this).action;
 
+	stepFunctions.push(this.context());
+
 	action.series.apply(action, stepFunctions);
 
 	return this;

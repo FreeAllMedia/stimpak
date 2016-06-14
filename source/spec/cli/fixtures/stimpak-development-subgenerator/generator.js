@@ -1,7 +1,7 @@
 import SubGenerator2 from "stimpak-subgenerator-2";
 
 export default class SubGenerator {
-	constructor(stimpak) {
+	setup(stimpak) {
 		stimpak
 			.use(SubGenerator2)
 			.prompt({

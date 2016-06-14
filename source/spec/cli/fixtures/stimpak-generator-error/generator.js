@@ -1,5 +1,5 @@
 export default class StimpakGeneratorError {
-	constructor(stimpak) {
+	setup(stimpak) {
 		stimpak
 			.then((generator, done) => {
 				done(new Error("Generator Error!"));
