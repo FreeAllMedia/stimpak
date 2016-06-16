@@ -1,5 +1,6 @@
 import privateData from "incognito";
 
+// TODO: Optimize .then
 export default function then(...stepFunctions) {
 	this.debug("then", stepFunctions);
 	const action = privateData(this).action;
@@ -29,8 +30,6 @@ export default function then(...stepFunctions) {
 			}
 		};
 	});
-
-	// stepFunctions.push(this.context());
 
 	action.series(...stepFunctions);
 
