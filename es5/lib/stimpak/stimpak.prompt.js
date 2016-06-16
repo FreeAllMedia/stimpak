@@ -50,6 +50,8 @@ function prompt() {
 
 			_flowsync2.default.mapSeries(unansweredPrompts, function (unansweredPrompt, done) {
 				_inquirer2.default.prompt(unansweredPrompt).then(function (questionAnswers) {
+					console.log("questionAnswers", questionAnswers);
+					console.log("casts", _this.cast());
 					_this.answers(questionAnswers);
 					done();
 				});

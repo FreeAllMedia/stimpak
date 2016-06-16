@@ -43,6 +43,10 @@ export default class Stimpak extends ChainLink {
 		).aggregate;
 
 		this.parameters(
+			"cast"
+		).aggregate;
+
+		this.parameters(
 			"answers"
 		).mergeKeyValues;
 

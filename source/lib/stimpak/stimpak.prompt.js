@@ -25,6 +25,8 @@ export default function prompt(...prompts) {
 				inquirer
 					.prompt(unansweredPrompt)
 					.then(questionAnswers => {
+						console.log("questionAnswers", questionAnswers);
+						console.log("casts", this.cast());
 						this.answers(questionAnswers);
 						done();
 					});
