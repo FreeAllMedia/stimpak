@@ -2,7 +2,7 @@ import fileSystem from "fs";
 import path from "path";
 import { exec } from "child_process";
 
-describe("(CLI) stimpak", () => {
+describe("(CLI) stimpak help", () => {
 	let command,
 			expectedStdout;
 

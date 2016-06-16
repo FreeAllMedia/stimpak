@@ -10,12 +10,6 @@ export default class Generator {
 				message: "You should not see this"
 			})
 			.source("**/*")
-				.directory(`${__dirname}/templates`)
-			.merge("generated.js", createSecondFile);
+				.directory(`${__dirname}/templates`);
 	}
-}
-
-function createSecondFile(stimpak, newFile, oldFile, done) {
-	newFile.stem = "generated2";
-	done(null, newFile);
 }

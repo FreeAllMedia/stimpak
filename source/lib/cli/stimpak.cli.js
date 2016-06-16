@@ -3,11 +3,10 @@ require("babel-polyfill");
 
 const parsedArguments = parseArgv(process.argv);
 
-/**
- * On process "exit", reset generators.
- */
 process.on("beforeExit", () => {
-	resetGenerators(() => {
+	/* eslint-disable no-process-exit */
+	resetGenerators((error) => {
+		if (error) { throw error; }
 		process.exit();
 	});
 });
@@ -56,8 +55,9 @@ let generators = {},
 enableDebug();
 run(error => {
 	if (error) {
-		resetGenerators(() => {
-			throw error;
+		resetGenerators((resetError) => {
+			if (error) { throw error; }
+			if (resetError) { throw resetError; }
 		});
 	}
 });
@@ -111,9 +111,6 @@ function routeCommand(callback) {
 
 function enableJustInTimeTranspiling() {
 	require("babel-register")({
-
-		// /Users/dcrockwell/Dropbox/Code/stimpak-project-basic-information/node_modules/babylon/.babelrc
-
 		ignore: [
 			"**/node_modules/!(stimpak)*/**/*.*",
 			`${rootDirectoryPath}/node_modules/**/*`
@@ -323,6 +320,8 @@ function generatorPackageName(generatorName) {
 function linkIfNotExisting(fromPath, toPath, callback) {
 	//debug(".linkIfNotExisting", fromPath, toPath);
 
+	temporaryDependencyPaths.push(toPath);
+
 	Async.waterfall([
 		done => {
 			fileSystem.lstat(toPath, (error, stats) => {
@@ -338,7 +337,6 @@ function linkIfNotExisting(fromPath, toPath, callback) {
 				done();
 			} else {
 				//debugCallback("dependency linked", toPath);
-				temporaryDependencyPaths.push(toPath);
 				symlink(fromPath, toPath, done);
 			}
 		}
@@ -375,7 +373,7 @@ function resolveGeneratorPaths(generator, callback) {
 			debugCallback("path resolved", generatorPath);
 			fileSystem.realpath(generatorPath, (error, realPath) => {
 				debugCallback("real path resolved", realPath);
-				const stimpakDirectories = glob.sync(`${realPath}{/,/**/stimpak-*/}`);
+				const stimpakDirectories = glob.sync(`${realPath}{/,/**/stimpak-*/}`, { follow: true });
 				debugCallback("stimpak directories", stimpakDirectories);
 				generator.paths = {
 					originalDirectory: generatorPath,
@@ -487,7 +485,11 @@ function symlink(fromPath, toPath, callback) {
  */
 
 function parseArgv(argv) {
-	const useDebug = argv.indexOf("--debug") !== -1;
+	//let parsedArgs = argv;
+	const debugIndex = argv.indexOf("--debug");
+	const useDebug = debugIndex !== -1;
+
+	//if (useDebug) { delete parsedArgs[debugIndex]; }
 
 	const parsedArgv = {
 		first: argv[2],

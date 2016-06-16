@@ -117,6 +117,11 @@ var Stimpak = function (_ChainLink) {
 			return this[externalFunction].apply(this, ["./stimpak.then.js"].concat(stepFunctions));
 		}
 	}, {
+		key: "context",
+		value: function context(object) {
+			return this[externalFunction]("./stimpak.context.js", object);
+		}
+	}, {
 		key: "command",
 		value: function command(_command, callback) {
 			return this[externalFunction]("./stimpak.command.js", _command, callback);
@@ -139,6 +144,11 @@ var Stimpak = function (_ChainLink) {
 		key: "note",
 		value: function note(message) {
 			return this[externalFunction]("./stimpak.note.js", message);
+		}
+	}, {
+		key: "info",
+		value: function info(message, payload) {
+			return this[externalFunction]("./stimpak.info.js", message, payload);
 		}
 	}, {
 		key: "logo",

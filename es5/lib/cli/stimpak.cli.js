@@ -50,11 +50,12 @@ require("babel-polyfill");
 
 var parsedArguments = parseArgv(process.argv);
 
-/**
- * On process "exit", reset generators.
- */
 process.on("beforeExit", function () {
-	resetGenerators(function () {
+	/* eslint-disable no-process-exit */
+	resetGenerators(function (error) {
+		if (error) {
+			throw error;
+		}
 		process.exit();
 	});
 });
@@ -93,8 +94,13 @@ var generators = {},
 enableDebug();
 run(function (error) {
 	if (error) {
-		resetGenerators(function () {
-			throw error;
+		resetGenerators(function (resetError) {
+			if (error) {
+				throw error;
+			}
+			if (resetError) {
+				throw resetError;
+			}
 		});
 	}
 });
@@ -147,9 +153,6 @@ function routeCommand(callback) {
 
 function enableJustInTimeTranspiling() {
 	require("babel-register")({
-
-		// /Users/dcrockwell/Dropbox/Code/stimpak-project-basic-information/node_modules/babylon/.babelrc
-
 		ignore: ["**/node_modules/!(stimpak)*/**/*.*", rootDirectoryPath + "/node_modules/**/*"]
 	});
 }
@@ -344,6 +347,8 @@ function generatorPackageName(generatorName) {
 function linkIfNotExisting(fromPath, toPath, callback) {
 	//debug(".linkIfNotExisting", fromPath, toPath);
 
+	temporaryDependencyPaths.push(toPath);
+
 	_flowsync2.default.waterfall([function (done) {
 		_fsExtra2.default.lstat(toPath, function (error, stats) {
 			if (error) {
@@ -357,7 +362,6 @@ function linkIfNotExisting(fromPath, toPath, callback) {
 			done();
 		} else {
 			//debugCallback("dependency linked", toPath);
-			temporaryDependencyPaths.push(toPath);
 			symlink(fromPath, toPath, done);
 		}
 	}], function (error) {
@@ -393,7 +397,7 @@ function resolveGeneratorPaths(generator, callback) {
 		debugCallback("path resolved", generatorPath);
 		_fsExtra2.default.realpath(generatorPath, function (error, realPath) {
 			debugCallback("real path resolved", realPath);
-			var stimpakDirectories = _glob2.default.sync(realPath + "{/,/**/stimpak-*/}");
+			var stimpakDirectories = _glob2.default.sync(realPath + "{/,/**/stimpak-*/}", { follow: true });
 			debugCallback("stimpak directories", stimpakDirectories);
 			generator.paths = {
 				originalDirectory: generatorPath,
@@ -502,7 +506,11 @@ function symlink(fromPath, toPath, callback) {
  */
 
 function parseArgv(argv) {
-	var useDebug = argv.indexOf("--debug") !== -1;
+	//let parsedArgs = argv;
+	var debugIndex = argv.indexOf("--debug");
+	var useDebug = debugIndex !== -1;
+
+	//if (useDebug) { delete parsedArgs[debugIndex]; }
 
 	var parsedArgv = {
 		first: argv[2],

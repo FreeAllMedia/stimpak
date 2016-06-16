@@ -69,6 +69,10 @@ export default class Stimpak extends ChainLink {
 		return this[externalFunction]("./stimpak.then.js", ...stepFunctions);
 	}
 
+	context(object) {
+		return this[externalFunction]("./stimpak.context.js", object);
+	}
+
 	command(command, callback) {
 		return this[externalFunction]("./stimpak.command.js", command, callback);
 	}
@@ -83,6 +87,10 @@ export default class Stimpak extends ChainLink {
 
 	note(message) {
 		return this[externalFunction]("./stimpak.note.js", message);
+	}
+
+	info(message, payload) {
+		return this[externalFunction]("./stimpak.info.js", message, payload);
 	}
 
 	logo(message) {
