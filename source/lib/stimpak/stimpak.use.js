@@ -6,7 +6,9 @@ export default function use(...generators) {
 		this.generators.push(generator);
 
 		this.context(generator);
+
 		generator.setup(this);
+
 		this.context(originalContext);
 	});
 	return this;

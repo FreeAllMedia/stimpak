@@ -18,7 +18,9 @@ function use() {
 		_this.generators.push(generator);
 
 		_this.context(generator);
+
 		generator.setup(_this);
+
 		_this.context(originalContext);
 	});
 	return this;

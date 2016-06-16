@@ -74,18 +74,4 @@ describe("stimpak.generate()", () => {
 				error.should.eql(expectedError);
 			});
 	});
-
-	it("should run each step with stimpak as the function context", done => {
-		stimpak.then(function (self, stepDone) {
-			this.called = true;
-			stepDone();
-		});
-
-		stimpak
-			.generate(error => {
-				(stimpak.called === undefined).should.not.be.true;
-
-				done(error);
-			});
-	});
 });

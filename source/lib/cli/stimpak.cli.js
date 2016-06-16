@@ -320,6 +320,8 @@ function generatorPackageName(generatorName) {
 function linkIfNotExisting(fromPath, toPath, callback) {
 	//debug(".linkIfNotExisting", fromPath, toPath);
 
+	temporaryDependencyPaths.push(toPath);
+
 	Async.waterfall([
 		done => {
 			fileSystem.lstat(toPath, (error, stats) => {
@@ -335,7 +337,6 @@ function linkIfNotExisting(fromPath, toPath, callback) {
 				done();
 			} else {
 				//debugCallback("dependency linked", toPath);
-				temporaryDependencyPaths.push(toPath);
 				symlink(fromPath, toPath, done);
 			}
 		}
