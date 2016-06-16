@@ -11,21 +11,11 @@ describe("stimpak.then()", () => {
 		stimpak = new Stimpak()
 			.destination("/some/path");
 
-		const slowFunction = (generator, callback) => {
-			setTimeout(callback, 100);
-		};
+		const slowFunction = () => {};
 
 		stepOne = sinon.spy(slowFunction);
 		stepTwo = sinon.spy(slowFunction);
 		stepThree = sinon.spy(slowFunction);
-	});
-
-	let clock;
-	beforeEach(() => {
-		clock = sinon.useFakeTimers();
-	});
-	afterEach(() => {
-		clock.restore();
 	});
 
 	it("should return itself to enable chaining", () => {
@@ -48,25 +38,25 @@ describe("stimpak.then()", () => {
 		stimpak.steps[0].concurrency.should.eql("series");
 	});
 
-	it("should call after all preceding `stimpak steps` are completed", () => {
+	it("should call each step in order", done => {
 		stimpak
 			.then(stepOne, stepTwo)
-			.then(stepThree);
-
-		stimpak.generate();
-		clock.tick(250);
-
-		stepThree.called.should.be.true;
+			.then(stepThree)
+			.generate(error => {
+				sinon.assert.callOrder(stepOne, stepTwo, stepThree);
+				done(error);
+			});
 	});
 
-	it("should not call before all preceding `stimpak steps` are completed", () => {
+	it("should boil up thrown errors from synchronous steps", done => {
+		const expectedError = new Error();
 		stimpak
-			.then(stepOne)
-			.then(stepTwo);
-
-		stimpak.generate();
-		clock.tick(50);
-
-		stepTwo.called.should.be.false;
+			.then(() => {
+				throw expectedError;
+			})
+			.generate(error => {
+				error.should.eql(expectedError);
+				done();
+			});
 	});
 });

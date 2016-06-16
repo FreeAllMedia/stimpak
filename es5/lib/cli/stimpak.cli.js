@@ -50,11 +50,12 @@ require("babel-polyfill");
 
 var parsedArguments = parseArgv(process.argv);
 
-/**
- * On process "exit", reset generators.
- */
 process.on("beforeExit", function () {
-	resetGenerators(function () {
+	/* eslint-disable no-process-exit */
+	resetGenerators(function (error) {
+		if (error) {
+			throw error;
+		}
 		process.exit();
 	});
 });
@@ -93,8 +94,13 @@ var generators = {},
 enableDebug();
 run(function (error) {
 	if (error) {
-		resetGenerators(function () {
-			throw error;
+		resetGenerators(function (resetError) {
+			if (error) {
+				throw error;
+			}
+			if (resetError) {
+				throw resetError;
+			}
 		});
 	}
 });
@@ -341,6 +347,8 @@ function generatorPackageName(generatorName) {
 function linkIfNotExisting(fromPath, toPath, callback) {
 	//debug(".linkIfNotExisting", fromPath, toPath);
 
+	temporaryDependencyPaths.push(toPath);
+
 	_flowsync2.default.waterfall([function (done) {
 		_fsExtra2.default.lstat(toPath, function (error, stats) {
 			if (error) {
@@ -354,7 +362,6 @@ function linkIfNotExisting(fromPath, toPath, callback) {
 			done();
 		} else {
 			//debugCallback("dependency linked", toPath);
-			temporaryDependencyPaths.push(toPath);
 			symlink(fromPath, toPath, done);
 		}
 	}], function (error) {

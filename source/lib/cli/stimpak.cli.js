@@ -3,11 +3,10 @@ require("babel-polyfill");
 
 const parsedArguments = parseArgv(process.argv);
 
-/**
- * On process "exit", reset generators.
- */
 process.on("beforeExit", () => {
-	resetGenerators(() => {
+	/* eslint-disable no-process-exit */
+	resetGenerators((error) => {
+		if (error) { throw error; }
 		process.exit();
 	});
 });
@@ -56,8 +55,9 @@ let generators = {},
 enableDebug();
 run(error => {
 	if (error) {
-		resetGenerators(() => {
-			throw error;
+		resetGenerators((resetError) => {
+			if (error) { throw error; }
+			if (resetError) { throw resetError; }
 		});
 	}
 });
@@ -320,6 +320,8 @@ function generatorPackageName(generatorName) {
 function linkIfNotExisting(fromPath, toPath, callback) {
 	//debug(".linkIfNotExisting", fromPath, toPath);
 
+	temporaryDependencyPaths.push(toPath);
+
 	Async.waterfall([
 		done => {
 			fileSystem.lstat(toPath, (error, stats) => {
@@ -335,7 +337,6 @@ function linkIfNotExisting(fromPath, toPath, callback) {
 				done();
 			} else {
 				//debugCallback("dependency linked", toPath);
-				temporaryDependencyPaths.push(toPath);
 				symlink(fromPath, toPath, done);
 			}
 		}
