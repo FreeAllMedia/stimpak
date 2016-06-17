@@ -74,7 +74,7 @@ var Stimpak = function (_ChainLink) {
 
 			this.parameters("skip").aggregate;
 
-			this.parameters("cast").aggregate;
+			this.parameters("casts").aggregate;
 
 			this.parameters("answers").mergeKeyValues;
 
@@ -117,6 +117,11 @@ var Stimpak = function (_ChainLink) {
 			}
 
 			return this[externalFunction].apply(this, ["./stimpak.then.js"].concat(stepFunctions));
+		}
+	}, {
+		key: "cast",
+		value: function cast(callback) {
+			return this[externalFunction]("./stimpak.cast.js", callback);
 		}
 	}, {
 		key: "context",

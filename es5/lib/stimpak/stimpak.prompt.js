@@ -50,8 +50,21 @@ function prompt() {
 
 			_flowsync2.default.mapSeries(unansweredPrompts, function (unansweredPrompt, done) {
 				_inquirer2.default.prompt(unansweredPrompt).then(function (questionAnswers) {
-					console.log("questionAnswers", questionAnswers);
-					console.log("casts", _this.cast());
+					var casts = _this.casts();
+
+					var _loop2 = function _loop2(question) {
+						var answer = questionAnswers[question];
+
+						casts.forEach(function (cast) {
+							answer = cast(answer);
+						});
+
+						questionAnswers[question] = answer;
+					};
+
+					for (var question in questionAnswers) {
+						_loop2(question);
+					}
 					_this.answers(questionAnswers);
 					done();
 				});

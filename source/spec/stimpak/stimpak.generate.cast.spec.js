@@ -1,6 +1,6 @@
 import Stimpak from "../../lib/stimpak/stimpak.js";
 
-describe.only("stimpak.generate() (casted answers)", () => {
+describe("stimpak.generate() (casted answers)", () => {
 	let stimpak;
 
 	let callbackA = answer => parseInt(answer);
@@ -37,6 +37,7 @@ describe.only("stimpak.generate() (casted answers)", () => {
 					untouched: "5",
 					casted: 7,
 				});
+				done();
 			} catch (exception) {
 				done(exception);
 			}
