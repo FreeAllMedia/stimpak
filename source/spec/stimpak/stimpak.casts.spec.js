@@ -2,8 +2,8 @@ import Stimpak from "../../lib/stimpak/stimpak.js";
 
 describe("stimpak.casts()", () => {
 	let stimpak;
-  let callbackA = answer => parseInt(answer);
-  let callbackB = answer => 2 + answer;
+	let callbackA = answer => parseInt(answer);
+	let callbackB = answer => 2 + answer;
 
 	beforeEach(() => {
 		stimpak = new Stimpak();
@@ -17,7 +17,7 @@ describe("stimpak.casts()", () => {
 		stimpak.casts(callbackA);
 		stimpak.casts(callbackB);
 
-    stimpak.casts().should.eql([callbackA, callbackB])
+		stimpak.casts().should.eql([callbackA, callbackB])
 	});
 
 	it("should not cast anything by default", () => {

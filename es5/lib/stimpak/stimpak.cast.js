@@ -1,13 +1,13 @@
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
-  value: true
+	value: true
 });
 exports.default = cast;
 function cast(callback) {
-  var _this = this;
+	var _this = this;
 
-  return this.then(function (stimpak) {
-    _this.casts(callback);
-  });
+	return this.then(function (stimpak) {
+		_this.casts(callback);
+	});
 }
