@@ -44,6 +44,10 @@ export default class Stimpak extends ChainLink {
 		).aggregate;
 
 		this.parameters(
+			"casts"
+		).aggregate;
+
+		this.parameters(
 			"answers"
 		).mergeKeyValues;
 
@@ -106,6 +110,10 @@ export default class Stimpak extends ChainLink {
 
 	then(...stepFunctions) {
 		return this[externalFunction]("./stimpak.then.js", ...stepFunctions);
+	}
+
+	cast(callback) {
+		return this[externalFunction]("./stimpak.cast.js", callback);
 	}
 
 	context(object) {
