@@ -90,7 +90,6 @@ export default class Stimpak extends ChainLink {
 			case "./stimpak.info.js":
 			case "./stimpak.title.js":
 			case "./stimpak.subtitle.js":
-				_.needsLineBreak = true;
 				_.lastWritingStepType = functionFilePath;
 		}
 

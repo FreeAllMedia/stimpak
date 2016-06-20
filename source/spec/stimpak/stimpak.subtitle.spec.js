@@ -38,7 +38,7 @@ describe("stimpak.subtitle()", () => {
 	});
 
 	it("should render a subtitle message using the 'Standard' FIGlet font", () => {
-		actualStdout.should.eql(` ${message}\n`);
+		actualStdout.should.eql(`\n ${message}\n`);
 	});
 
 	it("should render the text `Sub-Title` if no string is provided", done => {
@@ -50,7 +50,7 @@ describe("stimpak.subtitle()", () => {
 			actualStdout += data.toString();
 		});
 
-		const expectedStdout = " Sub-Title\n";
+		const expectedStdout = "\n Sub-Title\n";
 
 		stimpak
 		.destination(__dirname)

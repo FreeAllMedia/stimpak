@@ -1,10 +1,13 @@
 <div style="text-align: center">
-	![](./images/stimpak-logo-01.png)
-	![](./images/stimpak.customGenerator.gif)
+	![](./images/stimpak-logo.png)
 </div>
 
 ## Key Features
 
+* **Built For Ease-of-Use**
+	*
+* **Custom Branding**
+	*
 * **Modular Design**
 	* Stimpak generators work like building blocks in that they can be used on their own, or combined with other generators to form even more complex behavior.
 * **Simple-to-Use API**
