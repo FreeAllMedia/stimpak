@@ -9,7 +9,8 @@ export { Source };
 const externalFunction = Symbol(),
 			initializePrivateData = Symbol(),
 			initializeInterface = Symbol(),
-			parseOptions = Symbol();
+			parseOptions = Symbol(),
+			addLineBreak = Symbol();
 
 export default class Stimpak extends ChainLink {
 	initialize(options) {
@@ -58,7 +59,46 @@ export default class Stimpak extends ChainLink {
 
 	[externalFunction](functionFilePath, ...options) {
 		this.debug(`externalFunction: ${functionFilePath}`, options);
-		return require(functionFilePath).default.call(this, ...options);
+
+		this[addLineBreak](functionFilePath);
+
+		const returnValue = require(functionFilePath).default.call(this, ...options);
+
+		return returnValue;
+	}
+
+	[addLineBreak](functionFilePath) {
+		const _ = privateData(this);
+
+		let notDefined;
+
+		_.needsLineBreak = false;
+
+		switch (functionFilePath) {
+			case "./stimpak.prompt.js":
+				switch (_.lastWritingStepType) {
+					case "./stimpak.note.js":
+					case "./stimpak.info.js":
+					case "./stimpak.title.js":
+					case "./stimpak.subtitle.js":
+					case notDefined:
+						_.needsLineBreak = true;
+				}
+				_.lastWritingStepType = functionFilePath;
+				break;
+			case "./stimpak.note.js":
+			case "./stimpak.info.js":
+			case "./stimpak.title.js":
+			case "./stimpak.subtitle.js":
+				_.needsLineBreak = true;
+				_.lastWritingStepType = functionFilePath;
+		}
+
+		// console.log({
+		// 	functionFilePath: functionFilePath,
+		// 	lastStepType: _.lastWritingStepType,
+		// 	needsLineBreak: _.needsLineBreak
+		// });
 	}
 
 	use(...generators) {
@@ -93,8 +133,12 @@ export default class Stimpak extends ChainLink {
 		return this[externalFunction]("./stimpak.info.js", message, payload);
 	}
 
-	logo(message) {
-		return this[externalFunction]("./stimpak.logo.js", message);
+	title(message, font) {
+		return this[externalFunction]("./stimpak.title.js", message, font);
+	}
+
+	subtitle(message) {
+		return this[externalFunction]("./stimpak.subtitle.js", message);
 	}
 
 	log(message, payload) {

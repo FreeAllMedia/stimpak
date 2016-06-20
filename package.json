@@ -35,6 +35,8 @@
     "through": "^2.3.8"
   },
   "dependencies": {
+    "ascii-art": "^1.0.3",
+    "asciimo": "^0.3.1",
     "babel": "^6.5.1",
     "babel-core": "^6.5.1",
     "babel-polyfill": "^6.9.0",

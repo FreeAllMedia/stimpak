@@ -3,7 +3,9 @@ import privateData from "incognito";
 // TODO: Optimize .then
 export default function then(...stepFunctions) {
 	this.debug("then", stepFunctions);
-	const action = privateData(this).action;
+
+	const _ = privateData(this);
+	const action = _.action;
 
 	const originalContext = this.context();
 

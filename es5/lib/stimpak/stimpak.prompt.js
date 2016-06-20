@@ -29,11 +29,16 @@ function prompt() {
 	this.debug("prompt", prompts);
 
 	var _ = (0, _incognito2.default)(this);
-
 	var action = _.action;
 
+	var needsLineBreak = Boolean(_.needsLineBreak);
+
 	if (prompts.length > 0) {
-		action.step(function (generator, stepDone) {
+		action.step(function (stimpak, stepDone) {
+			if (needsLineBreak) {
+				process.stdout.write("\n");
+			}
+
 			var unansweredPrompts = prompts;
 
 			var answers = _this.answers();

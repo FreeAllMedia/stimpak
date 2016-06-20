@@ -6,11 +6,16 @@ export default function prompt(...prompts) {
 	this.debug("prompt", prompts);
 
 	const _ = privateData(this);
-
 	const action = _.action;
 
+	const needsLineBreak = Boolean(_.needsLineBreak);
+
 	if (prompts.length > 0) {
-		action.step((generator, stepDone) => {
+		action.step((stimpak, stepDone) => {
+			if (needsLineBreak) {
+				process.stdout.write("\n");
+			}
+
 			let unansweredPrompts = prompts;
 
 			const answers = this.answers();
