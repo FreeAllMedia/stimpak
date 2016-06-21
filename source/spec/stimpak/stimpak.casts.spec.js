@@ -17,7 +17,7 @@ describe("stimpak.casts()", () => {
 		stimpak.casts(callbackA);
 		stimpak.casts(callbackB);
 
-		stimpak.casts().should.eql([callbackA, callbackB])
+		stimpak.casts().should.eql([callbackA, callbackB]);
 	});
 
 	it("should not cast anything by default", () => {

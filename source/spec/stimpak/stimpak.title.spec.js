@@ -30,7 +30,7 @@ describe("stimpak.title()", () => {
 		.generate((error) => {
 			interceptStdoutEnd();
 
-			ascii.font(message, "Standard", renderedMessageOne => {
+			ascii.font(message, "standard", renderedMessageOne => {
 				renderedMessageStandard = renderedMessageOne;
 				ascii.font(message, "small", renderedMessageTwo => {
 					renderedMessageSmall = renderedMessageTwo;

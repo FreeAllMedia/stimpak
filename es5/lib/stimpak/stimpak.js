@@ -217,6 +217,11 @@ var Stimpak = function (_ChainLink) {
 		value: function debug(message, payload) {
 			return require("./stimpak.debug.js").default.call(this, message, payload);
 		}
+	}, {
+		key: "test",
+		get: function get() {
+			return this[externalFunction]("./stimpak.test.js");
+		}
 	}]);
 
 	return Stimpak;

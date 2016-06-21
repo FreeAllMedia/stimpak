@@ -155,4 +155,8 @@ export default class Stimpak extends ChainLink {
 	debug(message, payload) {
 		return require("./stimpak.debug.js").default.call(this, message, payload);
 	}
+
+	get test() {
+		return this[externalFunction]("./stimpak.test.js");
+	}
 }
