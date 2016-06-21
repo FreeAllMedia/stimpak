@@ -62,7 +62,7 @@ describe("stimpak.title()", () => {
 		.title()
 		.generate(error => {
 			interceptStdoutEnd();
-			ascii.font("Title", "Standard", renderedMessage => {
+			ascii.font("Title", "standard", renderedMessage => {
 				actualStdout.should.eql(`\n${renderedMessage}`);
 				done(error);
 			});
