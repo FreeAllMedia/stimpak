@@ -62,14 +62,14 @@ var Stimpak = function (_ChainLink) {
 			var _ = (0, _incognito2.default)(this);
 			_.action = new _staircase2.default(this);
 			_.action.context(this);
+			_.report = { events: [], files: {} };
 		}
 	}, {
 		key: initializeInterface,
 		value: function value() {
 			this.steps = (0, _incognito2.default)(this).action.steps;
 			this.generators = [];
-
-			this.link("source", _source2.default).into("sources");
+			this.sources = [];
 
 			this.parameters("destination", "debugStream", "logStream");
 
@@ -80,6 +80,8 @@ var Stimpak = function (_ChainLink) {
 			this.parameters("answers").mergeKeyValues;
 
 			this.parameters("merge").multiValue.aggregate;
+
+			this.link("source", _source2.default).into("sources").usingArguments(this);
 		}
 	}, {
 		key: parseOptions,
@@ -216,6 +218,11 @@ var Stimpak = function (_ChainLink) {
 		key: "debug",
 		value: function debug(message, payload) {
 			return require("./stimpak.debug.js").default.call(this, message, payload);
+		}
+	}, {
+		key: "report",
+		get: function get() {
+			return (0, _incognito2.default)(this).report;
 		}
 	}, {
 		key: "test",

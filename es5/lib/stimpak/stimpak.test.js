@@ -11,6 +11,8 @@ var _temp2 = _interopRequireDefault(_temp);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+_temp2.default.track();
+
 function test() {
 	this.debug("test");
 	this.destination(_temp2.default.mkdirSync("stimpak-test"));

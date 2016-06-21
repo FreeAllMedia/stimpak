@@ -64,7 +64,7 @@ describe("stimpak.generate() (casted answers)", () => {
 				stimpak.answers().casted.should.eql(5);
 				stimpak.answers().untouched.should.eql("5");
 
-				done();
+				done(error);
 			});
 	});
 });

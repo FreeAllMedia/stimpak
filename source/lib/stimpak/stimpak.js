@@ -23,15 +23,13 @@ export default class Stimpak extends ChainLink {
 		const _ = privateData(this);
 		_.action = new Action(this);
 		_.action.context(this);
+		_.report = { events: [], files: {} };
 	}
 
 	[initializeInterface]() {
 		this.steps = privateData(this).action.steps;
 		this.generators = [];
-
-		this
-			.link("source", Source)
-				.into("sources");
+		this.sources = [];
 
 		this.parameters(
 			"destination",
@@ -54,6 +52,11 @@ export default class Stimpak extends ChainLink {
 		this.parameters(
 			"merge"
 		).multiValue.aggregate;
+
+		this
+			.link("source", Source)
+				.into("sources")
+				.usingArguments(this);
 	}
 
 	[parseOptions](options = {}) {
@@ -102,6 +105,10 @@ export default class Stimpak extends ChainLink {
 		// 	lastStepType: _.lastWritingStepType,
 		// 	needsLineBreak: _.needsLineBreak
 		// });
+	}
+
+	get report() {
+		return privateData(this).report;
 	}
 
 	use(...generators) {

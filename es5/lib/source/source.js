@@ -32,9 +32,17 @@ var Source = function (_ChainLink) {
 
 	_createClass(Source, [{
 		key: "initialize",
-		value: function initialize(globString, directory) {
+		value: function initialize(stimpak, globString, directory) {
+			var _this2 = this;
+
+			this.stimpak = stimpak;
+
 			this[initializeInterface]();
 			this[initializeDefaults](globString, directory);
+
+			stimpak.then(function (self, done) {
+				_this2.render(done);
+			});
 		}
 	}, {
 		key: initializeInterface,
@@ -50,6 +58,11 @@ var Source = function (_ChainLink) {
 			this.glob(globString);
 			this.directory(directory);
 			this.basePath(this.directory());
+		}
+	}, {
+		key: "render",
+		value: function render(callback) {
+			return require("./source.render.js").default.call(this, callback);
 		}
 	}]);
 
