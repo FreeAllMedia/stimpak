@@ -1,12 +1,16 @@
-import { Source } from "../../lib/stimpak/stimpak.js";
+import Stimpak, { Source } from "../../lib/stimpak/stimpak.js";
 
 describe("Source.glob()", () => {
 	let source,
-			globString;
+			globString,
+			directoryPath,
+			stimpak;
 
 	beforeEach(() => {
 		globString = "**/*";
-		source = new Source(globString);
+		directoryPath = "/some/directory";
+		stimpak = new Stimpak();
+		source = new Source(stimpak, globString, directoryPath);
 	});
 
 	it("should set glob to the provided glob string", () => {
@@ -14,7 +18,7 @@ describe("Source.glob()", () => {
 	});
 
 	it("should default to **/*", () => {
-		source = new Source();
+		source = new Source(stimpak);
 		source.glob().should.eql("**/*");
 	});
 

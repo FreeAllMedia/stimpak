@@ -22,7 +22,9 @@ function then() {
 	}
 
 	this.debug("then", stepFunctions);
-	var action = (0, _incognito2.default)(this).action;
+
+	var _ = (0, _incognito2.default)(this);
+	var action = _.action;
 
 	var originalContext = this.context();
 

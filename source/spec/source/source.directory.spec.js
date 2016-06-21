@@ -1,17 +1,20 @@
-import { Source } from "../../lib/stimpak/stimpak.js";
+import Stimpak, { Source } from "../../lib/stimpak/stimpak.js";
 
 describe("Source.directory()", () => {
 	let source,
-			globString;
+			globString,
+			directoryPath,
+			stimpak;
 
 	beforeEach(() => {
 		globString = "**/*";
-		source = new Source(globString);
+		directoryPath = "/some/directory";
+		stimpak = new Stimpak();
+		source = new Source(stimpak, globString);
 	});
 
 	it("should be able to set via the constructor", () => {
-		const directoryPath = "blah";
-		source = new Source(globString, directoryPath);
+		source = new Source(stimpak, globString, directoryPath);
 		source.directory().should.eql(directoryPath);
 	});
 

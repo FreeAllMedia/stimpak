@@ -1,12 +1,16 @@
-import { Source } from "../../lib/stimpak/stimpak.js";
+import Stimpak, { Source } from "../../lib/stimpak/stimpak.js";
 
 describe("Source.basePath()", () => {
 	let source,
-			globString;
+			globString,
+			directoryPath,
+			stimpak;
 
 	beforeEach(() => {
 		globString = "**/*";
-		source = new Source(globString, __dirname);
+		directoryPath = "/some/directory";
+		stimpak = new Stimpak();
+		source = new Source(stimpak, globString, directoryPath);
 	});
 
 	it("should set basePath to directory by default", () => {
