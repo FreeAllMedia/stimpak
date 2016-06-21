@@ -81,7 +81,7 @@ var Stimpak = function (_ChainLink) {
 
 			this.parameters("merge").multiValue.aggregate;
 
-			this.link("source", _source2.default).into("sources").usingArguments(this);
+			this.link("render", _source2.default).into("sources").usingArguments(this);
 		}
 	}, {
 		key: parseOptions,

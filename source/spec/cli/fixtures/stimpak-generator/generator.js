@@ -9,7 +9,7 @@ export default class Generator {
 				name: "promptName",
 				message: "You should not see this"
 			})
-			.source("**/*")
+			.render("**/*")
 				.directory(`${__dirname}/templates`)
 			.merge("generated.js", createSecondFile);
 	}

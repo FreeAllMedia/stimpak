@@ -46,7 +46,7 @@ describe("stimpak.generate() (template rendering)", () => {
 
 		stimpak
 			.answers(answers)
-			.source(sourceGlob, templateDirectoryPath)
+			.render(sourceGlob, templateDirectoryPath)
 			.destination(temporaryDirectoryPath);
 	});
 

@@ -176,6 +176,8 @@ function runGenerators(callback) {
 		loadGenerators(parsedArguments.generatorNames, done);
 	}, function (done) {
 		generateFiles(done);
+	}, function (done) {
+		showReport(done);
 	}], callback);
 }
 
@@ -566,6 +568,21 @@ function showDone(callback) {
 		process.stdout.write("\n" + fileContents);
 		callback(error);
 	});
+}
+
+function showReport(callback) {
+	for (var file in stimpak.report.files) {
+		var color = void 0;
+
+		if (file.isMerged) {
+			color = _colors2.default.yellow();
+		} else {
+			color = _colors2.default.red();
+		}
+
+		process.stdout.write(color(file.path) + "\n");
+	}
+	callback();
 }
 
 /**

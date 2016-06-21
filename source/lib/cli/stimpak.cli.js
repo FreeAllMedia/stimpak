@@ -138,7 +138,8 @@ function runGenerators(callback) {
 
 	Async.series([
 		done => { loadGenerators(parsedArguments.generatorNames, done); },
-		done => { generateFiles(done); }
+		done => { generateFiles(done); },
+		done => { showReport(done); }
 	], callback);
 }
 
@@ -548,6 +549,21 @@ function showDone(callback) {
 		process.stdout.write(`\n${fileContents}`);
 		callback(error);
 	});
+}
+
+function showReport(callback) {
+	for (let file in stimpak.report.files) {
+		let color;
+
+		if (file.isMerged) {
+			color = colors.yellow();
+		} else {
+			color = colors.red();
+		}
+
+		process.stdout.write(`${color(file.path)}\n`);
+	}
+	callback();
 }
 
 /**

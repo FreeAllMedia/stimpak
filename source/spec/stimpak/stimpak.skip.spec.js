@@ -18,7 +18,7 @@ describe(".skip(globOrGlobs)", () => {
 				primaryFunctionName: "someFunction"
 			})
 			.destination(temporaryDirectoryPath)
-			.source("**/*")
+			.render("**/*")
 				.directory(`${__dirname}/fixtures/templates`);
 	});
 
