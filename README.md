@@ -1,5 +1,5 @@
 <div style="text-align: center">
-	![](images/stimpak-logo.png?raw=true)
+	![](/images/stimpak-logo.png?raw=true)
 </div>
 
 ## Key Features
