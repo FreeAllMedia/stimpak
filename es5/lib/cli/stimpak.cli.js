@@ -32,9 +32,9 @@ var _flowsync2 = _interopRequireDefault(_flowsync);
 
 var _child_process = require("child_process");
 
-var _colors = require("colors");
+var _safe = require("colors/safe");
 
-var _colors2 = _interopRequireDefault(_colors);
+var _safe2 = _interopRequireDefault(_safe);
 
 var _util = require("util");
 
@@ -571,17 +571,27 @@ function showDone(callback) {
 }
 
 function showReport(callback) {
-	for (var file in stimpak.report.files) {
-		var color = void 0;
+	process.stdout.write("\n");
 
-		if (file.isMerged) {
-			color = _colors2.default.yellow();
-		} else {
-			color = _colors2.default.red();
+	process.stdout.write("Tasks Performed:\n\n");
+	stimpak.report.events.forEach(function (event) {
+		var color = _safe2.default.green;
+
+		var tag = "write";
+		var message = event.path;
+
+		switch (event.type) {
+			case "command":
+				tag = "shell";
+				message = event.command;
+				break;
+			case "mergeFile":
+			case "mergeDirectory":
+				tag = "merge";
 		}
 
-		process.stdout.write(color(file.path) + "\n");
-	}
+		process.stdout.write("  [" + color(tag) + "] " + message + "\n");
+	});
 	callback();
 }
 
@@ -602,7 +612,7 @@ function debug(message) {
 		extra = extra.map(function (extraData) {
 			return _util2.default.inspect(extraData);
 		});
-		console.log("" + _colors2.default.gray(message + "(") + _colors2.default.yellow(extra.join(", ")) + _colors2.default.gray(")"));
+		console.log("" + _safe2.default.gray(message + "(") + _safe2.default.yellow(extra.join(", ")) + _safe2.default.gray(")"));
 	}
 }
 
@@ -615,6 +625,6 @@ function debugCallback(message) {
 			extra[_key2 - 1] = arguments[_key2];
 		}
 
-		console.log("  " + _colors2.default.red(message) + ": ", _colors2.default.red(extra.join(", ")) + _colors2.default.gray(" [" + secondsElapsed + "]"));
+		console.log("  " + _safe2.default.red(message) + ": ", _safe2.default.red(extra.join(", ")) + _safe2.default.gray(" [" + secondsElapsed + "]"));
 	}
 }

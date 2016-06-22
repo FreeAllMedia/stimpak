@@ -1,33 +1,11 @@
-
-     _   _               _
- ___| |_|_|_____ ___ ___| |_
-|_ -|  _| |     | . | .'| '_|
-|___|_|/__|_|_|_|  _|__,|_,_|
-                |_|
+       _   _               _
+ ___ _| |_|_|_____ ___ ___| |_
+|_ -|_   _| |     | . | .'| '_|
+|___| |_|/__|_|_|_|  _|__,|_,_|
+                  |_|      BETA
 
 Usage:
-
   stimpak [--flags] [...generator] [--answer="value"]
-
-Example:
-
-  stimpak project\
-    --projectName="My Project"\
-    --projectDescription="My project description."
-
-Description:
-
-  Generate and re-generate code of any language
-  using modular generators from npm!
-
-  To search for available generators, search npm
-  for keyword "stimpak" via CLI or the Npmjs.com
-  website.
-
-Important Note:
-
-  Flags must be set before generatorNames or
-  they will be interpreted as answer values.
 
 Flags:
   -h, --help           output usage information

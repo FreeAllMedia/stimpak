@@ -23,7 +23,7 @@ import path from "path";
 import rimraf from "rimraf";
 import Async from "flowsync";
 import { exec } from "child_process";
-import colors from "colors";
+import colors from "colors/safe";
 import util from "util";
 
 /**
@@ -552,17 +552,27 @@ function showDone(callback) {
 }
 
 function showReport(callback) {
-	for (let file in stimpak.report.files) {
-		let color;
+	process.stdout.write("\n");
 
-		if (file.isMerged) {
-			color = colors.yellow();
-		} else {
-			color = colors.red();
+	process.stdout.write("Tasks Performed:\n\n");
+	stimpak.report.events.forEach(event => {
+		let color = colors.green;
+
+		let tag = "write";
+		let message = event.path;
+
+		switch (event.type) {
+			case "command":
+				tag = "shell";
+				message = event.command;
+				break;
+			case "mergeFile":
+			case "mergeDirectory":
+				tag = "merge";
 		}
 
-		process.stdout.write(`${color(file.path)}\n`);
-	}
+		process.stdout.write(`  [${color(tag)}] ${message}\n`);
+	});
 	callback();
 }
 
