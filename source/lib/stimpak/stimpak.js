@@ -23,7 +23,11 @@ export default class Stimpak extends ChainLink {
 		const _ = privateData(this);
 		_.action = new Action(this);
 		_.action.context(this);
-		_.report = { events: [], files: {} };
+		_.report = {
+			events: [],
+			files: {},
+			matchesFixtures: require("./stimpak.report.matchesFixtures.js").default.bind(this)
+		};
 	}
 
 	[initializeInterface]() {

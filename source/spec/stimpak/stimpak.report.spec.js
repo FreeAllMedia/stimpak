@@ -71,8 +71,6 @@ describe("stimpak.report()", () => {
 			}
 		];
 
-		console.log(actualReport.events);
-
 		actualReport.events.should.eql(expectedEvents);
 	});
 

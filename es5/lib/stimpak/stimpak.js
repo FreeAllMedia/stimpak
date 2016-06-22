@@ -62,7 +62,11 @@ var Stimpak = function (_ChainLink) {
 			var _ = (0, _incognito2.default)(this);
 			_.action = new _staircase2.default(this);
 			_.action.context(this);
-			_.report = { events: [], files: {} };
+			_.report = {
+				events: [],
+				files: {},
+				matchesFixtures: require("./stimpak.report.matchesFixtures.js").default.bind(this)
+			};
 		}
 	}, {
 		key: initializeInterface,

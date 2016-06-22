@@ -36,7 +36,6 @@
   },
   "dependencies": {
     "ascii-art": "^1.0.3",
-    "asciimo": "^0.3.1",
     "babel": "^6.5.1",
     "babel-core": "^6.5.1",
     "babel-polyfill": "^6.9.0",
@@ -50,6 +49,7 @@
     "global-paths": "^0.1.2",
     "incognito": "^0.1.4",
     "inquirer": "^1.0.2",
+    "jargon": "^0.2.0",
     "lodash": "^4.13.1",
     "lodash.flattendeep": "^4.2.0",
     "lodash.template": "^4.2.4",
