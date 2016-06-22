@@ -23,7 +23,7 @@ import path from "path";
 import rimraf from "rimraf";
 import Async from "flowsync";
 import { exec } from "child_process";
-import colors from "colors";
+import colors from "colors/safe";
 import util from "util";
 
 /**
@@ -138,7 +138,8 @@ function runGenerators(callback) {
 
 	Async.series([
 		done => { loadGenerators(parsedArguments.generatorNames, done); },
-		done => { generateFiles(done); }
+		done => { generateFiles(done); },
+		done => { showReport(done); }
 	], callback);
 }
 
@@ -548,6 +549,31 @@ function showDone(callback) {
 		process.stdout.write(`\n${fileContents}`);
 		callback(error);
 	});
+}
+
+function showReport(callback) {
+	process.stdout.write("\n");
+
+	process.stdout.write("Tasks Performed:\n\n");
+	stimpak.report.events.forEach(event => {
+		let color = colors.green;
+
+		let tag = "write";
+		let message = event.path;
+
+		switch (event.type) {
+			case "command":
+				tag = "shell";
+				message = event.command;
+				break;
+			case "mergeFile":
+			case "mergeDirectory":
+				tag = "merge";
+		}
+
+		process.stdout.write(`  [${color(tag)}] ${message}\n`);
+	});
+	callback();
 }
 
 /**

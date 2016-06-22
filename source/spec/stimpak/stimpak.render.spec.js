@@ -1,6 +1,6 @@
 import Stimpak, { Source } from "../../lib/stimpak/stimpak.js";
 
-describe("stimpak.source()", () => {
+describe("stimpak.render()", () => {
 	let stimpak,
 			globString,
 			directoryPath;
@@ -20,16 +20,16 @@ describe("stimpak.source()", () => {
 	});
 
 	it("should return an instance of Source", () => {
-		stimpak.source(globString).should.be.instanceOf(Source);
+		stimpak.render(globString).should.be.instanceOf(Source);
 	});
 
 	it("should add new instances to .sources", () => {
-		const source = stimpak.source(globString);
+		const source = stimpak.render(globString);
 		stimpak.sources.should.eql([source]);
 	});
 
 	it("should be able to set the directory at the same time", () => {
-		const source = stimpak.source(globString, directoryPath);
+		const source = stimpak.render(globString, directoryPath);
 		source.directory().should.eql(directoryPath);
 	});
 
@@ -37,11 +37,11 @@ describe("stimpak.source()", () => {
 		let actualFilepaths;
 
 		stimpak
-		.source(globString, directoryPath)
+		.render(globString, directoryPath)
 		.then(() => {
 			actualFilepaths = Object.keys(stimpak.report.files);
 		})
-		.source(globString, `${__dirname}/fixtures/simpleExisting`)
+		.render(globString, `${__dirname}/fixtures/simpleExisting`)
 		.generate(error => {
 			actualFilepaths.should.eql([
 				`${stimpak.destination()}/shapes`,

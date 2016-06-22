@@ -41,7 +41,7 @@ var Source = function (_ChainLink) {
 			this[initializeDefaults](globString, directory);
 
 			stimpak.then(function (self, done) {
-				_this2.render(done);
+				return require("./source.render.js").default.call(_this2, done);
 			});
 		}
 	}, {
@@ -58,11 +58,6 @@ var Source = function (_ChainLink) {
 			this.glob(globString);
 			this.directory(directory);
 			this.basePath(this.directory());
-		}
-	}, {
-		key: "render",
-		value: function render(callback) {
-			return require("./source.render.js").default.call(this, callback);
 		}
 	}]);
 

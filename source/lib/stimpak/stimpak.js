@@ -54,7 +54,7 @@ export default class Stimpak extends ChainLink {
 		).multiValue.aggregate;
 
 		this
-			.link("source", Source)
+			.link("render", Source)
 				.into("sources")
 				.usingArguments(this);
 	}

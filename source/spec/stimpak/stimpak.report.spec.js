@@ -24,7 +24,7 @@ describe("stimpak.report()", () => {
 			folderName: "letters",
 			functionName: "foo"
 		})
-		.source("**/*", templatesDirectoryPath)
+		.render("**/*", templatesDirectoryPath)
 		.merge("letters/shapes.js", (self, newFile, oldFile, mergeDone) => {
 			newFile.stem = "blah";
 			mergeDone(null, newFile);
