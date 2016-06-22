@@ -1,6 +1,4 @@
-<div style="text-align: center">
-	![](/images/stimpak-logo.png?raw=true)
-</div>
+![](./images/stimpak-logo.png?raw=true)
 
 ## Key Features
 
