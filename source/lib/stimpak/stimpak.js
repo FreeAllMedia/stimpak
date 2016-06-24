@@ -26,7 +26,7 @@ export default class Stimpak extends ChainLink {
 		_.report = {
 			events: [],
 			files: {},
-			matchesFixtures: require("./stimpak.report.matchesFixtures.js").default.bind(this)
+			diffFixtures: require("./stimpak.report.diffFixtures.js").default.bind(this)
 		};
 	}
 

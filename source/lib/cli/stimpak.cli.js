@@ -321,8 +321,6 @@ function generatorPackageName(generatorName) {
 function linkIfNotExisting(fromPath, toPath, callback) {
 	//debug(".linkIfNotExisting", fromPath, toPath);
 
-	temporaryDependencyPaths.push(toPath);
-
 	Async.waterfall([
 		done => {
 			fileSystem.lstat(toPath, (error, stats) => {
@@ -338,7 +336,10 @@ function linkIfNotExisting(fromPath, toPath, callback) {
 				done();
 			} else {
 				//debugCallback("dependency linked", toPath);
-				symlink(fromPath, toPath, done);
+				symlink(fromPath, toPath, () => {
+					temporaryDependencyPaths.push(toPath);
+					done();
+				});
 			}
 		}
 	], error => {
@@ -366,10 +367,12 @@ function resolveGeneratorPaths(generator, callback) {
 	debug(".resolveGeneratorPaths", generator);
 
 	Async.waterfall([
-		done => { resolveGeneratorPath(generator, (error, generatorPath) => {
-			debugCallback("resolve generator path", generatorPath);
-			done(error, generatorPath);
-		}); },
+		done => {
+			resolveGeneratorPath(generator, (error, generatorPath) => {
+				debugCallback("resolve generator path", generatorPath);
+				done(error, generatorPath);
+			});
+		},
 		(generatorPath, done) => {
 			debugCallback("path resolved", generatorPath);
 			fileSystem.realpath(generatorPath, (error, realPath) => {
