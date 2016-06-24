@@ -224,6 +224,11 @@ var Stimpak = function (_ChainLink) {
 			return require("./stimpak.debug.js").default.call(this, message, payload);
 		}
 	}, {
+		key: "write",
+		value: function write(message) {
+			process.stdout.write(message);
+		}
+	}, {
 		key: "report",
 		get: function get() {
 			return (0, _incognito2.default)(this).report;

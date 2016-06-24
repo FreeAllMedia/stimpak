@@ -5,12 +5,14 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = subtitle;
 function subtitle() {
+	var _this = this;
+
 	var message = arguments.length <= 0 || arguments[0] === undefined ? "Sub-Title" : arguments[0];
 
 	this.debug("subtitle", message);
 
 	this.then(function () {
-		process.stdout.write("\n " + message + "\n");
+		_this.write("\n " + message + "\n");
 	});
 
 	return this;

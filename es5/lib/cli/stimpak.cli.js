@@ -574,24 +574,21 @@ function showDone(callback) {
 function showReport(callback) {
 	process.stdout.write("\n");
 
-	process.stdout.write("Tasks Performed:\n\n");
+	if (stimpak.report.events.length > 0) {
+		process.stdout.write("Tasks Performed:\n\n");
+	}
+
 	stimpak.report.events.forEach(function (event) {
 		var color = _safe2.default.green;
-
-		var tag = "write";
-		var message = event.path;
+		var message = event.path.replace(stimpak.destination(), "");
 
 		switch (event.type) {
 			case "command":
-				tag = "shell";
 				message = event.command;
 				break;
-			case "mergeFile":
-			case "mergeDirectory":
-				tag = "merge";
 		}
 
-		process.stdout.write("  [" + color(tag) + "] " + message + "\n");
+		process.stdout.write("  [" + color(event.type) + "] " + message + "\n");
 	});
 	callback();
 }

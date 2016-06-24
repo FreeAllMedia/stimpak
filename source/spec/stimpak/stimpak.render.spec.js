@@ -51,4 +51,14 @@ describe("stimpak.render()", () => {
 			done(error);
 		});
 	});
+
+	it("should bubble up thrown errors from the template system", done => {
+		new Stimpak()
+		.test
+		.render(globString, directoryPath)
+		.generate(error => {
+			error.should.be.instanceOf(Error);
+			done();
+		});
+	});
 });

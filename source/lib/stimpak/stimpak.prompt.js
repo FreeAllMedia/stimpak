@@ -13,7 +13,7 @@ export default function prompt(...prompts) {
 	if (prompts.length > 0) {
 		action.step((stimpak, stepDone) => {
 			if (needsLineBreak) {
-				process.stdout.write("\n");
+				this.write("\n");
 			}
 
 			let unansweredPrompts = prompts;

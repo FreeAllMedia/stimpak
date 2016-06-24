@@ -14,6 +14,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 _asciiArt2.default.Figlet.fontPath = __dirname + "/../../../figlet-fonts/";
 
 function title() {
+	var _this = this;
+
 	var message = arguments.length <= 0 || arguments[0] === undefined ? "Title" : arguments[0];
 	var figletFont = arguments.length <= 1 || arguments[1] === undefined ? "standard" : arguments[1];
 
@@ -21,7 +23,7 @@ function title() {
 
 	this.then(function (stimpak, done) {
 		_asciiArt2.default.font(message, figletFont, function (renderedMessage) {
-			process.stdout.write("\n" + renderedMessage);
+			_this.write("\n" + renderedMessage);
 			done();
 		});
 	});

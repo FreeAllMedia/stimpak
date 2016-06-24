@@ -7,7 +7,7 @@ export default function title(message = "Title", figletFont = "standard") {
 
 	this.then((stimpak, done) => {
 		ascii.font(message, figletFont, renderedMessage => {
-			process.stdout.write(`\n${renderedMessage}`);
+			this.write(`\n${renderedMessage}`);
 			done();
 		});
 	});

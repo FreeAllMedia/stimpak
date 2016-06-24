@@ -1,11 +1,21 @@
 ![](./images/stimpak-logo.png?raw=true)
 
-## Key Features
+## A Simple-to-Use Pattern Manager
 
-* **Built For Ease-of-Use**
-	*
+* Formalize patterns in code and workflows with minimal effort.
+* Generate new files based upon the patterns you designate.
+* Update old files with new patterns using simple merging strategies.
+* Create automated expert systems that can guide others through complicated tasks without the need for training.
+
+## Generate New Code
+
+
+
+## Main Features
+
+* **Easy-to-Use**
+
 * **Custom Branding**
-	*
 * **Modular Design**
 	* Stimpak generators work like building blocks in that they can be used on their own, or combined with other generators to form even more complex behavior.
 * **Simple-to-Use API**

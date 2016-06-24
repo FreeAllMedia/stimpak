@@ -170,4 +170,8 @@ export default class Stimpak extends ChainLink {
 	get test() {
 		return this[externalFunction]("./stimpak.test.js");
 	}
+
+	write(message) {
+		process.stdout.write(message);
+	}
 }

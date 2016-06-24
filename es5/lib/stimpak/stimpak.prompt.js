@@ -36,7 +36,7 @@ function prompt() {
 	if (prompts.length > 0) {
 		action.step(function (stimpak, stepDone) {
 			if (needsLineBreak) {
-				process.stdout.write("\n");
+				_this.write("\n");
 			}
 
 			var unansweredPrompts = prompts;

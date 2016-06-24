@@ -20,6 +20,8 @@ var _fs2 = _interopRequireDefault(_fs);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function note(message) {
+	var _this = this;
+
 	this.debug("note", message);
 
 	var templateContents = _fs2.default.readFileSync(__dirname + "/../cli/templates/note.txt");
@@ -30,7 +32,7 @@ function note(message) {
 
 	var _ = (0, _incognito2.default)(this);
 	_.action.step(function (stimpak, done) {
-		process.stdout.write("\n" + renderedNote);
+		_this.write("\n" + renderedNote);
 		done();
 	});
 	return this;

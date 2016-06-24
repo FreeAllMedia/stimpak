@@ -557,24 +557,21 @@ function showDone(callback) {
 function showReport(callback) {
 	process.stdout.write("\n");
 
-	process.stdout.write("Tasks Performed:\n\n");
+	if (stimpak.report.events.length > 0) {
+		process.stdout.write("Tasks Performed:\n\n");
+	}
+
 	stimpak.report.events.forEach(event => {
 		let color = colors.green;
-
-		let tag = "write";
-		let message = event.path;
+		let message = event.path.replace(stimpak.destination(), "");
 
 		switch (event.type) {
 			case "command":
-				tag = "shell";
 				message = event.command;
 				break;
-			case "mergeFile":
-			case "mergeDirectory":
-				tag = "merge";
 		}
 
-		process.stdout.write(`  [${color(tag)}] ${message}\n`);
+		process.stdout.write(`  [${color(event.type)}] ${message}\n`);
 	});
 	callback();
 }

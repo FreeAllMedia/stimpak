@@ -43,6 +43,8 @@ var _glob2 = _interopRequireDefault(_glob);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+// TODO: Refactor source.render into small files
+
 function render(done) {
 	var _this = this;
 
@@ -52,14 +54,18 @@ function render(done) {
 	});
 
 	_flowsync2.default.mapSeries(templateFileNames, function (fileName, fileNameDone) {
-		renderFile.call(_this.stimpak, fileName, _this, fileNameDone);
+		try {
+			renderFile.call(_this.stimpak, fileName, _this, fileNameDone);
+		} catch (exception) {
+			fileNameDone(exception);
+		}
 	}, done);
 }
 
-// TODO: Clean up renderFile by breaking it up into smaller functions
 function renderFile(templateFileName, source, done) {
 	var _this2 = this;
 
+	this.debug("renderFile", templateFileName);
 	var templateFilePath = source.directory() + "/" + templateFileName;
 	var templateFileStats = _fsExtra2.default.statSync(templateFilePath);
 	var answers = this.answers();
@@ -73,7 +79,9 @@ function renderFile(templateFileName, source, done) {
 	}
 
 	if (!shouldSkipFile.call(this, destinationFileName, templateFileName)) {
+		this.debug("file not skipped");
 		if (templateFileStats.isDirectory()) {
+			this.debug("file is directory");
 			var directoryPath = this.destination() + "/" + destinationFileName;
 			_fsExtra2.default.mkdirsSync(directoryPath);
 			reportFile.call(this, directoryPath, {
@@ -90,6 +98,7 @@ function renderFile(templateFileName, source, done) {
 			done();
 		} else {
 			(function () {
+				_this2.debug("file is not a directory");
 				var fileContents = renderTemplateFile.call(_this2, templateFilePath);
 
 				var newFile = new _vinyl2.default({
@@ -109,52 +118,76 @@ function renderFile(templateFileName, source, done) {
 
 				if (_fsExtra2.default.existsSync(newFile.path)) {
 					(function () {
+						_this2.debug("file exists");
 						var oldFileContents = _fsExtra2.default.readFileSync(newFile.path);
 
 						var mergeStrategies = _this2.merge();
 
 						if (mergeStrategies.length > 0) {
-							_flowsync2.default.mapSeries(mergeStrategies, function (mergeStrategy, mergeDone) {
-								var mergePattern = new RegExp(mergeStrategy[0]);
+							(function () {
+								_this2.debug("there are merge strategies");
 
-								if (newFile.path.match(mergePattern)) {
-									(function () {
-										var mergeFunction = mergeStrategy[1];
-										var oldFile = new _vinyl2.default({
-											cwd: newFile.cwd,
-											base: newFile.base,
-											path: newFile.path,
-											contents: oldFileContents
-										});
+								var anyMergeStrategiesMatch = false;
 
-										mergeFunction(_this2, newFile, oldFile, function (error, mergedFile) {
-											var mergedFileDetails = newFileDetails;
+								_flowsync2.default.mapSeries(mergeStrategies, function (mergeStrategy, mergeDone) {
+									var mergePattern = new RegExp(mergeStrategy[0]);
 
-											if (error) {
-												mergeDone(error);
-											} else {
-												mergedFileDetails.isMerged = true;
-												mergedFileDetails.path = mergedFile.path;
-												mergedFileDetails.oldContent = oldFile.contents.toString();
-												mergedFileDetails.oldPath = oldFile.path;
-												mergeFile.call(_this2, mergedFile, mergedFileDetails, mergeDone);
-											}
-										});
-									})();
-								} else {
-									writeFile.call(_this2, newFile, newFileDetails, mergeDone);
-								}
-							}, done);
+									if (newFile.path.match(mergePattern)) {
+										(function () {
+											_this2.debug("merge strategy matched");
+											anyMergeStrategiesMatch = true;
+											var mergeFunction = mergeStrategy[1];
+											var oldFile = new _vinyl2.default({
+												cwd: newFile.cwd,
+												base: newFile.base,
+												path: newFile.path,
+												contents: oldFileContents
+											});
+
+											mergeFunction(_this2, newFile, oldFile, function (error, mergedFile) {
+												var mergedFileDetails = newFileDetails;
+
+												if (error) {
+													mergeDone(error);
+												} else {
+													_this2.debug("merging file");
+													mergedFileDetails.isMerged = true;
+													mergedFileDetails.path = mergedFile.path;
+													mergedFileDetails.oldContent = oldFile.contents.toString();
+													mergedFileDetails.oldPath = oldFile.path;
+													mergeFile.call(_this2, mergedFile, mergedFileDetails, mergeDone);
+												}
+											});
+										})();
+									} else {
+										mergeDone();
+									}
+								}, function (error) {
+									if (error) {
+										done(error);
+									} else {
+										if (!anyMergeStrategiesMatch) {
+											_this2.debug("merge strategies did not match");
+											writeFile.call(_this2, newFile, newFileDetails, done);
+										} else {
+											done();
+										}
+									}
+								});
+							})();
 						} else {
+							_this2.debug("file does not have merge strategies");
 							writeFile.call(_this2, newFile, newFileDetails, done);
 						}
 					})();
 				} else {
+					_this2.debug("file does not exist");
 					writeFile.call(_this2, newFile, newFileDetails, done);
 				}
 			})();
 		}
 	} else {
+		this.debug("file skipped");
 		done();
 	}
 }
