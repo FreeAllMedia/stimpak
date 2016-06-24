@@ -563,15 +563,24 @@ function showReport(callback) {
 
 	stimpak.report.events.forEach(event => {
 		let color = colors.green;
-		let message = event.path.replace(stimpak.destination(), "");
+		let tag = "write";
+		let message;
 
 		switch (event.type) {
 			case "command":
+				tag = "shell";
 				message = event.command;
 				break;
+			case "mergeFile":
+				tag = "merge";
+				break;
+			case "writeFile":
+			case "writeDirectory":
+				tag = "write";
+				message = event.path.replace(stimpak.destination(), "");
 		}
 
-		process.stdout.write(`  [${color(event.type)}] ${message}\n`);
+		process.stdout.write(`  [${color(tag)}] ${message}\n`);
 	});
 	callback();
 }

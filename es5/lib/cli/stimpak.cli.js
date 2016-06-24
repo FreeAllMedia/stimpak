@@ -580,15 +580,24 @@ function showReport(callback) {
 
 	stimpak.report.events.forEach(function (event) {
 		var color = _safe2.default.green;
-		var message = event.path.replace(stimpak.destination(), "");
+		var tag = "write";
+		var message = void 0;
 
 		switch (event.type) {
 			case "command":
+				tag = "shell";
 				message = event.command;
 				break;
+			case "mergeFile":
+				tag = "merge";
+				break;
+			case "writeFile":
+			case "writeDirectory":
+				tag = "write";
+				message = event.path.replace(stimpak.destination(), "");
 		}
 
-		process.stdout.write("  [" + color(event.type) + "] " + message + "\n");
+		process.stdout.write("  [" + color(tag) + "] " + message + "\n");
 	});
 	callback();
 }
