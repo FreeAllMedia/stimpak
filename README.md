@@ -16,225 +16,37 @@ Software development (when doing it right) involves mostly patterns in both our 
 
 ## Main Features
 
-* **Very Easy-to-Use**
+* **Built for Ease-of-Use**
 	* Everything about stimpak was designed with ease-of-use and time-savings in mind.
 	* Minimal learning required. Get up and running within a few minutes.
-	* Automatically backwards compatible with older versions of nodejs.
-* **Customizable Branding**
-	* Stimpak doesn't need to remind you that it's stimpak every time you use stimpak. ;)
-	* Built-in ASCII-Art generator for BIG popping titles in any of 680 figlet fonts!
+	* Automatic just-in-time transpiling for automatic backwards compatible with older versions of nodejs.
+* **Minimally-Opinionated Generator Design**
+	* Very little learning required to write your own generators. Make your first pattern in less than 5 minutes.
+	* Setup your directory structures the way you want. Change them later if you want to.
+	* Name your methods how you'd like. Except for one `.setup` method on each generator, you're free to use any method name you'd like, or to change them later.
+* **Generators are Composable**
+	* Create several small generators that work independently.
+	* Combine generators together on-the-fly via the CLI.
+	* Combine generators into a new generator that can guide the user through multiple tasks at once.
+* **Smart File Merging**
+	* Easily tell stimpak what to do if a file you're trying to generate already exists.
+	* Merge strategies use `vinyl` file objects for ultimate flexibility when merging.
+* **Customizable ASCII-Art**
+	* Built-in ASCII-Art generator for BIG popping titles in any of 658 figlet fonts!
+	* Optionally choose *not* to have ASCII-Art whenever you use your generators! It's all up to you!
 
-* **Unopinionated Modular Design**
-	* Minimal learning required. Setup your directory structures the way you want. Name your methods how you'd like.
-	* Create several individual generators, then combine them together in different ways to make compound generators that perform multiple tasks at once.
+## Getting Started Guides
 
-## Getting Started
+Stimpak can be used as both a command-line interface (CLI), and as a standalone library that can be embedded into your own code. Choose the guide below to help you get started with either integration method, or with writing a new stimpak generator from scratch:
 
-To use stimpak to generate code, you'll first need to install `stimpak` as a global npm package, then either install an existing generator or write your own!
+1. [The Stimpak Command-Line Interface](./CLI.md)
+2. [The Stimpak API](./API.md)
+3. [Writing a Stimpak Generator](./GENERATORS.md)
 
-### Installation
+## Contributing
 
-Stimpak can be most easily installed via `npm` on the command line. Note that in most cases, `stimpak` needs to be installed globally (with the `-g` flag):
+We *love* pull requests and issue reports! **Really!**
 
-``` shell
-$ npm install stimpak -g
-```
+If you find a bug or have a feature suggestion, please feel free to [submit an issue here](https://github.com/FreeAllMedia/stimpak/issues).
 
-### Finding Existing Generators
-
-The easiest way to find existing generators for `stimpak` is via the package manager search website libraries.io.
-
-[Click here to find an existing generators for stimpak](https://libraries.io/search?platforms=NPM&q=stimpak)
-
-After you have found a generator you want to use, in most cases you will needs to install that generator globally (using the `-g` flag). For example, if you wanted to use the `stimpak-generator` module which is used for scaffolding new stimpak generators, you would need to install it globally via the following command:
-
-``` shell
-$ npm install stimpak-generator -g
-```
-
-### Using an Existing Generator
-
-When the generator you want to use is installed along with the core stimpak package, you can use the generator by either calling it from the command line or using it programmatically via the API.
-
-#### via Command-Line
-
-To use a stimpak generator via command line, you'll want to first **type the `stimpak` command, then the name of the generator minus the `stimpak-` prefix.** For example, if we wanted to use the `stimpak-generator` module, we would type the following command:
-
-``` shell
-$ stimpak generator
-```
-
-**This will tell stimpak to use the designated generator**, which will begin prompting for answers to questions required for generating the desired files.
-
-``` shell
-$ stimpak generator
-
-____ ___ _ _  _ ___  ____ _  _
-[__   |  | |\/| |__] |__| |_/
-___]  |  | |  | |    |  | | \_
-              Generator v0.0.9
-
-
-+--------------------+
-| Basic Information: |
-+--------------------+
-
-? What do you want your generator to be named?
-```
-
-**Answer each question as it appears, until you see the "All done." message appear**, which lets you know that the code generation is complete.
-
-``` shell
-? What do you want your generator to be named? my-generator
-? How would you describe your generator? It's a new generator. I don't really have a description for it, yet.
-
-All done. See you next time!
-
-```
-
-**If you want to automatically answer a question**, you can add the answer as a flag after the generator name:
-
-``` shell
-$ stimpak generator \
-	--projectName="My Project Name" \
-	--projectDescription="This is my description!"
-
-All done. See you next time!
-
-```
-
-#### via API
-
-Stimpak can also be embedded into your own applications by installing it locally and including it as you would any other javascript module.
-
-##### Local Installation
-
-```shell
-$ npm install stimpak stimpak-generator --save
-```
-
-``` javascript
-import Stimpak from "stimpak";
-import StimpakGenerator from "stimpak-generator";
-
-const stimpak = new Stimpak();
-
-stimpak
-	.use(StimpakGenerator)
-	.generate(error => {
-		if (error) { throw error; }
-		// Code is now generated
-	});
-```
-
-## Writing a Custom Generator
-
-![](./images/stimpak.customGenerator.gif)
-
-Stimpak is designed to make writing generators easy. Fundamentally, a generator can be any object with a `.setup` method attached to it:
-
-``` javascript
-export default class StimpakGenerator {
-	setup(stimpak) {
-		// Do something with `stimpak` here
-	}
-}
-```
-
-That's it. No special directory names to memorize. No special object interfaces to satisfy. Just start making calls to stimpak in the `.setup` method of your object.
-
-### Prompt For answers
-
-Stimpak prompts are handled by [inquirer.js](https://github.com/SBoudrias/Inquirer.js/) and support all of its features.
-
-``` javascript
-export default class StimpakGenerator {
-	setup(stimpak) {
-		stimpak
-			.prompt({
-				type: "input",
-				name: "packageVersion",
-				message: "What version of the package should we use?",
-				default: "10"
-			});
-	}
-}
-```
-
-### Add Template Sources
-
-To render template files using the provided answers, simply call `.source()` with a glob matching each template file within a designated directory name:
-
-``` javascript
-export default class StimpakGenerator {
-	setup(stimpak) {
-		stimpak
-			.source(
-				"**/*",
-				`${__dirname}/templates`
-			);
-	}
-}
-```
-
-### Add Template Sources
-
-To render template files using the provided answers, simply call `.source()` with a glob matching each template file within a designated directory name:
-
-``` javascript
-export default class StimpakGenerator {
-	setup(stimpak) {
-		stimpak
-			.source(
-				"**/*",
-				`${__dirname}/templates`
-			);
-	}
-}
-```
-
-### Flow Control
-
-Sometimes you'll want to carefully control the sequence of prompts and/or events in your generator. This is easy with stimpak's `.then` method:
-
-``` javascript
-export default class StimpakGenerator {
-	setup(stimpak) {
-		stimpak
-			.source("**/*", `${__dirname}/templates`)
-			.prompt({
-				type: "input",
-				name: "packageVersion",
-				message: "What version of the package should we use?",
-				default: "10"
-			})
-			.then(askAdditionalQuestions);
-	}
-
-	askAdditionalQuestions(stimpak) {
-		const packageVersion = parseInt(stimpak.answers().packageVersion);
-
-		if (packageVersion > 8) {
-			stimpak.then(askNewQuestions);
-		} else {
-			stimpak.then(askOldQuestions);
-		}
-	}
-
-	askNewQuestions() {
-		stimpak.prompt({
-			type: "input",
-			name: "newQuestion",
-			message: "What is dark matter?"
-		});
-	}
-
-	askOldQuestions() {
-		stimpak.prompt({
-			type: "input",
-			name: "oldQuestion",
-			message: "Does the Higgs Boson exist?"
-		});
-	}
-}
-```
+For more information on *how* to submit a pull request, please [read this guide on contributing to open-source projects](https://guides.github.com/activities/contributing-to-open-source/).
