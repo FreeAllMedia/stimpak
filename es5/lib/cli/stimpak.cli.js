@@ -590,6 +590,7 @@ function showReport(callback) {
 				break;
 			case "mergeFile":
 				tag = "merge";
+				message = event.path.replace(stimpak.destination(), "");
 				break;
 			case "writeFile":
 			case "writeDirectory":

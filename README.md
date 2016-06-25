@@ -1,40 +1,34 @@
 ![](./images/stimpak-logo.png?raw=true)
+<div style="text-align: center;">
+![](./images/generate.gif?raw=true)
+</div>
 
-## A Simple-to-Use Pattern Manager
+# Stimpak: A Pattern Management System
 
-* Formalize patterns in code and workflows with minimal effort.
-* Generate new files based upon the patterns you designate.
+[![npm version](https://img.shields.io/npm/v/stimpak.svg)](https://www.npmjs.com/package/stimpak) [![license type](https://img.shields.io/npm/l/stimpak.svg)](https://github.com/FreeAllMedia/stimpak.git/blob/master/LICENSE)  [![Build Status](https://travis-ci.org/FreeAllMedia/stimpak.png?branch=master)](https://travis-ci.org/FreeAllMedia/stimpak) [![Coverage Status](https://coveralls.io/repos/github/FreeAllMedia/stimpak/badge.svg?branch=master)](https://coveralls.io/github/FreeAllMedia/stimpak?branch=master) [![Code Climate](https://codeclimate.com/github/FreeAllMedia/stimpak/badges/gpa.svg)](https://codeclimate.com/github/FreeAllMedia/stimpak) [![bitHound Score](https://www.bithound.io/github/FreeAllMedia/stimpak/badges/score.svg)](https://www.bithound.io/github/FreeAllMedia/stimpak) [![Dependency Status](https://david-dm.org/FreeAllMedia/stimpak.png?theme=shields.io)](https://david-dm.org/FreeAllMedia/stimpak?theme=shields.io) [![Dev Dependency Status](https://david-dm.org/FreeAllMedia/stimpak/dev-status.svg)](https://david-dm.org/FreeAllMedia/stimpak?theme=shields.io#info=devDependencies) [![npm downloads](https://img.shields.io/npm/dm/stimpak.svg)](https://www.npmjs.com/package/stimpak) ![Source: ECMAScript 6](https://img.shields.io/badge/Source-ECMAScript_2015-green.svg)
+
+Software development (when doing it right) involves mostly patterns in both our code and our workflows. Automating these routine patterns and tasks frees us up to be more productive.
+
+**Stimpak is a system for defining, discovering, and re-using code and workflow patterns:**
+
+* Formalize code and workflow patterns with minimal effort so that they can be re-used and shared with others.
+* Cut down on time doing routine tasks by generating new files based upon simple patterns.
 * Update old files with new patterns using simple merging strategies.
-* Create automated expert systems that can guide others through complicated tasks without the need for training.
-
-## Generate New Code
-
-
+* Develop automated expert systems that guide users through complicated tasks.
 
 ## Main Features
 
-* **Easy-to-Use**
+* **Very Easy-to-Use**
+	* Everything about stimpak was designed with ease-of-use and time-savings in mind.
+	* Minimal learning required. Get up and running within a few minutes.
+	* Automatically backwards compatible with older versions of nodejs.
+* **Customizable Branding**
+	* Stimpak doesn't need to remind you that it's stimpak every time you use stimpak. ;)
+	* Built-in ASCII-Art generator for BIG popping titles in any of 680 figlet fonts!
 
-* **Custom Branding**
-* **Modular Design**
-	* Stimpak generators work like building blocks in that they can be used on their own, or combined with other generators to form even more complex behavior.
-* **Simple-to-Use API**
-	* Stimpak was designed from the ground-up to save time when developing and using code generators.
-	* Only a few intuitive commands to memorize.
-* **Automatic Just-In-Time ES6 Transpiling**
-	* Write your generators in ES6 and have them work on all versions of Node (back to 0.10) without having to setup your own fancy transpiling stack!
-	* Stimpak automatically transpiles generator code at runtime with no additional configuration.
-	* Stimpak automatically transpiles generator code at runtime with no additional configuration.
-* **Integrated Flow Control**
-	* Easily ask questions, react to questions, and ask more questions without complicated if/else branches.
-* **Well-Tested**
-	* Carefully constructed tests.
-	* Black-box tested.
-	* 100% coverage.
-* **Quality Controlled**
-	* Continuous integration.
-	* Automated quality auditing.
-	* Automatic dependency management.
+* **Unopinionated Modular Design**
+	* Minimal learning required. Setup your directory structures the way you want. Name your methods how you'd like.
+	* Create several individual generators, then combine them together in different ways to make compound generators that perform multiple tasks at once.
 
 ## Getting Started
 
