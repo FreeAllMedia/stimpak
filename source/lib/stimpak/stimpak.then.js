@@ -9,8 +9,8 @@ export default function then(...stepFunctions) {
 
 	const originalContext = this.context();
 
-	stepFunctions = stepFunctions.map(stepFunction => {
-		return (stim, done) => {
+	const stepFunctionTasks = stepFunctions.map(stepFunction => {
+		const stepFunctionTask = (stim, done) => {
 			const newContext = this.context();
 			this.context(originalContext);
 
@@ -30,10 +30,31 @@ export default function then(...stepFunctions) {
 					done(error);
 				}
 			}
+
+			_.stepFunctionTasks = null;
 		};
+
+		return stepFunctionTask;
 	});
 
-	action.series(...stepFunctions);
+	action.series(...stepFunctionTasks);
+
+	// if (_.stepFunctionTasks) {
+	// 	const parentStep = action.steps.filter(step => {
+	// 		return step.steps === _.stepFunctionTasks;
+	// 	})[0];
+	//
+	// 	const parentStepIndex = action.steps.indexOf(parentStep);
+	//
+	// 	action.steps.splice(parentStepIndex + 1, 0, {
+	// 		concurrency: "series",
+	// 		steps: stepFunctionTasks
+	// 	});
+	//
+	// 	console.log("HMM");
+	// } else {
+	// 	action.series(...stepFunctionTasks);
+	// }
 
 	return this;
 }

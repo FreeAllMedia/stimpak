@@ -23,7 +23,7 @@ describe(".info(message, ...payload)", () => {
 
 		stopIntercept();
 
-		const expectedOutput = `\n[ ${infoMessage} ]`;
+		const expectedOutput = `\n${infoMessage}`;
 
 		actualOutput.should.contain(expectedOutput);
 	});
@@ -50,7 +50,7 @@ describe(".info(message, ...payload)", () => {
 
 		stopIntercept();
 
-		const expectedOutput = `\n[ ${infoMessage}(${expectedPayloadValue}) ]`;
+		const expectedOutput = `\n${infoMessage}(${expectedPayloadValue})`;
 
 		actualOutput.should.contain(expectedOutput);
 	});

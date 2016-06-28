@@ -27,7 +27,15 @@ export default function prompt(...prompts) {
 			}
 
 			Async.mapSeries(unansweredPrompts, (unansweredPrompt, done) => {
-				inquirer
+				let askQuestion = true;
+
+				if (unansweredPrompt.when) {
+					askQuestion = unansweredPrompt.when(this);
+					delete unansweredPrompt.when;
+				}
+
+				if (askQuestion) {
+					inquirer
 					.prompt(unansweredPrompt)
 					.then(questionAnswers => {
 						let casts = this.casts();
@@ -43,6 +51,9 @@ export default function prompt(...prompts) {
 						this.answers(questionAnswers);
 						done();
 					});
+				} else {
+					done();
+				}
 			}, stepDone);
 		});
 	}

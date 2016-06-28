@@ -155,8 +155,8 @@ export default class Stimpak extends ChainLink {
 		return this[externalFunction]("./stimpak.title.js", message, font);
 	}
 
-	subtitle(message) {
-		return this[externalFunction]("./stimpak.subtitle.js", message);
+	subtitle(message, font) {
+		return this[externalFunction]("./stimpak.subtitle.js", message, font);
 	}
 
 	log(message, payload) {

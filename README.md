@@ -34,6 +34,14 @@ Software development (when doing it right) involves mostly patterns in both our 
 * **Customizable ASCII-Art**
 	* Built-in ASCII-Art generator for BIG popping titles in any of 658 figlet fonts!
 	* Optionally choose *not* to have ASCII-Art whenever you use your generators! It's all up to you!
+* **Quality-Controlled**
+	* Well-tested with meaningful assertions.
+	* 100% test coverage.
+	* Continuous Integration
+	* Automated Code Quality Auditing
+	* Automated Dependency Management
+	* Automated Up-Stream Security Vulnerability Reporting
+
 
 ## Getting Started Guides
 
@@ -43,7 +51,7 @@ Stimpak can be used as both a command-line interface (CLI), and as a standalone 
 2. [The Stimpak API](./API.md)
 3. [Writing a Stimpak Generator](./GENERATORS.md)
 
-## Contributing
+## How to Contribute
 
 We *love* pull requests and issue reports! **Really!**
 

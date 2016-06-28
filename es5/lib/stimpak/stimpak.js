@@ -210,8 +210,8 @@ var Stimpak = function (_ChainLink) {
 		}
 	}, {
 		key: "subtitle",
-		value: function subtitle(message) {
-			return this[externalFunction]("./stimpak.subtitle.js", message);
+		value: function subtitle(message, font) {
+			return this[externalFunction]("./stimpak.subtitle.js", message, font);
 		}
 	}, {
 		key: "log",

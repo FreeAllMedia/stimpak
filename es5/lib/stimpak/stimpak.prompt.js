@@ -54,25 +54,36 @@ function prompt() {
 			}
 
 			_flowsync2.default.mapSeries(unansweredPrompts, function (unansweredPrompt, done) {
-				_inquirer2.default.prompt(unansweredPrompt).then(function (questionAnswers) {
-					var casts = _this.casts();
+				var askQuestion = true;
 
-					var _loop2 = function _loop2(question) {
-						var answer = questionAnswers[question];
+				if (unansweredPrompt.when) {
+					askQuestion = unansweredPrompt.when(_this);
+					delete unansweredPrompt.when;
+				}
 
-						casts.forEach(function (cast) {
-							answer = cast(answer);
-						});
+				if (askQuestion) {
+					_inquirer2.default.prompt(unansweredPrompt).then(function (questionAnswers) {
+						var casts = _this.casts();
 
-						questionAnswers[question] = answer;
-					};
+						var _loop2 = function _loop2(question) {
+							var answer = questionAnswers[question];
 
-					for (var question in questionAnswers) {
-						_loop2(question);
-					}
-					_this.answers(questionAnswers);
+							casts.forEach(function (cast) {
+								answer = cast(answer);
+							});
+
+							questionAnswers[question] = answer;
+						};
+
+						for (var question in questionAnswers) {
+							_loop2(question);
+						}
+						_this.answers(questionAnswers);
+						done();
+					});
+				} else {
 					done();
-				});
+				}
 			}, stepDone);
 		});
 	}

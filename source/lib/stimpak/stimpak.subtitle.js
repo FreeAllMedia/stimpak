@@ -1,8 +1,15 @@
-export default function subtitle(message = "Sub-Title") {
-	this.debug("subtitle", message);
+import ascii from "ascii-art";
 
-	this.then(() => {
-		this.write(`\n ${message}\n`);
+ascii.Figlet.fontPath = `${__dirname}/../../../figlet-fonts/`;
+
+export default function subtitle(message = "Sub-Title", figletFont = "standard") {
+	this.debug("subtitle", message, figletFont);
+
+	this.then((stimpak, done) => {
+		ascii.font(message, figletFont, renderedMessage => {
+			this.write(`\n${renderedMessage}`);
+			done();
+		});
 	});
 
 	return this;

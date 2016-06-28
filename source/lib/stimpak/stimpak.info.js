@@ -5,6 +5,6 @@ export default function info(message, payload) {
 	if (payload) {
 		infoMessage += `(${util.inspect(payload)})`;
 	}
-	this.write(`\n[ ${infoMessage} ]\n`);
+	this.write(`\n${infoMessage}\n`);
 	return this;
 }

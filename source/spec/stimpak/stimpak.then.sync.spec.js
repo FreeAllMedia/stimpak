@@ -8,8 +8,7 @@ describe("stimpak.then()", () => {
 			stepThree;
 
 	beforeEach(() => {
-		stimpak = new Stimpak()
-			.destination("/some/path");
+		stimpak = new Stimpak().test;
 
 		const slowFunction = () => {};
 
@@ -58,5 +57,24 @@ describe("stimpak.then()", () => {
 				error.should.eql(expectedError);
 				done();
 			});
+	});
+
+	it("should arrange sub-then calls in the expected order", done => {
+		const callOrder = [];
+		stimpak
+		.then(() => {
+			callOrder.push(1);
+			stimpak
+			.then(() => {
+				callOrder.push(2);
+			});
+		})
+		.then(() => {
+			callOrder.push(3);
+		})
+		.generate(error => {
+			callOrder.should.eql([1, 2, 3]);
+			done(error);
+		});
 	});
 });

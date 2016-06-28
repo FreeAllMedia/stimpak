@@ -28,8 +28,8 @@ function then() {
 
 	var originalContext = this.context();
 
-	stepFunctions = stepFunctions.map(function (stepFunction) {
-		return function (stim, done) {
+	var stepFunctionTasks = stepFunctions.map(function (stepFunction) {
+		var stepFunctionTask = function stepFunctionTask(stim, done) {
 			var newContext = _this.context();
 			_this.context(originalContext);
 
@@ -49,10 +49,31 @@ function then() {
 					done(error);
 				}
 			}
+
+			_.stepFunctionTasks = null;
 		};
+
+		return stepFunctionTask;
 	});
 
-	action.series.apply(action, _toConsumableArray(stepFunctions));
+	action.series.apply(action, _toConsumableArray(stepFunctionTasks));
+
+	// if (_.stepFunctionTasks) {
+	// 	const parentStep = action.steps.filter(step => {
+	// 		return step.steps === _.stepFunctionTasks;
+	// 	})[0];
+	//
+	// 	const parentStepIndex = action.steps.indexOf(parentStep);
+	//
+	// 	action.steps.splice(parentStepIndex + 1, 0, {
+	// 		concurrency: "series",
+	// 		steps: stepFunctionTasks
+	// 	});
+	//
+	// 	console.log("HMM");
+	// } else {
+	// 	action.series(...stepFunctionTasks);
+	// }
 
 	return this;
 }

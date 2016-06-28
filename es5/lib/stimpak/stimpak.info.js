@@ -16,6 +16,6 @@ function info(message, payload) {
 	if (payload) {
 		infoMessage += "(" + _util2.default.inspect(payload) + ")";
 	}
-	this.write("\n[ " + infoMessage + " ]\n");
+	this.write("\n" + infoMessage + "\n");
 	return this;
 }
