@@ -1,60 +1,43 @@
 import privateData from "incognito";
 
-// TODO: Optimize .then
+// TODO: Optimize .then into multiple functions
 export default function then(...stepFunctions) {
 	this.debug("then", stepFunctions);
-
 	const _ = privateData(this);
+
 	const action = _.action;
 
 	const originalContext = this.context();
 
 	const stepFunctionTasks = stepFunctions.map(stepFunction => {
-		const stepFunctionTask = (stim, done) => {
-			const newContext = this.context();
+		return (stim, done) => {
+			const currentContext = this.context();
 			this.context(originalContext);
 
 			const isAsynchronous = stepFunction.length === 2;
 
 			if (isAsynchronous) {
 				stepFunction.call(this.context(), stim, error => {
-					this.context(newContext);
-					done(error);
+					this.context(currentContext);
+					finished(error);
 				});
 			} else {
 				try {
 					stepFunction.call(this.context(), stim);
-					this.context(newContext);
-					done();
+					this.context(currentContext);
+					finished();
 				} catch (error) {
-					done(error);
+					finished(error);
 				}
 			}
 
-			_.stepFunctionTasks = null;
+			function finished(error) {
+				done(error);
+			}
 		};
-
-		return stepFunctionTask;
 	});
 
 	action.series(...stepFunctionTasks);
-
-	// if (_.stepFunctionTasks) {
-	// 	const parentStep = action.steps.filter(step => {
-	// 		return step.steps === _.stepFunctionTasks;
-	// 	})[0];
-	//
-	// 	const parentStepIndex = action.steps.indexOf(parentStep);
-	//
-	// 	action.steps.splice(parentStepIndex + 1, 0, {
-	// 		concurrency: "series",
-	// 		steps: stepFunctionTasks
-	// 	});
-	//
-	// 	console.log("HMM");
-	// } else {
-	// 	action.series(...stepFunctionTasks);
-	// }
 
 	return this;
 }

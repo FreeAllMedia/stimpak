@@ -13,7 +13,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
-// TODO: Optimize .then
+// TODO: Optimize .then into multiple functions
 function then() {
 	var _this = this;
 
@@ -22,58 +22,41 @@ function then() {
 	}
 
 	this.debug("then", stepFunctions);
-
 	var _ = (0, _incognito2.default)(this);
+
 	var action = _.action;
 
 	var originalContext = this.context();
 
 	var stepFunctionTasks = stepFunctions.map(function (stepFunction) {
-		var stepFunctionTask = function stepFunctionTask(stim, done) {
-			var newContext = _this.context();
+		return function (stim, done) {
+			var currentContext = _this.context();
 			_this.context(originalContext);
 
 			var isAsynchronous = stepFunction.length === 2;
 
 			if (isAsynchronous) {
 				stepFunction.call(_this.context(), stim, function (error) {
-					_this.context(newContext);
-					done(error);
+					_this.context(currentContext);
+					finished(error);
 				});
 			} else {
 				try {
 					stepFunction.call(_this.context(), stim);
-					_this.context(newContext);
-					done();
+					_this.context(currentContext);
+					finished();
 				} catch (error) {
-					done(error);
+					finished(error);
 				}
 			}
 
-			_.stepFunctionTasks = null;
+			function finished(error) {
+				done(error);
+			}
 		};
-
-		return stepFunctionTask;
 	});
 
 	action.series.apply(action, _toConsumableArray(stepFunctionTasks));
-
-	// if (_.stepFunctionTasks) {
-	// 	const parentStep = action.steps.filter(step => {
-	// 		return step.steps === _.stepFunctionTasks;
-	// 	})[0];
-	//
-	// 	const parentStepIndex = action.steps.indexOf(parentStep);
-	//
-	// 	action.steps.splice(parentStepIndex + 1, 0, {
-	// 		concurrency: "series",
-	// 		steps: stepFunctionTasks
-	// 	});
-	//
-	// 	console.log("HMM");
-	// } else {
-	// 	action.series(...stepFunctionTasks);
-	// }
 
 	return this;
 }
