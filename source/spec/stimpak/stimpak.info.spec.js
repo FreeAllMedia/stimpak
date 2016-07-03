@@ -18,7 +18,7 @@ describe(".info(message, ...payload)", () => {
 		});
 
 		stimpak = new Stimpak()
-			.info(message);
+			.destination("/some/path");
 	});
 
 	afterEach(() => stopIntercept());
