@@ -167,6 +167,14 @@ export default class Stimpak extends ChainLink {
 		return require("./stimpak.debug.js").default.call(this, message, payload);
 	}
 
+	mergeJSON(stimpak, newFile, oldFile, done) {
+		return this[externalFunction]("./stimpak.mergeJSON.js", stimpak, newFile, oldFile, done);
+	}
+
+	mergeText(stimpak, newFile, oldFile, done) {
+		return this[externalFunction]("./stimpak.mergeText.js", stimpak, newFile, oldFile, done);
+	}
+
 	get test() {
 		return this[externalFunction]("./stimpak.test.js");
 	}

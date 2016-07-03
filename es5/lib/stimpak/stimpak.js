@@ -224,6 +224,16 @@ var Stimpak = function (_ChainLink) {
 			return require("./stimpak.debug.js").default.call(this, message, payload);
 		}
 	}, {
+		key: "mergeJSON",
+		value: function mergeJSON(stimpak, newFile, oldFile, done) {
+			return this[externalFunction]("./stimpak.mergeJSON.js", stimpak, newFile, oldFile, done);
+		}
+	}, {
+		key: "mergeText",
+		value: function mergeText(stimpak, newFile, oldFile, done) {
+			return this[externalFunction]("./stimpak.mergeText.js", stimpak, newFile, oldFile, done);
+		}
+	}, {
 		key: "write",
 		value: function write(message) {
 			process.stdout.write(message);

@@ -53,6 +53,8 @@
     "jargon": "^0.2.0",
     "lodash": "^4.13.1",
     "lodash.flattendeep": "^4.2.0",
+    "lodash.merge": "^4.4.0",
+    "lodash.mergewith": "^4.4.0",
     "lodash.template": "^4.2.4",
     "lodash.templatesettings": "^4.0.1",
     "minimatch": "^3.0.2",
