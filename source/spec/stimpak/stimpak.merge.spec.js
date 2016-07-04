@@ -34,14 +34,11 @@ describe("stimpak.merge()", () => {
 	it("should accept a regular expression for the file pattern", () => {
 		filePattern = new RegExp(filePattern);
 
-		stimpak
-			.merge(filePattern, mergeFunction);
-
-		stimpak
-			.merge().should.eql([[filePattern, mergeFunction]]);
+		stimpak.merge(filePattern, mergeFunction);
+		stimpak.merge().should.eql([[filePattern, mergeFunction]]);
 	});
 
-	it("should write only once per file when multiple merge strategies do not match", done => {
+	it("should write only once per file or directory when multiple merge strategies do not match", done => {
 		stimpak.test;
 
 		fileSystem.copySync(
@@ -69,6 +66,28 @@ describe("stimpak.merge()", () => {
 				"writeFile",
 				"writeFile"
 			]);
+			done(error);
+		});
+	});
+
+	it("should automatically assign the mergeJSON strategy when no strategy is provided and both files are detected as JSON", done => {
+		stimpak.test;
+
+		fileSystem.copySync(
+			`${__dirname}/fixtures/mergeExisting`,
+			stimpak.destination()
+		);
+
+		stimpak
+		.merge("package.json")
+		.render("**/*", `${__dirname}/fixtures/mergeTemplates`)
+		.generate(error => {
+			stimpak
+			.report
+			.diffFixtures(`${__dirname}/fixtures/mergeRendered`)
+			.content
+			.should.eql({});
+
 			done(error);
 		});
 	});

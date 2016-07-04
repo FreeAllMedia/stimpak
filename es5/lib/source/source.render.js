@@ -41,6 +41,18 @@ var _glob = require("glob");
 
 var _glob2 = _interopRequireDefault(_glob);
 
+var _sourceRenderMergeJSON = require("./source.render.mergeJSON.js");
+
+var _sourceRenderMergeJSON2 = _interopRequireDefault(_sourceRenderMergeJSON);
+
+var _sourceRenderMergeText = require("./source.render.mergeText.js");
+
+var _sourceRenderMergeText2 = _interopRequireDefault(_sourceRenderMergeText);
+
+var _isJson = require("is-json");
+
+var _isJson2 = _interopRequireDefault(_isJson);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 // TODO: Refactor source.render into small files
@@ -143,6 +155,10 @@ function renderFile(templateFileName, source, done) {
 												path: newFile.path,
 												contents: oldFileContents
 											});
+
+											if (!mergeFunction && (0, _isJson2.default)(oldFile.contents.toString()) && (0, _isJson2.default)(newFile.contents).toString()) {
+												mergeFunction = _sourceRenderMergeJSON2.default;
+											}
 
 											mergeFunction(_this2, newFile, oldFile, function (error, mergedFile) {
 												var mergedFileDetails = newFileDetails;

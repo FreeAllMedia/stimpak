@@ -29,6 +29,7 @@ describe("stimpak.report()", () => {
 			newFile.stem = "blah";
 			mergeDone(null, newFile);
 		})
+		.merge("package.json", stimpak.mergeJSON)
 		.command(command)
 		.generate(error => {
 			actualReport = stimpak.report;

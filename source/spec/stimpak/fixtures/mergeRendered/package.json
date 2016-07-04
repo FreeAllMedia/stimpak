@@ -1,0 +1,15 @@
+{
+  "name": "simple-templates-merged",
+  "version": "0.0.0",
+  "keywords": [
+    "tool",
+    "stuff",
+    "things",
+    "junk"
+  ],
+  "devDependencies": {
+    "dovima": "2.0.0",
+    "almaden": "1.0.0",
+    "staircase": "2.0.0"
+  }
+}

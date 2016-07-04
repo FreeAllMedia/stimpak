@@ -1,7 +1,5 @@
 import glob from "glob";
 import fileSystem from "fs";
-import * as diff from "diff";
-import colors from "colors";
 
 export default function diffFixtures(fixturesDirectoryPath) {
 	const fixtureFilePaths = glob.sync("**/*", { cwd: fixturesDirectoryPath, dot: true });

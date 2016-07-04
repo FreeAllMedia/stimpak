@@ -7,6 +7,9 @@ import Async from "flowsync";
 import minimatch from "minimatch";
 import flattenDeep from "lodash.flattendeep";
 import glob from "glob";
+import mergeJSON from "./source.render.mergeJSON.js";
+import mergeText from "./source.render.mergeText.js";
+import isJSON from "is-json";
 
 // TODO: Refactor source.render into small files
 
@@ -97,13 +100,17 @@ function renderFile(templateFileName, source, done) {
 						if (newFile.path.match(mergePattern)) {
 							this.debug("merge strategy matched");
 							anyMergeStrategiesMatch = true;
-							const mergeFunction = mergeStrategy[1];
+							let mergeFunction = mergeStrategy[1];
 							const oldFile = new File({
 								cwd: newFile.cwd,
 								base: newFile.base,
 								path: newFile.path,
 								contents: oldFileContents
 							});
+
+							if (!mergeFunction && isJSON(oldFile.contents.toString()) && isJSON(newFile.contents).toString()) {
+								mergeFunction = mergeJSON;
+							}
 
 							mergeFunction(this, newFile, oldFile, (error, mergedFile) => {
 								const mergedFileDetails = newFileDetails;
