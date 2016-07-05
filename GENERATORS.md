@@ -355,17 +355,62 @@ export default class MyGenerator {
 
 ### Use `.render()` to Render Templates Into Files
 
-Stimpak uses a template system identical to `underscore` and `lodash`, which is based upon `erb` template files.
+Stimpak uses `underscore`-style templates to render arbitrary text files.
 
-### `.render(globString, templateDirectoryPath)`
-
-
+**my-generator/lib/generator.js**:
 
 ``` javascript
 export default class MyGeneratorClassName {
 	setup(stimpak) {
 		stimpak
-		.render("**/*", `${__dirname}/templates`)
+		.prompt({
+			type: "input",
+			name: "moduleName",
+			message: "What will the module name be?",
+			default: "My Module"
+		}, {
+			type: "input",
+			name: "moduleDescription",
+			message: "How would you describe the module?",
+			default: "It's a new module!"
+		})
+		.render("**/*", `${__dirname}/templates`);
+	}
+}
+```
+
+**my-generator/templates/README.md**:
+
+``` markdown
+# <%= moduleName %>
+
+<%= moduleDescription %>
+```
+
+**output-directory/README.md**:
+
+``` markdown
+# My Module
+
+It's a new module!
+```
+
+### `.render(globString, templateDirectoryPath)`
+
+
+
+* Templates can both interpolate values, using `<%= … %>`.
+* Templates can also execute arbitrary JavaScript code, with `<% … %>`.
+* If you wish to interpolate a value, and have it be HTML-escaped, use `<%- … %>`.
+
+``` javascript
+export default class MyGeneratorClassName {
+	setup(stimpak) {
+		stimpak
+		.answers({
+			mainFile
+		})
+		.render("**/*", `${__dirname}/templates`);
 	}
 }
 ```

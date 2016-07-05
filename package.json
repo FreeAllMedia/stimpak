@@ -64,7 +64,7 @@
     "mrt": "^0.1.7",
     "node-graceful": "^0.2.2",
     "rimraf": "^2.5.2",
-    "staircase": "^0.2.0",
+    "staircase": "^0.2.1",
     "temp": "^0.8.3",
     "vinyl": "^1.1.1"
   }
