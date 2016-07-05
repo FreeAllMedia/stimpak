@@ -61,6 +61,18 @@ function prompt() {
 					delete unansweredPrompt.when;
 				}
 
+				if (typeof unansweredPrompt.message === "function") {
+					unansweredPrompt.message = unansweredPrompt.message(_this);
+				}
+
+				if (typeof unansweredPrompt.default === "function") {
+					unansweredPrompt.default = unansweredPrompt.default(_this);
+				}
+
+				if (typeof unansweredPrompt.choices === "function") {
+					unansweredPrompt.choices = unansweredPrompt.choices(_this);
+				}
+
 				if (askQuestion) {
 					_inquirer2.default.prompt(unansweredPrompt).then(function (questionAnswers) {
 						var casts = _this.casts();

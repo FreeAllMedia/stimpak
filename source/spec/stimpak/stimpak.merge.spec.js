@@ -70,7 +70,7 @@ describe("stimpak.merge()", () => {
 		});
 	});
 
-	it("should automatically assign the mergeJSON strategy when no strategy is provided and both files are detected as JSON", done => {
+	it("should automatically simple merge when no strategy is provided", done => {
 		stimpak.test;
 
 		fileSystem.copySync(
@@ -79,7 +79,7 @@ describe("stimpak.merge()", () => {
 		);
 
 		stimpak
-		.merge("package.json")
+		.merge("**/*")
 		.render("**/*", `${__dirname}/fixtures/mergeTemplates`)
 		.generate(error => {
 			stimpak

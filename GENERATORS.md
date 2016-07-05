@@ -1,5 +1,20 @@
 [![](./images/stimpak-logo.png?raw=true)](./README.md)
 
+# Table of contents
+
+* [Generate a Generator?](#generateagenerator)
+* [Stimpak Generator From Scratch](#stimpakgeneratorfromscratch)
+	* [The Generator Constructor File](#thegeneratorconstructorfile)
+	* [Add `.babelrc` For Automatic Transpiling](#addbabelrcforautomatictranspiling)
+* [Customize Your Generator](#customizeyourgenerator)
+	* [Set Answers With `.answers([object])`](#setanswerswithanswersobject)
+	* [Get Answers With `.prompt(...prompts)`](#getanswerswithpromptprompts)
+		* [Types of Prompts](#typesofprompts)
+	* [Combine Generators With `.use(...GeneratorConstructors)`](#combinegeneratorswithusegeneratorconstructors)
+	* [Render Templates Into Files With `.render(globString, templateDirectory)`](#rendertemplatesintofileswithrenderglobstringtemplatedirectory)
+
+
+
 # Generate a Generator?
 
 Why not? If you want to jump right into a working example of a stimpak generator, or want to see what a bare-bones stimpak generator looks like, you can use `stimpak-generator` to generate a starter project:
@@ -74,11 +89,11 @@ Typically, this means you'll want to use the `es2015` preset, but you can also u
 
 **Note:** All package dependencies for transpiling are handled by stimpak itself, so you don't have to put them into your generator's `package.json` file.
 
-## Customize Your Generator
+# Customize Your Generator
 
 Now that you have a bare-bones generator ready, it's time to hook into the stimpak API.
 
-### Set Answers With `.answers([object])`
+## Set Answers With `.answers([object])`
 
 Templates and functions use `.answers()` for placeholder values that can be used to render out files, provide commands with arguments, and more.
 
@@ -118,7 +133,7 @@ export default class MyGenerator {
 }
 ```
 
-### Get Answers With `.prompt(...prompts)`
+## Get Answers With `.prompt(...prompts)`
 
 You can also set values in `.answers()` by using `.prompt()` to ask questions directly to the user on the command-line. Prompts are powered mostly by `inquirer.js` and supports all `inquirer.js` features, with just two key differences to keep in mind:
 
@@ -162,7 +177,7 @@ export default class MyGenerator {
 }
 ```
 
-#### Types of Prompts
+### Types of Prompts
 
 * `confirm`: When you want to get a boolean (yes or no) response from the user.
 
@@ -330,7 +345,7 @@ export default class MyGenerator {
 	}
 	```
 
-### Combine Generators
+## Combine Generators With `.use(...GeneratorConstructors)`
 
 You can `.use()` any other stimpak generator in your own generator, and it will seamlessly integrate all of it's features with your own:
 
@@ -353,9 +368,51 @@ export default class MyGenerator {
 }
 ```
 
-### Use `.render()` to Render Templates Into Files
+## Render Templates Into Files With `.render(globString, templateDirectory)`
 
-Stimpak uses `underscore`-style templates to render arbitrary text files.
+Stimpak uses `underscore`-style templates to render any arbitrary text files using the answers provided.
+
+**Arguments**
+
+1. **`globString`**
+	* This should be a [glob](https://github.com/isaacs/node-glob) string that matches filepaths within the provided `templateDirectory`.
+2. **`templateDirectory`**
+	* This should be a [glob](https://github.com/isaacs/node-glob) string that matches filepaths within the provided `templateDirectory`.
+
+**Template files may be located in any directory.** You tell stimpak where to find them using
+
+* **Templates can interpolate answer values by wrapping them in `<%= … %>`**
+
+	``` html
+	<html>
+	<head>
+		<title><%= pageTitle %></title>
+	</head>
+	<body>
+		<%= pageContent %>
+	</body>
+	</html>
+	```
+
+	``` javascript
+	export default class <%= moduleClassName %> {
+
+	}
+	```
+* Templates can execute arbitrary JavaScript code by wrapping it in `<% … %>`.
+* You can interpolate an answer value and have it be HTML-escaped by wrapping it in `<%- … %>`.
+
+``` javascript
+export default class MyGeneratorClassName {
+	setup(stimpak) {
+		stimpak
+		.answers({
+			mainFile
+		})
+		.render("**/*", `${__dirname}/templates`);
+	}
+}
+```7
 
 **my-generator/lib/generator.js**:
 
@@ -395,25 +452,6 @@ export default class MyGeneratorClassName {
 It's a new module!
 ```
 
-### `.render(globString, templateDirectoryPath)`
-
-
-
-* Templates can both interpolate values, using `<%= … %>`.
-* Templates can also execute arbitrary JavaScript code, with `<% … %>`.
-* If you wish to interpolate a value, and have it be HTML-escaped, use `<%- … %>`.
-
-``` javascript
-export default class MyGeneratorClassName {
-	setup(stimpak) {
-		stimpak
-		.answers({
-			mainFile
-		})
-		.render("**/*", `${__dirname}/templates`);
-	}
-}
-```
 
 
 

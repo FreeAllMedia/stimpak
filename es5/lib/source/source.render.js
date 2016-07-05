@@ -142,9 +142,9 @@ function renderFile(templateFileName, source, done) {
 								var anyMergeStrategiesMatch = false;
 
 								_flowsync2.default.mapSeries(mergeStrategies, function (mergeStrategy, mergeDone) {
-									var mergePattern = new RegExp(mergeStrategy[0]);
+									var globString = mergeStrategy[0];
 
-									if (newFile.path.match(mergePattern)) {
+									if ((0, _minimatch2.default)(newFile.path.replace(newFile.cwd + "/", ""), globString)) {
 										(function () {
 											_this2.debug("merge strategy matched");
 											anyMergeStrategiesMatch = true;
@@ -156,8 +156,12 @@ function renderFile(templateFileName, source, done) {
 												contents: oldFileContents
 											});
 
-											if (!mergeFunction && (0, _isJson2.default)(oldFile.contents.toString()) && (0, _isJson2.default)(newFile.contents).toString()) {
-												mergeFunction = _sourceRenderMergeJSON2.default;
+											if (!mergeFunction) {
+												if ((0, _isJson2.default)(oldFile.contents.toString()) && (0, _isJson2.default)(newFile.contents).toString()) {
+													mergeFunction = _sourceRenderMergeJSON2.default;
+												} else {
+													mergeFunction = _sourceRenderMergeText2.default;
+												}
 											}
 
 											mergeFunction(_this2, newFile, oldFile, function (error, mergedFile) {

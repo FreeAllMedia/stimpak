@@ -1,6 +1,6 @@
 [![](./images/stimpak-logo.png?raw=true)](./README.md)
 
-# [README](./README.md): The Stimpak Command-Line Interface
+# The Stimpak Command-Line Interface
 
 Stimpak works by installing a global command-line binary called `stimpak` when you install it via `npm`:
 
@@ -23,7 +23,6 @@ This makes finding stimpak generators very easy.
 **Note:** We're looking into options for providing this functionality via the command-line.
 
 ## Installing Generators
-
 
 After you have found a generator you want to use, in most cases you will needs to install that generator globally (using the `-g` flag). For example, if you wanted to use the `stimpak-generator` module which is used for generating and updating stimpak generators, you would need to install it globally via the following command:
 

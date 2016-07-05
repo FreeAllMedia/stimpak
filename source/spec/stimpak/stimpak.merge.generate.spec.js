@@ -163,7 +163,7 @@ describe("stimpak.merge() (on .generate)", () => {
 			.render("**/*")
 				.directory(templateDirectoryPath)
 			.destination(temporaryDirectoryPath)
-			.merge(existingFilePath, (generator, newFile, oldFile, mergeCallback) => {
+			.merge(existingFileName, (generator, newFile, oldFile, mergeCallback) => {
 				mergeCallback(new Error(expectedErrorMessage));
 			})
 			.generate(error => {

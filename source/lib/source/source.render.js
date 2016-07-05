@@ -95,9 +95,9 @@ function renderFile(templateFileName, source, done) {
 					let anyMergeStrategiesMatch = false;
 
 					Async.mapSeries(mergeStrategies, (mergeStrategy, mergeDone) => {
-						const mergePattern = new RegExp(mergeStrategy[0]);
+						const globString = mergeStrategy[0];
 
-						if (newFile.path.match(mergePattern)) {
+						if (minimatch(newFile.path.replace(`${newFile.cwd}/`, ""), globString)) {
 							this.debug("merge strategy matched");
 							anyMergeStrategiesMatch = true;
 							let mergeFunction = mergeStrategy[1];
@@ -108,8 +108,12 @@ function renderFile(templateFileName, source, done) {
 								contents: oldFileContents
 							});
 
-							if (!mergeFunction && isJSON(oldFile.contents.toString()) && isJSON(newFile.contents).toString()) {
-								mergeFunction = mergeJSON;
+							if (!mergeFunction) {
+								if (isJSON(oldFile.contents.toString()) && isJSON(newFile.contents).toString()) {
+									mergeFunction = mergeJSON;
+								} else {
+									mergeFunction = mergeText;
+								}
 							}
 
 							mergeFunction(this, newFile, oldFile, (error, mergedFile) => {

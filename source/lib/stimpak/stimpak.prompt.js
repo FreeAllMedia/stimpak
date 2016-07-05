@@ -34,6 +34,18 @@ export default function prompt(...prompts) {
 					delete unansweredPrompt.when;
 				}
 
+				if (typeof unansweredPrompt.message === "function") {
+					unansweredPrompt.message = unansweredPrompt.message(this);
+				}
+
+				if (typeof unansweredPrompt.default === "function") {
+					unansweredPrompt.default = unansweredPrompt.default(this);
+				}
+
+				if (typeof unansweredPrompt.choices === "function") {
+					unansweredPrompt.choices = unansweredPrompt.choices(this);
+				}
+
 				if (askQuestion) {
 					inquirer
 					.prompt(unansweredPrompt)
