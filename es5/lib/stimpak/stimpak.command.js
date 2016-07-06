@@ -27,7 +27,18 @@ function command(commandString, afterCommand) {
 				stderr: stderr
 			});
 			if (afterCommand) {
-				afterCommand(_this, stdout, stderr, done);
+				switch (afterCommand.length) {
+					case 4:
+						afterCommand(_this, stdout, stderr, done);
+						break;
+					default:
+						try {
+							afterCommand(_this, stdout, stderr);
+							done();
+						} catch (exception) {
+							done(exception);
+						}
+				}
 			} else {
 				done();
 			}

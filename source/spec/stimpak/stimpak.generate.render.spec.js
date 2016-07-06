@@ -74,7 +74,7 @@ describe("stimpak.generate() (template rendering)", () => {
 			actualRenderedTemplate.should.eql(expectedRenderedTemplate);
 		});
 
-		it("should return an error if destination is not set and .render is called", done => {
+		xit("should return an error if destination is not set and .render is called", done => {
 			stimpak = new Stimpak();
 			stimpak
 				.generate(error => {

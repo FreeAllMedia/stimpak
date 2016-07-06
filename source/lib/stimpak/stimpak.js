@@ -46,7 +46,7 @@ export default class Stimpak extends ChainLink {
 		).aggregate;
 
 		this.parameters(
-			"casts"
+			"transforms"
 		).aggregate;
 
 		this.parameters(
@@ -123,8 +123,8 @@ export default class Stimpak extends ChainLink {
 		return this[externalFunction]("./stimpak.then.js", ...stepFunctions);
 	}
 
-	cast(callback) {
-		return this[externalFunction]("./stimpak.cast.js", callback);
+	transform(callback) {
+		return this[externalFunction]("./stimpak.transform.js", callback);
 	}
 
 	context(object) {

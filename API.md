@@ -18,27 +18,41 @@ Check out these guides to learn more about:
 	* Set answers by prompting the user with [`inquirer.js`](https://github.com/SBoudrias/Inquirer.js)-style prompts.
 * **[`.use(...GeneratorConstructors)`](#usegeneratorconstructors)**
 	* Use another generator. Runs the generator as though
-* **[`.render(globString, [templateDirectoryPath])`](#renderglobstringtemplatedirectorypath)**
+* **[`.destination(directoryPath)`](#destinationdirectorypath)**
+	* Set the directory that files should be generated/updated in.
+* **[`.render(globString, templateDirectoryPath)`](#renderglobstringtemplatedirectorypath)**
+	* Set one or more files as templates to render into the `.destination` directory.
 * **[`.merge(globString, [mergeStrategyFunction])`](#mergeglobstringmergestrategyfunction)**
 	* Set a file to be merged instead of overwritten.
 	* Use default strategies or provide a custom merge strategy function.
-* **`.cast(castingFunction)`**
-	* Cast answers to specific datatypes
-* **`.context(object)`**
-	* Set the context of subsequent `.then` calls.
-* **`.command(commandString, [outputHandlerFunction])`**
-	* Call a command via child-process.
+* **[`.command(commandString, [outputHandlerFunction])`](#commandcommandstringoutputhandlerfunction)**
+	* Call a shell command via child-process.
 	* *Optionally*: Provide an output handler function that handles the command's `stdout` and `stderr` values.
-* **`.prompt()`**
-* **`.generate()`**
-* **`.note()`**
-* **`.info()`**
-* **`.title()`**
-* **`.subtitle()`**
-* **`.log()`**
-* **`.debug()`**
-* **`.test`**
-* **`.report`**
+* **[`.title(text, [figletFontName])`](#titletextfigletfontname)**
+	* Display text to the user using figlet ASCII fonts.
+	* Displays only once per `.generate`.
+* **[`.subtitle(text, [figletFontName])`](#subtitletextfigletfontname)**
+	* Display text to the user using figlet ASCII fonts.
+	* Displays every time it's called.
+* **[`.note(text)`](#notetext)**
+	* Display a prominent note to the user.
+* **[`.info(text)`](#infotext)**
+	* Print some basic text out to the user.
+* **[`.generate([callback])`](#generatecallback)**
+	* Run all steps with an optional callback.
+* **[`.transform(transformingFunction)`](#transformtransformingfunction)**
+	* Transform all answers according to a strategy.
+	* Useful for casting values to their native datatypes.
+* **[`.test`](#test)**
+	* Automatically setup stimpak for testing.
+	* Creates a temporary directory and sets it as the `.destination`.
+* **[`.report`](#report)**
+	* Get detailed information about what happened during a `.generate` call.
+* **[`.report.diffFixtures(fixturesDirectoryPath)`](#reportdifffixturesfixturesdirectorypath)**
+	* Get an object that shows the differences between actual output and fixtures representing expected output.
+	* Very useful for testing generators.
+
+---
 
 ## `.answers([object])`
 
@@ -65,6 +79,10 @@ stimpak
 stimpak.answers(); // { firstName: "Bob", lastName: "Builder" }
 ```
 
+[Back to Table of Contents](#methodguide)
+
+---
+
 ## `.prompt(...promptObjects)`
 
 You can let the user set values in `.answers()` by using `.prompt()` to ask questions on the command-line.
@@ -75,7 +93,7 @@ You can let the user set values in `.answers()` by using `.prompt()` to ask ques
 2. `when` functions are provided the stimpak object as the first argument instead of an answers object.
 	* You can still access all answers from `stimpak.answers()`:
 
-**One or More Arguments:**
+**Takes One or More Arguments:**
 
 1. **`...promptObjects`**
 
@@ -266,6 +284,10 @@ You can let the user set values in `.answers()` by using `.prompt()` to ask ques
 	});
 	```
 
+[Back to Table of Contents](#methodguide)
+
+---
+
 ## `.use(...GeneratorConstructors)`
 
 You can use other stimpak generators in another by providing `.use` with its Constructor function.
@@ -274,7 +296,7 @@ You can use other stimpak generators in another by providing `.use` with its Con
 * Only the first `.title` call will be shown, all subsequent `.title` calls will be ignored.
 	* You can get around this behavior by using the `.subtitle` method, which is identical except it will always be shown.
 
-**One or More Arguments:**
+**Takes One or More Arguments:**
 
 1. `...GeneratorConstructors`
 	One or more `GeneratorConstructors`, which are just simple constructors that defines a single `.setup` hook.
@@ -282,6 +304,9 @@ You can use other stimpak generators in another by providing `.use` with its Con
 **Example:**
 
 ``` javascript
+import StimpakNpm from "stimpak-npm";
+import StimpakTestDriven from "stimpak-test-driven";
+
 stimpak
 .use(
 	StimpakNpm,
@@ -294,11 +319,38 @@ function showAnswers(stimpak) {
 }
 ```
 
+[Back to Table of Contents](#methodguide)
+
+---
+
+## `.destination(directoryPath)`
+
+**Notes:**
+
+* You won't need to use this method unless you're doing a library-level integration with stimpak. `.destination` is set automatically in the CLI. That said, if you want to integrate with stimpak on a library-level, you will need to call `.destination` or `.render` calls will return an error in the callback.
+* `.destination` is automatically set to a temporary directory when `.test` is called. See the `.test` docs for more details.
+
+**One Argument:**
+
+1. **`directoryPath`**
+	An absolute path to the output directory where rendered files should go.
+
+**Example:**
+
+``` javascript
+stimpak
+.destination(process.cwd());
+```
+
+[Back to Table of Contents](#methodguide)
+
+---
+
 ## `.render(globString, [templateDirectoryPath])`
 
 Stimpak uses `underscore`-style templates to render files using the answers set.
 
-**Two Arguments:**
+**Takes Two Arguments:**
 
 1. **`globString`**
 	* This should be a [glob](https://github.com/isaacs/node-glob) string that matches filepaths within the provided `templateDirectory`.
@@ -389,38 +441,383 @@ Stimpak uses `underscore`-style templates to render files using the answers set.
 
 * **You can interpolate an answer value and have it be HTML-escaped by wrapping it in `<%- … %>`**
 
-
-## `.merge(globString, [mergeStrategyFunction])`
-
-Merge with an existing file instead of overwriting it.
-
-**One or Two Arguments:**
-
-1. **`globString`**
-	* This should be a [glob](https://github.com/isaacs/node-glob) string that matches filepaths set by `.render`.
-2. **`mergeStrategyFunction`** (optional)
-	* **If provided**, the merge strategy function will be used as the merge strategy.
-	* **If not provided**, stimpak will use either a simple JSON or text merging strategy depending on whether both files are detected as JSON.
-
-**Merge Strategy Functions:**
-
-``` javascript
-function mergeStrategy(stimpak, newFile, oldFile, callback) {
-	stimpak; // The current instance of stimpak	newFile; // A Vinyl.js file representing the new file
-	oldFile; // A Vinyl.js file representing the existing file
-	callback(); // Standard node.js callback. Accepts an error as the first argument.
-}
-
-stimpak.merge("myFile.py", mergeStrategy);
-```
-
-**Example One:**
-
-``` javascript
-stimpak
-.merge("package.json")
-```
+[Back to Table of Contents](#methodguide)
 
 ---
 
-[Back to README.md](./README.md)
+## `.merge(globString, [mergeStrategyFunction])`
+
+* Provide a [glob string](https://github.com/isaacs/node-glob) to match against file paths set with `.render`.
+* (Optionally) provide a custom merge strategy function.
+	* **If provided**, the merge strategy function will be used as the merge strategy.
+	* **If not provided**, stimpak will use either a simple JSON or text merging strategy depending on whether both files are detected as JSON.
+
+**Takes One or Two Arguments:**
+
+1. **`globString`**
+	* This should be a [glob](https://github.com/isaacs/node-glob) string that matches filepaths set by `.render`.
+2. **`[mergeStrategyFunction(stimpak, newFile, oldFile, callback)]`**
+	1. **`stimpak`**
+		The current instance of stimpak.
+	2. **`newFile`**
+		A [Vinyl file](https://github.com/gulpjs/vinyl) representing the newly rendered file.
+	3. **`oldFile`**
+		A [Vinyl file](https://github.com/gulpjs/vinyl) representing the file that already exists in the destination directory.
+	4. **`callback(error, mergedFile)`**
+		A node-standard callback that accepts two arguments:
+		1. `error`
+			If there's an error during merging, return it here. Else, return something falsy.
+		2. `mergedFile`.
+			A required [Vinyl-compatible file](https://github.com/gulpjs/vinyl) representing the final merged file that should overwrite the existing file.
+
+**Merge Strategy Functions:**
+
+Each merge strategy is a function that accepts 4 mandatory arguments:
+
+
+
+**Example:**
+
+``` javascript
+stimpak.merge("important.txt", keepOldFile);
+
+function keepOldFile(stimpak, newFile, oldFile, callback) {
+	callback(null, oldFile);
+}
+```
+
+[Back to Table of Contents](#methodguide)
+
+---
+
+## `.command(commandString, [outputHandlerFunction])`
+
+* Call a shell command via child-process.
+* (*Optionally*) Provide an output handler function that handles the command's `stdout` and `stderr` values.
+	* **If provided**, `outputHandlerFunction` will be called directly after the command has finished execution, then proceed to the next step.
+	* **If not provided**, stimpak will immediately move on to the next step.
+
+**Takes One or Two Arguments:**
+
+1. **`commandString`**
+	* The full shell command complete with all arguments you would like to execute.
+2. **`[outputHandlerFunction(stimpak, stdout, stderr, [callback])]`**
+	1. **`stimpak`**
+		The current instance of stimpak.
+	2. **`stdout`**
+		The resulting `stdout` from the command run.
+	3. **`stderr`**
+		The resulting `stderr` from the command run.
+	4. **`[callback(error)]`**
+		Optional node-standard callback that accepts one argument:
+		1. `error`
+			If there's an error handling the output, return it here. Else, return something falsy.
+
+
+
+**Example:**
+
+``` javascript
+stimpak.command("echo 'Hello, World!'", handleOutput);
+
+function handleOutput(stimpak, stdout, stderr) {
+	stdout; // "Hello, World!"
+	stderr; // ""
+}
+```
+
+[Back to Table of Contents](#methodguide)
+
+---
+
+## `.title(text, [figletFontName])`
+
+* Display text to the user using figlet ASCII fonts.
+* **Note:** `.title` only works once! All subsequent calls to `.title` will be ignored. If you want a title that shows every time, use the identical method `.subtitle`.
+
+**Takes One or Two Arguments:**
+
+1. **`text`**
+	* The text you want rendered into a figlet font.
+2. **`[figletFontName = "standard"]`**
+	* **If not provided**, the "standard" figlet font will be used.
+	* **If provided**, `text` will be rendered with the figlet font designated.
+	* There are `680` fonts available. [Click here to see a list.](./figlet-fonts)
+
+**Example:**
+
+``` javascript
+stimpak
+.title("DOOM", "doom")
+.generate(error => {
+	// All done here.
+});
+```
+
+``` shell
+______  _____  _____ ___  ___
+|  _  \|  _  ||  _  ||  \/  |
+| | | || | | || | | || .  . |
+| | | || | | || | | || |\/| |
+| |/ / \ \_/ /\ \_/ /| |  | |
+|___/   \___/  \___/ \_|  |_/
+```
+
+[Back to Table of Contents](#methodguide)
+
+---
+
+## `.subtitle(text, [figletFontName])`
+
+* Display text to the user using figlet ASCII fonts.
+* **Note:** `.subtitle` will show every time its called. If you want only *one* title at the top of your compound generators, and an individual title for each sub generator that doesn't show when they are used via `.use`, you will want to use `.title` which only displays text the first time it's called and ignored after that.
+
+**Takes One or Two Arguments:**
+
+1. **`text`**
+	* The text you want rendered into a figlet font.
+2. **`[figletFontName = "standard"]`**
+	* **If not provided**, the "standard" figlet font will be used.
+	* **If provided**, `text` will be rendered with the figlet font designated.
+	* There are `680` fonts available. [Click here to see a list.](./figlet-fonts)
+
+**Example:**
+
+``` javascript
+stimpak
+.subtitle("Star", "starwars")
+.subtitle("Wars", "starwars")
+.generate(error => {
+	// All done here.
+});
+```
+
+``` shell
+     _______..___________.     ___      .______
+    /       ||           |    /   \     |   _  \
+   |   (----``---|  |----`   /  ^  \    |  |_)  |
+    \   \        |  |       /  /_\  \   |      /
+.----)   |       |  |      /  _____  \  |  |\  \----.
+|_______/        |__|     /__/     \__\ | _| `._____|
+____    __    ____      ___      .______           _______.
+\   \  /  \  /   /     /   \     |   _  \         /       |
+ \   \/    \/   /     /  ^  \    |  |_)  |       |   (----`
+  \            /     /  /_\  \   |      /         \   \
+   \    /\    /     /  _____  \  |  |\  \----..----)   |
+    \__/  \__/     /__/     \__\ | _| `._____||_______/
+```
+
+[Back to Table of Contents](#methodguide)
+
+---
+
+## `.note(text)`
+
+* Display some framed text to the user.
+
+**Takes One Arguments:**
+
+1. **`text`**
+	* The text you want framed and shown to the user.
+
+**Example:**
+
+``` javascript
+stimpak
+.note("Hello!");
+```
+
+``` shell
++--------+
+| Hello! |
++--------+
+```
+
+[Back to Table of Contents](#methodguide)
+
+---
+
+## `.info(text)`
+
+* Display some basic text to the user.
+
+**Takes One Arguments:**
+
+1. **`text`**
+	* The text you want shown to the user.
+
+**Example:**
+
+``` javascript
+stimpak
+.info("Hello!");
+```
+
+``` shell
+Hello!
+```
+
+[Back to Table of Contents](#methodguide)
+
+---
+
+## `.transform(transformingFunction)`
+
+* Transform all answers from one data type to another.
+* Can also be used to easily cast numerical strings into integers.
+
+**Takes One Arguments:**
+
+1. **`text`**
+	* The text you want shown to the user.
+
+**Example:**
+
+``` javascript
+stimpak
+.info("Hello!");
+```
+
+``` shell
+Hello!
+```
+
+[Back to Table of Contents](#methodguide)
+
+---
+
+## `.generate([callback])`
+
+* Run each designated step in order.
+* (*Optionally*) Provide a callback to process any errors returned.
+
+**Takes Zero or One Argument:**
+
+1. **`[callback([error])]`**
+	1. **`[error]`**
+		If there's an error at any time during generation, the steps will be halted and the error will be returned here.
+
+**Example:**
+
+``` javascript
+stimpak
+.destination(process.cwd())
+.render("**/*", `${__dirname}/templates`)
+.generate(error => {
+	// All done here.
+});
+```
+
+[Back to Table of Contents](#methodguide)
+
+---
+
+## `.test`
+
+* Automatically setup stimpak for testing by creating a temporary directory and setting it as the `.destination`.
+
+**Example:**
+
+``` javascript
+stimpak
+.test
+.render("**/*", `${__dirname}/templates`)
+.generate(error => {
+	stimpak.destination(); // /some/temp/directory
+});
+```
+
+[Back to Table of Contents](#methodguide)
+
+---
+
+## `.report`
+
+* Detailed information about what happened during a `.generate` call.
+* Returns information on all events and files generated.
+
+**Event Types:**
+
+* `writeFile`
+* `mergeFile`
+* `writeDirectory`
+* `command`
+
+**Example:**
+
+``` javascript
+stimpak
+.test
+.render("**/*", `${__dirname}/templates`)
+.generate(error => {
+	stimpak.report.events;
+	/*
+	{
+		type: "writeFile",
+		path: "/destination-directory/test.js",
+		templatePath: "/generator-directory/templates/test.js",
+		content: "Hello, World!"
+	}
+	 */
+
+	stimpak.report.files;
+	/*
+	{
+		"/outputDirectory/test.js": "Hello, World!"
+	}
+	 */
+
+	stimpak.report.files["/outputDirectory/test.js"].should.eql("Hello, World!");
+});
+```
+
+[Back to Table of Contents](#methodguide)
+
+---
+
+## `.report.diffFixtures(fixturesDirectoryPath)`
+
+* Get detailed information about the differences between files in the `.destination` directory, and files in a fixtures directory.
+* Returns information on actual vs expected `paths` and `content`.
+* `content` returns a blank object when there are no differences, so it's easy to setup content testing for all of your files with a single command chain:
+	``` javascript
+	stimpak
+	.report
+	.diffFixtures(fixturesDirectoryPath)
+	.content.should.eql({});
+	```
+
+**Takes One Argument:**
+
+1. **`fixturesDirectoryPath`**
+	Absolute path to a directory that contains files that you'd like to compare with the files found in the `.destination` directory.
+
+**Example:**
+
+``` javascript
+stimpak
+.test
+.render("**/*", `${__dirname}/templates`)
+.generate(error => {
+	const differences = stimpak.report.diffFixtures(`${__dirname}/fixtures`);
+	/*
+	{
+		paths: {
+			actual: [ ... ],
+			expected: [ ... ]
+		},
+		content: {
+			[fileNameHere]: {
+				actual: "...",
+				expected: "..."
+			}
+		}
+	}
+	*/
+	differences.content.should.eql({});
+});
+```
+
+[Back to Table of Contents](#methodguide)
+
+---

@@ -1,6 +1,6 @@
 [![](./images/stimpak-logo.png?raw=true)](./README.md)
 
-# Table of contents
+# Stimpak Generator Development
 
 * [Generate a Generator?](#generateagenerator)
 * [Stimpak Generator From Scratch](#stimpakgeneratorfromscratch)
@@ -91,7 +91,9 @@ Typically, this means you'll want to use the `es2015` preset, but you can also u
 
 # Customize Your Generator
 
-Now that you have a bare-bones generator ready, it's time to hook into the stimpak API.
+Once you have your bare-bones generator ready for customization, it's time to customize it with the behavior you want.
+
+For full API documentation, head over to the [Stimpak API](#API.md) page. The following guide is meant as a step-by-step to get others started by making a very simple generator that does not cover all of the features available.
 
 ## Set Answers With `.answers([object])`
 
@@ -372,47 +374,9 @@ export default class MyGenerator {
 
 Stimpak uses `underscore`-style templates to render any arbitrary text files using the answers provided.
 
-**Arguments**
-
-1. **`globString`**
-	* This should be a [glob](https://github.com/isaacs/node-glob) string that matches filepaths within the provided `templateDirectory`.
-2. **`templateDirectory`**
-	* This should be a [glob](https://github.com/isaacs/node-glob) string that matches filepaths within the provided `templateDirectory`.
-
-**Template files may be located in any directory.** You tell stimpak where to find them using
-
 * **Templates can interpolate answer values by wrapping them in `<%= … %>`**
-
-	``` html
-	<html>
-	<head>
-		<title><%= pageTitle %></title>
-	</head>
-	<body>
-		<%= pageContent %>
-	</body>
-	</html>
-	```
-
-	``` javascript
-	export default class <%= moduleClassName %> {
-
-	}
-	```
 * Templates can execute arbitrary JavaScript code by wrapping it in `<% … %>`.
 * You can interpolate an answer value and have it be HTML-escaped by wrapping it in `<%- … %>`.
-
-``` javascript
-export default class MyGeneratorClassName {
-	setup(stimpak) {
-		stimpak
-		.answers({
-			mainFile
-		})
-		.render("**/*", `${__dirname}/templates`);
-	}
-}
-```7
 
 **my-generator/lib/generator.js**:
 
@@ -444,7 +408,7 @@ export default class MyGeneratorClassName {
 <%= moduleDescription %>
 ```
 
-**output-directory/README.md**:
+**rendered-files/README.md**:
 
 ``` markdown
 # My Module
@@ -452,9 +416,6 @@ export default class MyGeneratorClassName {
 It's a new module!
 ```
 
-
-
-
 ---
 
-[Back to README.md](./README.md)
+[Back to Table of Contents](#stimpakgeneratordevelopment)

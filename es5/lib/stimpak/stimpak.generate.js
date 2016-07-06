@@ -14,13 +14,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function generate(callback) {
 	this.debug("generate");
 
-	if (this.destination()) {
-		var _ = (0, _incognito2.default)(this);
-		var action = _.action;
-		action.results(callback);
-	} else {
-		callback(new Error("You must set .destination() before you can .generate()"));
-	}
+	var _ = (0, _incognito2.default)(this);
+	var action = _.action;
+	action.results(callback);
 
 	return this;
 }

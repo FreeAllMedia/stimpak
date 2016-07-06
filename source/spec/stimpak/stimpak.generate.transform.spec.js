@@ -1,6 +1,6 @@
 import Stimpak from "../../lib/stimpak/stimpak.js";
 
-describe("stimpak.generate() (casted answers)", () => {
+describe("stimpak.generate() (transformed answers)", () => {
 	let stimpak;
 
 	let callbackA = answer => parseInt(answer);
@@ -15,7 +15,7 @@ describe("stimpak.generate() (casted answers)", () => {
 
 	let promptCasted = {
 		type: "input",
-		name: "casted",
+		name: "transformed",
 		message: "Answer 5 please !",
 		default: "5"
 	};
@@ -24,19 +24,19 @@ describe("stimpak.generate() (casted answers)", () => {
 		stimpak = new Stimpak().destination("some/path");
 	});
 
-	it("should cast provided answers", done => {
+	it("should transform provided answers", done => {
 		stimpak
 			.prompt(promptUntouched)
-			.cast(callbackA)
-			.cast(callbackB)
+			.transform(callbackA)
+			.transform(callbackB)
 			.prompt(promptCasted)
 			.generate(error => {
 				try {
 					stimpak.answers().should.eql({
 						untouched: "5",
-						casted: 7,
+						transformed: 7
 					});
-					done();
+					done(error);
 				} catch (exception) {
 					done(exception);
 				}
@@ -51,17 +51,17 @@ describe("stimpak.generate() (casted answers)", () => {
 		}, 200);
 	});
 
-	it("should cast given answers", done => {
+	it("should transform given answers", done => {
 		let answers = {
-			casted: 5,
+			transformed: 5,
 			untouched: "5"
 		};
 
 		stimpak
 			.answers(answers)
-			.cast(callbackA)
+			.transform(callbackA)
 			.generate(error => {
-				stimpak.answers().casted.should.eql(5);
+				stimpak.answers().transformed.should.eql(5);
 				stimpak.answers().untouched.should.eql("5");
 
 				done(error);

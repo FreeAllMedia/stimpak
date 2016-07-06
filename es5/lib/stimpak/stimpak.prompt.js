@@ -75,13 +75,13 @@ function prompt() {
 
 				if (askQuestion) {
 					_inquirer2.default.prompt(unansweredPrompt).then(function (questionAnswers) {
-						var casts = _this.casts();
+						var transforms = _this.transforms();
 
 						var _loop2 = function _loop2(question) {
 							var answer = questionAnswers[question];
 
-							casts.forEach(function (cast) {
-								answer = cast(answer);
+							transforms.forEach(function (transform) {
+								answer = transform(answer);
 							});
 
 							questionAnswers[question] = answer;
