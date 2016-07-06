@@ -29,6 +29,7 @@ describe("stimpak.report()", () => {
 			newFile.stem = "blah";
 			mergeDone(null, newFile);
 		})
+		.merge("package.json", stimpak.mergeJSON)
 		.command(command)
 		.generate(error => {
 			actualReport = stimpak.report;
@@ -70,8 +71,6 @@ describe("stimpak.report()", () => {
 				stderr: ""
 			}
 		];
-
-		console.log(actualReport.events);
 
 		actualReport.events.should.eql(expectedEvents);
 	});

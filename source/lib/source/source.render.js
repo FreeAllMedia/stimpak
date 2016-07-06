@@ -7,6 +7,11 @@ import Async from "flowsync";
 import minimatch from "minimatch";
 import flattenDeep from "lodash.flattendeep";
 import glob from "glob";
+import mergeJSON from "./source.render.mergeJSON.js";
+import mergeText from "./source.render.mergeText.js";
+import isJSON from "is-json";
+
+// TODO: Refactor source.render into small files
 
 export default function render(done) {
 	const templateFileNames = glob.sync(this.glob(), {
@@ -17,14 +22,18 @@ export default function render(done) {
 	Async.mapSeries(
 		templateFileNames,
 		(fileName, fileNameDone) => {
-			renderFile.call(this.stimpak, fileName, this, fileNameDone);
+			try {
+				renderFile.call(this.stimpak, fileName, this, fileNameDone);
+			} catch (exception) {
+				fileNameDone(exception);
+			}
 		},
 		done
 	);
 }
 
-// TODO: Clean up renderFile by breaking it up into smaller functions
 function renderFile(templateFileName, source, done) {
+	this.debug("renderFile", templateFileName);
 	const templateFilePath = `${source.directory()}/${templateFileName}`;
 	const templateFileStats = fileSystem.statSync(templateFilePath);
 	const answers = this.answers();
@@ -38,7 +47,9 @@ function renderFile(templateFileName, source, done) {
 	}
 
 	if (!shouldSkipFile.call(this, destinationFileName, templateFileName)) {
+		this.debug("file not skipped");
 		if (templateFileStats.isDirectory()) {
+			this.debug("file is directory");
 			const directoryPath = `${this.destination()}/${destinationFileName}`;
 			fileSystem.mkdirsSync(directoryPath);
 			reportFile.call(this, directoryPath, {
@@ -54,6 +65,7 @@ function renderFile(templateFileName, source, done) {
 			});
 			done();
 		} else {
+			this.debug("file is not a directory");
 			const fileContents = renderTemplateFile.call(this, templateFilePath);
 
 			const newFile = new File({
@@ -72,16 +84,23 @@ function renderFile(templateFileName, source, done) {
 			};
 
 			if (fileSystem.existsSync(newFile.path)) {
+				this.debug("file exists");
 				const oldFileContents = fileSystem.readFileSync(newFile.path);
 
 				const mergeStrategies = this.merge();
 
 				if (mergeStrategies.length > 0) {
-					Async.mapSeries(mergeStrategies, (mergeStrategy, mergeDone) => {
-						const mergePattern = new RegExp(mergeStrategy[0]);
+					this.debug("there are merge strategies");
 
-						if (newFile.path.match(mergePattern)) {
-							const mergeFunction = mergeStrategy[1];
+					let anyMergeStrategiesMatch = false;
+
+					Async.mapSeries(mergeStrategies, (mergeStrategy, mergeDone) => {
+						const globString = mergeStrategy[0];
+
+						if (minimatch(newFile.path.replace(`${newFile.cwd}/`, ""), globString)) {
+							this.debug("merge strategy matched");
+							anyMergeStrategiesMatch = true;
+							let mergeFunction = mergeStrategy[1];
 							const oldFile = new File({
 								cwd: newFile.cwd,
 								base: newFile.base,
@@ -89,12 +108,21 @@ function renderFile(templateFileName, source, done) {
 								contents: oldFileContents
 							});
 
+							if (!mergeFunction) {
+								if (isJSON(oldFile.contents.toString()) && isJSON(newFile.contents).toString()) {
+									mergeFunction = mergeJSON;
+								} else {
+									mergeFunction = mergeText;
+								}
+							}
+
 							mergeFunction(this, newFile, oldFile, (error, mergedFile) => {
 								const mergedFileDetails = newFileDetails;
 
 								if (error) {
 									mergeDone(error);
 								} else {
+									this.debug("merging file");
 									mergedFileDetails.isMerged = true;
 									mergedFileDetails.path = mergedFile.path;
 									mergedFileDetails.oldContent = oldFile.contents.toString();
@@ -103,17 +131,31 @@ function renderFile(templateFileName, source, done) {
 								}
 							});
 						} else {
-							writeFile.call(this, newFile, newFileDetails, mergeDone);
+							mergeDone();
 						}
-					}, done);
+					}, error => {
+						if (error) {
+							done(error);
+						} else {
+							if (!anyMergeStrategiesMatch) {
+								this.debug("merge strategies did not match");
+								writeFile.call(this, newFile, newFileDetails, done);
+							} else {
+								done();
+							}
+						}
+					});
 				} else {
+					this.debug("file does not have merge strategies");
 					writeFile.call(this, newFile, newFileDetails, done);
 				}
 			} else {
+				this.debug("file does not exist");
 				writeFile.call(this, newFile, newFileDetails, done);
 			}
 		}
 	} else {
+		this.debug("file skipped");
 		done();
 	}
 }

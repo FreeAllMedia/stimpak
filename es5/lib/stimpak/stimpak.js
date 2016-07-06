@@ -62,7 +62,11 @@ var Stimpak = function (_ChainLink) {
 			var _ = (0, _incognito2.default)(this);
 			_.action = new _staircase2.default(this);
 			_.action.context(this);
-			_.report = { events: [], files: {} };
+			_.report = {
+				events: [],
+				files: {},
+				diffFixtures: require("./stimpak.report.diffFixtures.js").default.bind(this)
+			};
 		}
 	}, {
 		key: initializeInterface,
@@ -75,7 +79,7 @@ var Stimpak = function (_ChainLink) {
 
 			this.parameters("skip").aggregate;
 
-			this.parameters("casts").aggregate;
+			this.parameters("transforms").aggregate;
 
 			this.parameters("answers").mergeKeyValues;
 
@@ -161,9 +165,9 @@ var Stimpak = function (_ChainLink) {
 			return this[externalFunction].apply(this, ["./stimpak.then.js"].concat(stepFunctions));
 		}
 	}, {
-		key: "cast",
-		value: function cast(callback) {
-			return this[externalFunction]("./stimpak.cast.js", callback);
+		key: "transform",
+		value: function transform(callback) {
+			return this[externalFunction]("./stimpak.transform.js", callback);
 		}
 	}, {
 		key: "context",
@@ -206,8 +210,8 @@ var Stimpak = function (_ChainLink) {
 		}
 	}, {
 		key: "subtitle",
-		value: function subtitle(message) {
-			return this[externalFunction]("./stimpak.subtitle.js", message);
+		value: function subtitle(message, font) {
+			return this[externalFunction]("./stimpak.subtitle.js", message, font);
 		}
 	}, {
 		key: "log",
@@ -218,6 +222,11 @@ var Stimpak = function (_ChainLink) {
 		key: "debug",
 		value: function debug(message, payload) {
 			return require("./stimpak.debug.js").default.call(this, message, payload);
+		}
+	}, {
+		key: "write",
+		value: function write(message) {
+			process.stdout.write(message);
 		}
 	}, {
 		key: "report",

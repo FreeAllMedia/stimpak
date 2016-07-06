@@ -1,0 +1,14 @@
+{
+  "name": "simple-templates",
+  "version": "0.0.0",
+  "keywords": [
+    "tool",
+    "stuff",
+    "things"
+  ],
+  "devDependencies": {
+    "dovima": "1.0.0",
+    "almaden": "1.0.0",
+    "staircase": "1.0.0"
+  }
+}

@@ -4,54 +4,59 @@ import intercept from "intercept-stdout";
 
 describe(".info(message, ...payload)", () => {
 	let stimpak,
-			actualOutput;
+			actualOutput,
+			stopIntercept,
+			message;
 
 	beforeEach(() => {
-		stimpak = new Stimpak();
-	});
+		message = "Blah";
 
-	it("should write the message to the designated info stream", () => {
 		actualOutput = "";
 
-		const stopIntercept = intercept(data => {
+		stopIntercept = intercept(data => {
 			actualOutput += data.toString();
 		});
 
-		const infoMessage = "Something";
+		stimpak = new Stimpak()
+			.destination("/some/path");
+	});
 
-		stimpak.info(infoMessage);
+	afterEach(() => stopIntercept());
 
-		stopIntercept();
-
-		const expectedOutput = `\n[ ${infoMessage} ]`;
-
-		actualOutput.should.contain(expectedOutput);
+	it("should not display the message right away", () => {
+		actualOutput.should.not.contain(message);
 	});
 
 	it("should return this to enable chaining", () => {
-		stimpak.info("Blah").should.eql(stimpak);
+		stimpak.info(message).should.eql(stimpak);
 	});
 
-	it("should write the inspected payload to the designated info stream", () => {
-		actualOutput = "";
+	it("should write the message to stdout", done => {
+		stimpak
+		.info(message)
+		.generate(error => {
+			const expectedOutput = `\n${message}`;
 
-		const stopIntercept = intercept(data => {
-			actualOutput += data.toString();
+			actualOutput.should.contain(expectedOutput);
+			done(error);
 		});
+	});
 
+	it("should write the inspected payload to stdout", done => {
 		const payload = {
 			foo: "bar"
 		};
 
-		const infoMessage = "Something";
 		const expectedPayloadValue = util.inspect(payload);
 
-		stimpak.info(infoMessage, payload);
+		stimpak
+		.info(message, payload)
+		.generate(error => {
+			const expectedOutput = `\n${message}(${expectedPayloadValue})`;
 
-		stopIntercept();
+			actualOutput.should.contain(expectedOutput);
 
-		const expectedOutput = `\n[ ${infoMessage}(${expectedPayloadValue}) ]`;
-
-		actualOutput.should.contain(expectedOutput);
+			done(error);
+		});
 	});
 });

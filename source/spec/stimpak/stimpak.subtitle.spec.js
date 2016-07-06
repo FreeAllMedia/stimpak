@@ -1,3 +1,5 @@
+// TODO: Clean up subtitles spec
+
 import Stimpak from "../../lib/stimpak/stimpak.js";
 import interceptStdout from "intercept-stdout";
 
@@ -8,7 +10,9 @@ describe("stimpak.subtitle()", () => {
 	let stimpak,
 			message,
 			actualStdout,
-			interceptStdoutEnd;
+			interceptStdoutEnd,
+			renderedMessageStandard,
+			renderedMessageSmall;
 
 	beforeEach(done => {
 		actualStdout = "";
@@ -25,7 +29,14 @@ describe("stimpak.subtitle()", () => {
 		.subtitle(message)
 		.generate((error) => {
 			interceptStdoutEnd();
-			done(error);
+
+			ascii.font(message, "standard", renderedMessageOne => {
+				renderedMessageStandard = renderedMessageOne;
+				ascii.font(message, "small", renderedMessageTwo => {
+					renderedMessageSmall = renderedMessageTwo;
+					done(error);
+				});
+			});
 		});
 	});
 
@@ -33,12 +44,8 @@ describe("stimpak.subtitle()", () => {
 		stimpak.subtitle(message).should.eql(stimpak);
 	});
 
-	it("should be placed as a step in the queue", () => {
-		stimpak.steps.length.should.eql(1);
-	});
-
-	it("should render a subtitle message using the 'Standard' FIGlet font", () => {
-		actualStdout.should.eql(`\n ${message}\n`);
+	it("should render a title message using the 'Standard' FIGlet font by default", () => {
+		actualStdout.should.eql(`\n${renderedMessageStandard}`);
 	});
 
 	it("should render the text `Sub-Title` if no string is provided", done => {
@@ -50,15 +57,36 @@ describe("stimpak.subtitle()", () => {
 			actualStdout += data.toString();
 		});
 
-		const expectedStdout = "\n Sub-Title\n";
-
 		stimpak
 		.destination(__dirname)
 		.subtitle()
 		.generate(error => {
 			interceptStdoutEnd();
-			actualStdout.should.eql(expectedStdout);
-			done(error);
+			ascii.font("Sub-Title", "standard", renderedMessage => {
+				actualStdout.should.eql(`\n${renderedMessage}`);
+				done(error);
+			});
+		});
+	});
+
+	it("should let the user choose the figlet font", done => {
+		stimpak = new Stimpak();
+
+		actualStdout = "";
+
+		interceptStdoutEnd = interceptStdout(data => {
+			actualStdout += data.toString();
+		});
+
+		stimpak
+		.destination(__dirname)
+		.subtitle(message, "small")
+		.generate(error => {
+			interceptStdoutEnd();
+			ascii.font(message, "small", renderedMessage => {
+				actualStdout.should.eql(`\n${renderedMessage}`);
+				done(error);
+			});
 		});
 	});
 });

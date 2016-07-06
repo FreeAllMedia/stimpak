@@ -1,5 +1,6 @@
 import Stimpak from "../../lib/stimpak/stimpak.js";
 import sinon from "sinon";
+import privateData from "incognito";
 
 describe("stimpak.then()", () => {
 	let stimpak,
@@ -8,8 +9,7 @@ describe("stimpak.then()", () => {
 			stepThree;
 
 	beforeEach(() => {
-		stimpak = new Stimpak()
-			.destination("/some/path");
+		stimpak = new Stimpak().test;
 
 		const slowFunction = () => {};
 
@@ -58,5 +58,33 @@ describe("stimpak.then()", () => {
 				error.should.eql(expectedError);
 				done();
 			});
+	});
+
+	it("should arrange sub-then calls in the expected order", done => {
+		const callOrder = [];
+		stimpak
+		.then(() => {
+			callOrder.push(1);
+			stimpak
+			.then(() => {
+				callOrder.push(2);
+				stimpak.then(() => {
+					callOrder.push(3);
+				});
+			});
+		})
+		.then(() => {
+			callOrder.push(4);
+			stimpak.then(() => {
+				callOrder.push(5);
+				stimpak.then(() => {
+					callOrder.push(6);
+				});
+			});
+		})
+		.generate(error => {
+			callOrder.should.eql([1, 2, 3, 4, 5, 6]);
+			done(error);
+		});
 	});
 });

@@ -321,8 +321,6 @@ function generatorPackageName(generatorName) {
 function linkIfNotExisting(fromPath, toPath, callback) {
 	//debug(".linkIfNotExisting", fromPath, toPath);
 
-	temporaryDependencyPaths.push(toPath);
-
 	Async.waterfall([
 		done => {
 			fileSystem.lstat(toPath, (error, stats) => {
@@ -338,7 +336,10 @@ function linkIfNotExisting(fromPath, toPath, callback) {
 				done();
 			} else {
 				//debugCallback("dependency linked", toPath);
-				symlink(fromPath, toPath, done);
+				symlink(fromPath, toPath, () => {
+					temporaryDependencyPaths.push(toPath);
+					done();
+				});
 			}
 		}
 	], error => {
@@ -366,10 +367,12 @@ function resolveGeneratorPaths(generator, callback) {
 	debug(".resolveGeneratorPaths", generator);
 
 	Async.waterfall([
-		done => { resolveGeneratorPath(generator, (error, generatorPath) => {
-			debugCallback("resolve generator path", generatorPath);
-			done(error, generatorPath);
-		}); },
+		done => {
+			resolveGeneratorPath(generator, (error, generatorPath) => {
+				debugCallback("resolve generator path", generatorPath);
+				done(error, generatorPath);
+			});
+		},
 		(generatorPath, done) => {
 			debugCallback("path resolved", generatorPath);
 			fileSystem.realpath(generatorPath, (error, realPath) => {
@@ -554,12 +557,14 @@ function showDone(callback) {
 function showReport(callback) {
 	process.stdout.write("\n");
 
-	process.stdout.write("Tasks Performed:\n\n");
+	if (stimpak.report.events.length > 0) {
+		process.stdout.write("Tasks Performed:\n\n");
+	}
+
 	stimpak.report.events.forEach(event => {
 		let color = colors.green;
-
 		let tag = "write";
-		let message = event.path;
+		let message;
 
 		switch (event.type) {
 			case "command":
@@ -567,8 +572,13 @@ function showReport(callback) {
 				message = event.command;
 				break;
 			case "mergeFile":
-			case "mergeDirectory":
 				tag = "merge";
+				message = event.path.replace(stimpak.destination(), "");
+				break;
+			case "writeFile":
+			case "writeDirectory":
+				tag = "write";
+				message = event.path.replace(stimpak.destination(), "");
 		}
 
 		process.stdout.write(`  [${color(tag)}] ${message}\n`);

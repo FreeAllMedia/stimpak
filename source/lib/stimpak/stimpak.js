@@ -23,7 +23,11 @@ export default class Stimpak extends ChainLink {
 		const _ = privateData(this);
 		_.action = new Action(this);
 		_.action.context(this);
-		_.report = { events: [], files: {} };
+		_.report = {
+			events: [],
+			files: {},
+			diffFixtures: require("./stimpak.report.diffFixtures.js").default.bind(this)
+		};
 	}
 
 	[initializeInterface]() {
@@ -42,7 +46,7 @@ export default class Stimpak extends ChainLink {
 		).aggregate;
 
 		this.parameters(
-			"casts"
+			"transforms"
 		).aggregate;
 
 		this.parameters(
@@ -119,8 +123,8 @@ export default class Stimpak extends ChainLink {
 		return this[externalFunction]("./stimpak.then.js", ...stepFunctions);
 	}
 
-	cast(callback) {
-		return this[externalFunction]("./stimpak.cast.js", callback);
+	transform(callback) {
+		return this[externalFunction]("./stimpak.transform.js", callback);
 	}
 
 	context(object) {
@@ -151,8 +155,8 @@ export default class Stimpak extends ChainLink {
 		return this[externalFunction]("./stimpak.title.js", message, font);
 	}
 
-	subtitle(message) {
-		return this[externalFunction]("./stimpak.subtitle.js", message);
+	subtitle(message, font) {
+		return this[externalFunction]("./stimpak.subtitle.js", message, font);
 	}
 
 	log(message, payload) {
@@ -165,5 +169,9 @@ export default class Stimpak extends ChainLink {
 
 	get test() {
 		return this[externalFunction]("./stimpak.test.js");
+	}
+
+	write(message) {
+		process.stdout.write(message);
 	}
 }

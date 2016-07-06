@@ -349,8 +349,6 @@ function generatorPackageName(generatorName) {
 function linkIfNotExisting(fromPath, toPath, callback) {
 	//debug(".linkIfNotExisting", fromPath, toPath);
 
-	temporaryDependencyPaths.push(toPath);
-
 	_flowsync2.default.waterfall([function (done) {
 		_fsExtra2.default.lstat(toPath, function (error, stats) {
 			if (error) {
@@ -364,7 +362,10 @@ function linkIfNotExisting(fromPath, toPath, callback) {
 			done();
 		} else {
 			//debugCallback("dependency linked", toPath);
-			symlink(fromPath, toPath, done);
+			symlink(fromPath, toPath, function () {
+				temporaryDependencyPaths.push(toPath);
+				done();
+			});
 		}
 	}], function (error) {
 		//debugCallback("link if not existing done");
@@ -573,12 +574,14 @@ function showDone(callback) {
 function showReport(callback) {
 	process.stdout.write("\n");
 
-	process.stdout.write("Tasks Performed:\n\n");
+	if (stimpak.report.events.length > 0) {
+		process.stdout.write("Tasks Performed:\n\n");
+	}
+
 	stimpak.report.events.forEach(function (event) {
 		var color = _safe2.default.green;
-
 		var tag = "write";
-		var message = event.path;
+		var message = void 0;
 
 		switch (event.type) {
 			case "command":
@@ -586,8 +589,13 @@ function showReport(callback) {
 				message = event.command;
 				break;
 			case "mergeFile":
-			case "mergeDirectory":
 				tag = "merge";
+				message = event.path.replace(stimpak.destination(), "");
+				break;
+			case "writeFile":
+			case "writeDirectory":
+				tag = "write";
+				message = event.path.replace(stimpak.destination(), "");
 		}
 
 		process.stdout.write("  [" + color(tag) + "] " + message + "\n");

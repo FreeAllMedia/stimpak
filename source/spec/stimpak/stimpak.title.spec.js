@@ -89,4 +89,26 @@ describe("stimpak.title()", () => {
 			});
 		});
 	});
+
+	it("should only render once per instance of stimpak", done => {
+		stimpak = new Stimpak();
+
+		actualStdout = "";
+
+		interceptStdoutEnd = interceptStdout(data => {
+			actualStdout += data.toString();
+		});
+
+		stimpak
+		.destination(__dirname)
+		.title(message)
+		.title(message)
+		.generate(error => {
+			interceptStdoutEnd();
+			ascii.font(message, "standard", renderedMessage => {
+				actualStdout.should.eql(`\n${renderedMessage}`);
+				done(error);
+			});
+		});
+	});
 });

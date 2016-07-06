@@ -1,6 +1,6 @@
 import Stimpak from "../../lib/stimpak/stimpak.js";
 import sinon from "sinon";
-
+import fileSystem from "fs-extra";
 
 describe("stimpak.merge()", () => {
 	let stimpak,
@@ -34,10 +34,61 @@ describe("stimpak.merge()", () => {
 	it("should accept a regular expression for the file pattern", () => {
 		filePattern = new RegExp(filePattern);
 
-		stimpak
-			.merge(filePattern, mergeFunction);
+		stimpak.merge(filePattern, mergeFunction);
+		stimpak.merge().should.eql([[filePattern, mergeFunction]]);
+	});
+
+	it("should write only once per file or directory when multiple merge strategies do not match", done => {
+		stimpak.test;
+
+		fileSystem.copySync(
+			`${__dirname}/fixtures/simpleExisting`,
+			stimpak.destination()
+		);
 
 		stimpak
-			.merge().should.eql([[filePattern, mergeFunction]]);
+		.answers({
+			folderName: "letters",
+			fileName: "shapes",
+			functionName: "something"
+		})
+		.merge("dontmatch.js", mergeFunction)
+		.merge("dontmatch.js", mergeFunction)
+		.merge("dontmatch.js", mergeFunction)
+		.render("**/*", `${__dirname}/fixtures/simpleTemplates`)
+		.generate(error => {
+			const eventTypes = stimpak.report.events.map(event => {
+				return event.type;
+			});
+
+			eventTypes.should.eql([
+				"writeDirectory",
+				"writeFile",
+				"writeFile"
+			]);
+			done(error);
+		});
+	});
+
+	it("should automatically simple merge when no strategy is provided", done => {
+		stimpak.test;
+
+		fileSystem.copySync(
+			`${__dirname}/fixtures/mergeExisting`,
+			stimpak.destination()
+		);
+
+		stimpak
+		.merge("**/*")
+		.render("**/*", `${__dirname}/fixtures/mergeTemplates`)
+		.generate(error => {
+			stimpak
+			.report
+			.diffFixtures(`${__dirname}/fixtures/mergeRendered`)
+			.content
+			.should.eql({});
+
+			done(error);
+		});
 	});
 });
