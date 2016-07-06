@@ -24,7 +24,7 @@ Software development (when doing it right) involves mostly patterns in both our 
 	* Very little learning required to write your own generators. Make your first pattern in less than 5 minutes.
 	* Setup your directory structures the way you want. Change them later if you want to.
 	* Name your methods how you'd like. Except for one `.setup` method on each generator, you're free to use any method name you'd like, or to change them later.
-* **Generators are Composable**
+* **Composable Generators**
 	* Create several small generators that work independently.
 	* Combine generators together on-the-fly via the CLI.
 	* Combine generators into a new generator that can guide the user through multiple tasks at once.
@@ -32,8 +32,8 @@ Software development (when doing it right) involves mostly patterns in both our 
 	* Easily tell stimpak what to do if a file you're trying to generate already exists.
 	* Merge strategies use `vinyl` file objects for ultimate flexibility when merging.
 * **Customizable ASCII-Art**
-	* Built-in ASCII-Art generator for BIG popping titles in any of 658 figlet fonts!
-	* Optionally choose *not* to have ASCII-Art whenever you use your generators! It's all up to you!
+	* Built-in ASCII-Art generator for BIG popping titles in any of 680 built-in figlet fonts.
+	* Optionally choose *not* to have ASCII-Art whenever you use your generators. It's all up to you!
 * **Quality-Controlled**
 	* Well-tested with meaningful assertions.
 	* 100% test coverage.

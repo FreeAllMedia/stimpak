@@ -74,15 +74,6 @@ describe("stimpak.generate() (template rendering)", () => {
 			actualRenderedTemplate.should.eql(expectedRenderedTemplate);
 		});
 
-		xit("should return an error if destination is not set and .render is called", done => {
-			stimpak = new Stimpak();
-			stimpak
-				.generate(error => {
-					error.message.should.eql("You must set .destination() before you can .generate()");
-					done();
-				});
-		});
-
 		it("should generate .dotfiles", () => {
 			actualGeneratedFilePaths.should.contain(`.${answers.dynamicFileName}`);
 		});

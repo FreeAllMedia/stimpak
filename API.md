@@ -11,44 +11,44 @@ Check out these guides to learn more about:
 
 ## Method Guide
 
-* **[`.answers([object])`](#answersobject)**
+* **[`.answers([object])`](#L-code-answers--object----code-)**
 	* Set answers manually.
 	* Get answers that are already set if called without an argument.
-* **[`.prompt(...promptObjects)`](#promptpromptobjects)**
+* **[`.prompt(...promptObjects)`](#L-code-prompt-promptobjects---code-)**
 	* Set answers by prompting the user with [`inquirer.js`](https://github.com/SBoudrias/Inquirer.js)-style prompts.
-* **[`.use(...GeneratorConstructors)`](#usegeneratorconstructors)**
+* **[`.use(...GeneratorConstructors)`](#L-code-use-generatorconstructors---code-)**
 	* Use another generator. Runs the generator as though
-* **[`.destination(directoryPath)`](#destinationdirectorypath)**
+* **[`.destination(directoryPath)`](#L-code-destination-directorypath---code-)**
 	* Set the directory that files should be generated/updated in.
-* **[`.render(globString, templateDirectoryPath)`](#renderglobstringtemplatedirectorypath)**
+* **[`.render(globString, templateDirectoryPath)`](#L-code-render-globstring---templatedirectorypath----code-)**
 	* Set one or more files as templates to render into the `.destination` directory.
-* **[`.merge(globString, [mergeStrategyFunction])`](#mergeglobstringmergestrategyfunction)**
+* **[`.merge(globString, [mergeStrategyFunction])`](#L-code-merge-globstring---mergestrategyfunction----code-)**
 	* Set a file to be merged instead of overwritten.
 	* Use default strategies or provide a custom merge strategy function.
-* **[`.command(commandString, [outputHandlerFunction])`](#commandcommandstringoutputhandlerfunction)**
+* **[`.command(commandString, [outputHandlerFunction])`](#L-code-command-commandstring---outputhandlerfunction----code-)**
 	* Call a shell command via child-process.
 	* *Optionally*: Provide an output handler function that handles the command's `stdout` and `stderr` values.
-* **[`.title(text, [figletFontName])`](#titletextfigletfontname)**
+* **[`.title(text, [figletFontName])`](#L-code-title-text---figletfontname----code-)**
 	* Display text to the user using figlet ASCII fonts.
 	* Displays only once per `.generate`.
-* **[`.subtitle(text, [figletFontName])`](#subtitletextfigletfontname)**
+* **[`.subtitle(text, [figletFontName])`](#L-code-subtitle-text---figletfontname----code-)**
 	* Display text to the user using figlet ASCII fonts.
 	* Displays every time it's called.
-* **[`.note(text)`](#notetext)**
+* **[`.note(text)`](#L-code-note-text---code-)**
 	* Display a prominent note to the user.
-* **[`.info(text)`](#infotext)**
+* **[`.info(text)`](#L-code-info-text---code-)**
 	* Print some basic text out to the user.
-* **[`.generate([callback])`](#generatecallback)**
-	* Run all steps with an optional callback.
-* **[`.transform(transformingFunction)`](#transformtransformingfunction)**
+* **[`.transform(transformingFunction)`](#L-code-transform-transformingfunction---code-)**
 	* Transform all answers according to a strategy.
 	* Useful for casting values to their native datatypes.
-* **[`.test`](#test)**
+* **[`.generate([callback])`](#L-code-generate--callback----code-)**
+	* Run all steps with an optional callback.
+* **[`.test`](#L-code-test--code-)**
 	* Automatically setup stimpak for testing.
 	* Creates a temporary directory and sets it as the `.destination`.
-* **[`.report`](#report)**
+* **[`.report`](#L-code-report--code-)**
 	* Get detailed information about what happened during a `.generate` call.
-* **[`.report.diffFixtures(fixturesDirectoryPath)`](#reportdifffixturesfixturesdirectorypath)**
+* **[`.report.diffFixtures(fixturesDirectoryPath)`](#L-code-reportdifffixtures-fixturesdirectorypath---code-)**
 	* Get an object that shows the differences between actual output and fixtures representing expected output.
 	* Very useful for testing generators.
 
@@ -79,7 +79,7 @@ stimpak
 stimpak.answers(); // { firstName: "Bob", lastName: "Builder" }
 ```
 
-[Back to Table of Contents](#methodguide)
+[Back to Table of Contents](#method-guide)
 
 ---
 
@@ -284,7 +284,7 @@ You can let the user set values in `.answers()` by using `.prompt()` to ask ques
 	});
 	```
 
-[Back to Table of Contents](#methodguide)
+[Back to Table of Contents](#method-guide)
 
 ---
 
@@ -319,7 +319,7 @@ function showAnswers(stimpak) {
 }
 ```
 
-[Back to Table of Contents](#methodguide)
+[Back to Table of Contents](#method-guide)
 
 ---
 
@@ -342,7 +342,7 @@ stimpak
 .destination(process.cwd());
 ```
 
-[Back to Table of Contents](#methodguide)
+[Back to Table of Contents](#method-guide)
 
 ---
 
@@ -441,7 +441,7 @@ Stimpak uses `underscore`-style templates to render files using the answers set.
 
 * **You can interpolate an answer value and have it be HTML-escaped by wrapping it in `<%- … %>`**
 
-[Back to Table of Contents](#methodguide)
+[Back to Table of Contents](#method-guide)
 
 ---
 
@@ -486,7 +486,7 @@ function keepOldFile(stimpak, newFile, oldFile, callback) {
 }
 ```
 
-[Back to Table of Contents](#methodguide)
+[Back to Table of Contents](#method-guide)
 
 ---
 
@@ -526,7 +526,7 @@ function handleOutput(stimpak, stdout, stderr) {
 }
 ```
 
-[Back to Table of Contents](#methodguide)
+[Back to Table of Contents](#method-guide)
 
 ---
 
@@ -563,7 +563,7 @@ ______  _____  _____ ___  ___
 |___/   \___/  \___/ \_|  |_/
 ```
 
-[Back to Table of Contents](#methodguide)
+[Back to Table of Contents](#method-guide)
 
 ---
 
@@ -607,7 +607,7 @@ ____    __    ____      ___      .______           _______.
     \__/  \__/     /__/     \__\ | _| `._____||_______/
 ```
 
-[Back to Table of Contents](#methodguide)
+[Back to Table of Contents](#method-guide)
 
 ---
 
@@ -633,7 +633,7 @@ stimpak
 +--------+
 ```
 
-[Back to Table of Contents](#methodguide)
+[Back to Table of Contents](#method-guide)
 
 ---
 
@@ -657,7 +657,7 @@ stimpak
 Hello!
 ```
 
-[Back to Table of Contents](#methodguide)
+[Back to Table of Contents](#method-guide)
 
 ---
 
@@ -682,7 +682,7 @@ stimpak
 Hello!
 ```
 
-[Back to Table of Contents](#methodguide)
+[Back to Table of Contents](#method-guide)
 
 ---
 
@@ -708,7 +708,7 @@ stimpak
 });
 ```
 
-[Back to Table of Contents](#methodguide)
+[Back to Table of Contents](#method-guide)
 
 ---
 
@@ -727,7 +727,7 @@ stimpak
 });
 ```
 
-[Back to Table of Contents](#methodguide)
+[Back to Table of Contents](#method-guide)
 
 ---
 
@@ -771,7 +771,7 @@ stimpak
 });
 ```
 
-[Back to Table of Contents](#methodguide)
+[Back to Table of Contents](#method-guide)
 
 ---
 
@@ -818,6 +818,6 @@ stimpak
 });
 ```
 
-[Back to Table of Contents](#methodguide)
+[Back to Table of Contents](#method-guide)
 
 ---

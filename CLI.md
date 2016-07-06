@@ -1,6 +1,6 @@
 [![](./images/stimpak-logo.png?raw=true)](./README.md)
 
-# The Stimpak Command-Line Interface
+# Stimpak Command-Line Interface
 
 Stimpak works by installing a global command-line binary called `stimpak` when you install it via `npm`:
 

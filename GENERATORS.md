@@ -2,16 +2,16 @@
 
 # Stimpak Generator Development
 
-* [Generate a Generator?](#generateagenerator)
-* [Stimpak Generator From Scratch](#stimpakgeneratorfromscratch)
-	* [The Generator Constructor File](#thegeneratorconstructorfile)
-	* [Add `.babelrc` For Automatic Transpiling](#addbabelrcforautomatictranspiling)
-* [Customize Your Generator](#customizeyourgenerator)
-	* [Set Answers With `.answers([object])`](#setanswerswithanswersobject)
-	* [Get Answers With `.prompt(...prompts)`](#getanswerswithpromptprompts)
-		* [Types of Prompts](#typesofprompts)
-	* [Combine Generators With `.use(...GeneratorConstructors)`](#combinegeneratorswithusegeneratorconstructors)
-	* [Render Templates Into Files With `.render(globString, templateDirectory)`](#rendertemplatesintofileswithrenderglobstringtemplatedirectory)
+* [Generate a Generator?](#generate-a-generator-)
+* [Stimpak Generator From Scratch](#stimpak-generator-from-scratch)
+	* [The Generator Constructor File](#the-generator-constructor-file)
+	* [Add `.babelrc` For Automatic Transpiling](#add--code-babelrc--code--for-automatic-transpiling)
+* [Customize Your Generator](#customize-your-generator)
+	* [Set Answers With `.answers([object])`](#set-answers-with--code-answers--object----code-)
+	* [Get Answers With `.prompt(...prompts)`](#get-answers-with--code-prompt-prompts---code-)
+		* [Types of Prompts](#types-of-prompts)
+	* [Combine Generators With `.use(...GeneratorConstructors)`](#combine-generators-with--code-use-generatorconstructors---code-)
+	* [Render Templates Into Files With `.render(globString, templateDirectory)`](#render-templates-into-files-with--code-render-globstring--templatedirectory---code-)
 
 
 
@@ -418,4 +418,4 @@ It's a new module!
 
 ---
 
-[Back to Table of Contents](#stimpakgeneratordevelopment)
+[Back to Table of Contents](#stimpak-generator-development)
