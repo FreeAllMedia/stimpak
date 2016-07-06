@@ -6,11 +6,16 @@ export default function prompt(...prompts) {
 	this.debug("prompt", prompts);
 
 	const _ = privateData(this);
-
 	const action = _.action;
 
+	const needsLineBreak = Boolean(_.needsLineBreak);
+
 	if (prompts.length > 0) {
-		action.step((generator, stepDone) => {
+		action.step((stimpak, stepDone) => {
+			if (needsLineBreak) {
+				this.write("\n");
+			}
+
 			let unansweredPrompts = prompts;
 
 			const answers = this.answers();
@@ -22,12 +27,45 @@ export default function prompt(...prompts) {
 			}
 
 			Async.mapSeries(unansweredPrompts, (unansweredPrompt, done) => {
-				inquirer
+				let askQuestion = true;
+
+				if (unansweredPrompt.when) {
+					askQuestion = unansweredPrompt.when(this);
+					delete unansweredPrompt.when;
+				}
+
+				if (typeof unansweredPrompt.message === "function") {
+					unansweredPrompt.message = unansweredPrompt.message(this);
+				}
+
+				if (typeof unansweredPrompt.default === "function") {
+					unansweredPrompt.default = unansweredPrompt.default(this);
+				}
+
+				if (typeof unansweredPrompt.choices === "function") {
+					unansweredPrompt.choices = unansweredPrompt.choices(this);
+				}
+
+				if (askQuestion) {
+					inquirer
 					.prompt(unansweredPrompt)
 					.then(questionAnswers => {
+						let transforms = this.transforms();
+						for (let question in questionAnswers) {
+							let answer = questionAnswers[question];
+
+							transforms.forEach(transform => {
+								answer = transform(answer);
+							});
+
+							questionAnswers[question] = answer;
+						}
 						this.answers(questionAnswers);
 						done();
 					});
+				} else {
+					done();
+				}
 			}, stepDone);
 		});
 	}

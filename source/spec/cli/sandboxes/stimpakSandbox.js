@@ -14,6 +14,7 @@ const setParameters = Symbol(),
 
 export default class StimpakSandbox extends ChainLink {
 	initialize() {
+		// TODO: Turn temporary file tracking in stimpak sandbox back on
 		//temp.track();
 
 		this[setParameters]();

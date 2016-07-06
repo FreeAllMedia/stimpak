@@ -58,7 +58,7 @@ describe("stimpak.merge() (on .generate)", () => {
 		stimpak = new Stimpak();
 		stimpak
 			.answers(answers)
-			.source("**/*")
+			.render("**/*")
 				.directory(templateDirectoryPath)
 			.destination(temporaryDirectoryPath)
 			.merge(
@@ -134,7 +134,7 @@ describe("stimpak.merge() (on .generate)", () => {
 
 		stimpak
 			.answers(answers)
-			.source("**/*")
+			.render("**/*")
 				.directory(templateDirectoryPath)
 			.destination(temporaryDirectoryPath)
 			.generate(() => {
@@ -160,10 +160,10 @@ describe("stimpak.merge() (on .generate)", () => {
 
 		stimpak
 			.answers(answers)
-			.source("**/*")
+			.render("**/*")
 				.directory(templateDirectoryPath)
 			.destination(temporaryDirectoryPath)
-			.merge(existingFilePath, (generator, newFile, oldFile, mergeCallback) => {
+			.merge(existingFileName, (generator, newFile, oldFile, mergeCallback) => {
 				mergeCallback(new Error(expectedErrorMessage));
 			})
 			.generate(error => {
@@ -181,7 +181,7 @@ describe("stimpak.merge() (on .generate)", () => {
 
 		stimpak
 			.answers(answers)
-			.source("**/*")
+			.render("**/*")
 				.directory(templateDirectoryPath)
 			.destination(temporaryDirectoryPath)
 			.merge(existingFilePath, mergeFunction)

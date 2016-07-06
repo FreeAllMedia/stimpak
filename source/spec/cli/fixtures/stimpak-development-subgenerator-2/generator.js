@@ -6,7 +6,7 @@ export default class SubGenerator {
 				name: "promptName",
 				message: "You should not see this"
 			})
-			.source("**/*")
+			.render("**/*")
 				.directory(`${__dirname}/templates`);
 	}
 }

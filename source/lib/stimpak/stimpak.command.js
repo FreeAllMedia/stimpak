@@ -7,8 +7,25 @@ export default function command(commandString, afterCommand) {
 	_.action
 		.step((stimpak, done) => {
 			exec(commandString, (error, stdout, stderr) => {
+				_.report.events.push({
+					type: "command",
+					command: commandString,
+					stdout: stdout,
+					stderr: stderr
+				});
 				if (afterCommand) {
-					afterCommand(this, stdout, stderr, done);
+					switch (afterCommand.length) {
+						case 4:
+							afterCommand(this, stdout, stderr, done);
+							break;
+						default:
+							try {
+								afterCommand(this, stdout, stderr);
+								done();
+							} catch (exception) {
+								done(exception);
+							}
+					}
 				} else {
 					done();
 				}

@@ -32,9 +32,9 @@ var _flowsync2 = _interopRequireDefault(_flowsync);
 
 var _child_process = require("child_process");
 
-var _colors = require("colors");
+var _safe = require("colors/safe");
 
-var _colors2 = _interopRequireDefault(_colors);
+var _safe2 = _interopRequireDefault(_safe);
 
 var _util = require("util");
 
@@ -176,6 +176,8 @@ function runGenerators(callback) {
 		loadGenerators(parsedArguments.generatorNames, done);
 	}, function (done) {
 		generateFiles(done);
+	}, function (done) {
+		showReport(done);
 	}], callback);
 }
 
@@ -347,8 +349,6 @@ function generatorPackageName(generatorName) {
 function linkIfNotExisting(fromPath, toPath, callback) {
 	//debug(".linkIfNotExisting", fromPath, toPath);
 
-	temporaryDependencyPaths.push(toPath);
-
 	_flowsync2.default.waterfall([function (done) {
 		_fsExtra2.default.lstat(toPath, function (error, stats) {
 			if (error) {
@@ -362,7 +362,10 @@ function linkIfNotExisting(fromPath, toPath, callback) {
 			done();
 		} else {
 			//debugCallback("dependency linked", toPath);
-			symlink(fromPath, toPath, done);
+			symlink(fromPath, toPath, function () {
+				temporaryDependencyPaths.push(toPath);
+				done();
+			});
 		}
 	}], function (error) {
 		//debugCallback("link if not existing done");
@@ -568,6 +571,38 @@ function showDone(callback) {
 	});
 }
 
+function showReport(callback) {
+	process.stdout.write("\n");
+
+	if (stimpak.report.events.length > 0) {
+		process.stdout.write("Tasks Performed:\n\n");
+	}
+
+	stimpak.report.events.forEach(function (event) {
+		var color = _safe2.default.green;
+		var tag = "write";
+		var message = void 0;
+
+		switch (event.type) {
+			case "command":
+				tag = "shell";
+				message = event.command;
+				break;
+			case "mergeFile":
+				tag = "merge";
+				message = event.path.replace(stimpak.destination(), "");
+				break;
+			case "writeFile":
+			case "writeDirectory":
+				tag = "write";
+				message = event.path.replace(stimpak.destination(), "");
+		}
+
+		process.stdout.write("  [" + color(tag) + "] " + message + "\n");
+	});
+	callback();
+}
+
 /**
  * DEVELOPER FUNCTIONS
  */
@@ -585,7 +620,7 @@ function debug(message) {
 		extra = extra.map(function (extraData) {
 			return _util2.default.inspect(extraData);
 		});
-		console.log("" + _colors2.default.gray(message + "(") + _colors2.default.yellow(extra.join(", ")) + _colors2.default.gray(")"));
+		console.log("" + _safe2.default.gray(message + "(") + _safe2.default.yellow(extra.join(", ")) + _safe2.default.gray(")"));
 	}
 }
 
@@ -598,6 +633,6 @@ function debugCallback(message) {
 			extra[_key2 - 1] = arguments[_key2];
 		}
 
-		console.log("  " + _colors2.default.red(message) + ": ", _colors2.default.red(extra.join(", ")) + _colors2.default.gray(" [" + secondsElapsed + "]"));
+		console.log("  " + _safe2.default.red(message) + ": ", _safe2.default.red(extra.join(", ")) + _safe2.default.gray(" [" + secondsElapsed + "]"));
 	}
 }

@@ -4,9 +4,15 @@ const initializeInterface = Symbol(),
 			initializeDefaults = Symbol();
 
 export default class Source extends ChainLink {
-	initialize(globString, directory) {
+	initialize(stimpak, globString, directory) {
+		this.stimpak = stimpak;
+
 		this[initializeInterface]();
 		this[initializeDefaults](globString, directory);
+
+		stimpak.then((self, done) => {
+			return require("./source.render.js").default.call(this, done);
+		});
 	}
 
 	[initializeInterface]() {

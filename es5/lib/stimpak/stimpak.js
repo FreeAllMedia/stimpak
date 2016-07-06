@@ -37,7 +37,8 @@ exports.Source = _source2.default;
 var externalFunction = Symbol(),
     initializePrivateData = Symbol(),
     initializeInterface = Symbol(),
-    parseOptions = Symbol();
+    parseOptions = Symbol(),
+    addLineBreak = Symbol();
 
 var Stimpak = function (_ChainLink) {
 	_inherits(Stimpak, _ChainLink);
@@ -61,22 +62,30 @@ var Stimpak = function (_ChainLink) {
 			var _ = (0, _incognito2.default)(this);
 			_.action = new _staircase2.default(this);
 			_.action.context(this);
+			_.report = {
+				events: [],
+				files: {},
+				diffFixtures: require("./stimpak.report.diffFixtures.js").default.bind(this)
+			};
 		}
 	}, {
 		key: initializeInterface,
 		value: function value() {
 			this.steps = (0, _incognito2.default)(this).action.steps;
 			this.generators = [];
-
-			this.link("source", _source2.default).into("sources");
+			this.sources = [];
 
 			this.parameters("destination", "debugStream", "logStream");
 
 			this.parameters("skip").aggregate;
 
+			this.parameters("transforms").aggregate;
+
 			this.parameters("answers").mergeKeyValues;
 
 			this.parameters("merge").multiValue.aggregate;
+
+			this.link("render", _source2.default).into("sources").usingArguments(this);
 		}
 	}, {
 		key: parseOptions,
@@ -96,7 +105,46 @@ var Stimpak = function (_ChainLink) {
 			}
 
 			this.debug("externalFunction: " + functionFilePath, options);
-			return (_require$default = require(functionFilePath).default).call.apply(_require$default, [this].concat(options));
+
+			this[addLineBreak](functionFilePath);
+
+			var returnValue = (_require$default = require(functionFilePath).default).call.apply(_require$default, [this].concat(options));
+
+			return returnValue;
+		}
+	}, {
+		key: addLineBreak,
+		value: function value(functionFilePath) {
+			var _ = (0, _incognito2.default)(this);
+
+			var notDefined = void 0;
+
+			_.needsLineBreak = false;
+
+			switch (functionFilePath) {
+				case "./stimpak.prompt.js":
+					switch (_.lastWritingStepType) {
+						case "./stimpak.note.js":
+						case "./stimpak.info.js":
+						case "./stimpak.title.js":
+						case "./stimpak.subtitle.js":
+						case notDefined:
+							_.needsLineBreak = true;
+					}
+					_.lastWritingStepType = functionFilePath;
+					break;
+				case "./stimpak.note.js":
+				case "./stimpak.info.js":
+				case "./stimpak.title.js":
+				case "./stimpak.subtitle.js":
+					_.lastWritingStepType = functionFilePath;
+			}
+
+			// console.log({
+			// 	functionFilePath: functionFilePath,
+			// 	lastStepType: _.lastWritingStepType,
+			// 	needsLineBreak: _.needsLineBreak
+			// });
 		}
 	}, {
 		key: "use",
@@ -115,6 +163,11 @@ var Stimpak = function (_ChainLink) {
 			}
 
 			return this[externalFunction].apply(this, ["./stimpak.then.js"].concat(stepFunctions));
+		}
+	}, {
+		key: "transform",
+		value: function transform(callback) {
+			return this[externalFunction]("./stimpak.transform.js", callback);
 		}
 	}, {
 		key: "context",
@@ -151,9 +204,14 @@ var Stimpak = function (_ChainLink) {
 			return this[externalFunction]("./stimpak.info.js", message, payload);
 		}
 	}, {
-		key: "logo",
-		value: function logo(message) {
-			return this[externalFunction]("./stimpak.logo.js", message);
+		key: "title",
+		value: function title(message, font) {
+			return this[externalFunction]("./stimpak.title.js", message, font);
+		}
+	}, {
+		key: "subtitle",
+		value: function subtitle(message, font) {
+			return this[externalFunction]("./stimpak.subtitle.js", message, font);
 		}
 	}, {
 		key: "log",
@@ -164,6 +222,21 @@ var Stimpak = function (_ChainLink) {
 		key: "debug",
 		value: function debug(message, payload) {
 			return require("./stimpak.debug.js").default.call(this, message, payload);
+		}
+	}, {
+		key: "write",
+		value: function write(message) {
+			process.stdout.write(message);
+		}
+	}, {
+		key: "report",
+		get: function get() {
+			return (0, _incognito2.default)(this).report;
+		}
+	}, {
+		key: "test",
+		get: function get() {
+			return this[externalFunction]("./stimpak.test.js");
 		}
 	}]);
 

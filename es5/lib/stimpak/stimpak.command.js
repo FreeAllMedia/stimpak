@@ -20,8 +20,25 @@ function command(commandString, afterCommand) {
 	var _ = (0, _incognito2.default)(this);
 	_.action.step(function (stimpak, done) {
 		(0, _child_process.exec)(commandString, function (error, stdout, stderr) {
+			_.report.events.push({
+				type: "command",
+				command: commandString,
+				stdout: stdout,
+				stderr: stderr
+			});
 			if (afterCommand) {
-				afterCommand(_this, stdout, stderr, done);
+				switch (afterCommand.length) {
+					case 4:
+						afterCommand(_this, stdout, stderr, done);
+						break;
+					default:
+						try {
+							afterCommand(_this, stdout, stderr);
+							done();
+						} catch (exception) {
+							done(exception);
+						}
+				}
 			} else {
 				done();
 			}

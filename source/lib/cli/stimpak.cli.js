@@ -23,7 +23,7 @@ import path from "path";
 import rimraf from "rimraf";
 import Async from "flowsync";
 import { exec } from "child_process";
-import colors from "colors";
+import colors from "colors/safe";
 import util from "util";
 
 /**
@@ -138,7 +138,8 @@ function runGenerators(callback) {
 
 	Async.series([
 		done => { loadGenerators(parsedArguments.generatorNames, done); },
-		done => { generateFiles(done); }
+		done => { generateFiles(done); },
+		done => { showReport(done); }
 	], callback);
 }
 
@@ -320,8 +321,6 @@ function generatorPackageName(generatorName) {
 function linkIfNotExisting(fromPath, toPath, callback) {
 	//debug(".linkIfNotExisting", fromPath, toPath);
 
-	temporaryDependencyPaths.push(toPath);
-
 	Async.waterfall([
 		done => {
 			fileSystem.lstat(toPath, (error, stats) => {
@@ -337,7 +336,10 @@ function linkIfNotExisting(fromPath, toPath, callback) {
 				done();
 			} else {
 				//debugCallback("dependency linked", toPath);
-				symlink(fromPath, toPath, done);
+				symlink(fromPath, toPath, () => {
+					temporaryDependencyPaths.push(toPath);
+					done();
+				});
 			}
 		}
 	], error => {
@@ -365,10 +367,12 @@ function resolveGeneratorPaths(generator, callback) {
 	debug(".resolveGeneratorPaths", generator);
 
 	Async.waterfall([
-		done => { resolveGeneratorPath(generator, (error, generatorPath) => {
-			debugCallback("resolve generator path", generatorPath);
-			done(error, generatorPath);
-		}); },
+		done => {
+			resolveGeneratorPath(generator, (error, generatorPath) => {
+				debugCallback("resolve generator path", generatorPath);
+				done(error, generatorPath);
+			});
+		},
 		(generatorPath, done) => {
 			debugCallback("path resolved", generatorPath);
 			fileSystem.realpath(generatorPath, (error, realPath) => {
@@ -548,6 +552,38 @@ function showDone(callback) {
 		process.stdout.write(`\n${fileContents}`);
 		callback(error);
 	});
+}
+
+function showReport(callback) {
+	process.stdout.write("\n");
+
+	if (stimpak.report.events.length > 0) {
+		process.stdout.write("Tasks Performed:\n\n");
+	}
+
+	stimpak.report.events.forEach(event => {
+		let color = colors.green;
+		let tag = "write";
+		let message;
+
+		switch (event.type) {
+			case "command":
+				tag = "shell";
+				message = event.command;
+				break;
+			case "mergeFile":
+				tag = "merge";
+				message = event.path.replace(stimpak.destination(), "");
+				break;
+			case "writeFile":
+			case "writeDirectory":
+				tag = "write";
+				message = event.path.replace(stimpak.destination(), "");
+		}
+
+		process.stdout.write(`  [${color(tag)}] ${message}\n`);
+	});
+	callback();
 }
 
 /**

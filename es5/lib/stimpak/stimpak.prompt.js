@@ -29,11 +29,16 @@ function prompt() {
 	this.debug("prompt", prompts);
 
 	var _ = (0, _incognito2.default)(this);
-
 	var action = _.action;
 
+	var needsLineBreak = Boolean(_.needsLineBreak);
+
 	if (prompts.length > 0) {
-		action.step(function (generator, stepDone) {
+		action.step(function (stimpak, stepDone) {
+			if (needsLineBreak) {
+				_this.write("\n");
+			}
+
 			var unansweredPrompts = prompts;
 
 			var answers = _this.answers();
@@ -49,10 +54,48 @@ function prompt() {
 			}
 
 			_flowsync2.default.mapSeries(unansweredPrompts, function (unansweredPrompt, done) {
-				_inquirer2.default.prompt(unansweredPrompt).then(function (questionAnswers) {
-					_this.answers(questionAnswers);
+				var askQuestion = true;
+
+				if (unansweredPrompt.when) {
+					askQuestion = unansweredPrompt.when(_this);
+					delete unansweredPrompt.when;
+				}
+
+				if (typeof unansweredPrompt.message === "function") {
+					unansweredPrompt.message = unansweredPrompt.message(_this);
+				}
+
+				if (typeof unansweredPrompt.default === "function") {
+					unansweredPrompt.default = unansweredPrompt.default(_this);
+				}
+
+				if (typeof unansweredPrompt.choices === "function") {
+					unansweredPrompt.choices = unansweredPrompt.choices(_this);
+				}
+
+				if (askQuestion) {
+					_inquirer2.default.prompt(unansweredPrompt).then(function (questionAnswers) {
+						var transforms = _this.transforms();
+
+						var _loop2 = function _loop2(question) {
+							var answer = questionAnswers[question];
+
+							transforms.forEach(function (transform) {
+								answer = transform(answer);
+							});
+
+							questionAnswers[question] = answer;
+						};
+
+						for (var question in questionAnswers) {
+							_loop2(question);
+						}
+						_this.answers(questionAnswers);
+						done();
+					});
+				} else {
 					done();
-				});
+				}
 			}, stepDone);
 		});
 	}

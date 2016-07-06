@@ -1,37 +1,43 @@
 import privateData from "incognito";
 
-// TODO: Optimize .then
+// TODO: Optimize .then into multiple functions
 export default function then(...stepFunctions) {
 	this.debug("then", stepFunctions);
-	const action = privateData(this).action;
+	const _ = privateData(this);
+
+	const action = _.action;
 
 	const originalContext = this.context();
 
-	stepFunctions = stepFunctions.map(stepFunction => {
+	const stepFunctionTasks = stepFunctions.map(stepFunction => {
 		return (stim, done) => {
-			const newContext = this.context();
+			const currentContext = this.context();
 			this.context(originalContext);
 
 			const isAsynchronous = stepFunction.length === 2;
 
 			if (isAsynchronous) {
 				stepFunction.call(this.context(), stim, error => {
-					this.context(newContext);
-					done(error);
+					this.context(currentContext);
+					finished(error);
 				});
 			} else {
 				try {
 					stepFunction.call(this.context(), stim);
-					this.context(newContext);
-					done();
+					this.context(currentContext);
+					finished();
 				} catch (error) {
-					done(error);
+					finished(error);
 				}
+			}
+
+			function finished(error) {
+				done(error);
 			}
 		};
 	});
 
-	action.series(...stepFunctions);
+	action.series(...stepFunctionTasks);
 
 	return this;
 }

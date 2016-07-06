@@ -46,8 +46,7 @@ describe("stimpak.generate() (template rendering)", () => {
 
 		stimpak
 			.answers(answers)
-			.source(sourceGlob)
-				.directory(templateDirectoryPath)
+			.render(sourceGlob, templateDirectoryPath)
 			.destination(temporaryDirectoryPath);
 	});
 
@@ -75,34 +74,8 @@ describe("stimpak.generate() (template rendering)", () => {
 			actualRenderedTemplate.should.eql(expectedRenderedTemplate);
 		});
 
-		it("should return an error if destination is not set", done => {
-			stimpak = new Stimpak();
-			stimpak
-				.generate(error => {
-					error.message.should.eql("You must set .destination() before you can .generate()");
-					done();
-				});
-		});
-
 		it("should generate .dotfiles", () => {
 			actualGeneratedFilePaths.should.contain(`.${answers.dynamicFileName}`);
-		});
-	});
-
-	describe("(before generating)", () => {
-		it("should not render files until after all steps have been completed", done => {
-			stimpak
-				.then((generator, done2) => {
-					generator.then((generator2, done3) => {
-						actualGeneratedFilePaths = glob.sync("**/*", { cwd: temporaryDirectoryPath, dot: true });
-						actualGeneratedFilePaths.should.eql(existingFileNames);
-						done3();
-					});
-					done2();
-				})
-				.generate(error => {
-					done(error);
-				});
 		});
 	});
 });
