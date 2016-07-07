@@ -38,7 +38,8 @@ var externalFunction = Symbol(),
     initializePrivateData = Symbol(),
     initializeInterface = Symbol(),
     parseOptions = Symbol(),
-    addLineBreak = Symbol();
+    addLineBreak = Symbol(),
+    transformCasts = Symbol();
 
 var Stimpak = function (_ChainLink) {
 	_inherits(Stimpak, _ChainLink);
@@ -71,6 +72,8 @@ var Stimpak = function (_ChainLink) {
 	}, {
 		key: initializeInterface,
 		value: function value() {
+			var _this2 = this;
+
 			this.steps = (0, _incognito2.default)(this).action.steps;
 			this.generators = [];
 			this.sources = [];
@@ -81,7 +84,19 @@ var Stimpak = function (_ChainLink) {
 
 			this.parameters("transforms").aggregate;
 
-			this.parameters("answers").mergeKeyValues;
+			this.parameters("answers").mergeKeyValues.filter(function (answer) {
+				var transformedAnswerValue = answer;
+				_this2.transforms().forEach(function (transformFunction) {
+					if (transformedAnswerValue.constructor === Array) {
+						transformedAnswerValue = transformedAnswerValue.map(function (value) {
+							return transformFunction(value);
+						});
+					} else {
+						transformedAnswerValue = transformFunction(transformedAnswerValue);
+					}
+				});
+				return transformedAnswerValue;
+			});
 
 			this.parameters("merge").multiValue.aggregate;
 
