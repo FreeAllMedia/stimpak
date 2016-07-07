@@ -10,7 +10,8 @@ const externalFunction = Symbol(),
 			initializePrivateData = Symbol(),
 			initializeInterface = Symbol(),
 			parseOptions = Symbol(),
-			addLineBreak = Symbol();
+			addLineBreak = Symbol(),
+			transformCasts = Symbol();
 
 export default class Stimpak extends ChainLink {
 	initialize(options) {
@@ -49,9 +50,22 @@ export default class Stimpak extends ChainLink {
 			"transforms"
 		).aggregate;
 
-		this.parameters(
-			"answers"
-		).mergeKeyValues;
+		this.parameters("answers")
+			.mergeKeyValues
+			.filter(answer => {
+				let transformedAnswerValue = answer;
+				this.transforms().forEach(transformFunction => {
+					if (transformedAnswerValue.constructor === Array) {
+						transformedAnswerValue = transformedAnswerValue.map(value => {
+							return transformFunction(value);
+						});
+					} else {
+						transformedAnswerValue = transformFunction(transformedAnswerValue);
+					}
+
+				});
+				return transformedAnswerValue;
+			});
 
 		this.parameters(
 			"merge"

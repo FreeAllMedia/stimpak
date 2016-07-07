@@ -1,5 +1,4 @@
-export default function transform(callback) {
-	return this.then(stimpak => {
-		this.transforms(callback);
-	});
+export default function transform(transformFunction) {
+	this.transforms(transformFunction);
+	return this;
 }

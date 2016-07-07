@@ -1,6 +1,6 @@
 {
   "name": "stimpak",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Generate and re-generate code of any language with ease!",
   "main": "./es5/lib/index.js",
   "bin": {
@@ -62,7 +62,7 @@
     "lodash.templatesettings": "^4.0.1",
     "lodash.union": "^4.4.0",
     "minimatch": "^3.0.2",
-    "mrt": "^0.1.7",
+    "mrt": "^0.1.9",
     "node-graceful": "^0.2.2",
     "rimraf": "^2.5.2",
     "staircase": "^0.2.1",

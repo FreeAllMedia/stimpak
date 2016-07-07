@@ -663,19 +663,31 @@ Hello!
 
 ## `.transform(transformingFunction)`
 
-* Transform all answers from one data type to another.
-* Can also be used to easily cast numerical strings into integers.
+* Transform all answers provided by `.prompt` or `.answers`.
+* Can be used to easily cast numerical strings into integers.
 
 **Takes One Arguments:**
 
-1. **`text`**
-	* The text you want shown to the user.
+1. **`transformingFunction(answer)`**
+	* The function you must provide in order to transform the answer value.
+	* Use `return` to send back the transformed value.
 
 **Example:**
 
 ``` javascript
 stimpak
-.info("Hello!");
+.transform(answer => parseInt(answer))
+.answers({
+	something: "1",
+	blah: "2",
+	Bob: "Belcher"
+});
+
+stimpak.answers().should.eql({
+	something: 1,
+	blah: 2,
+	Bob: "Belcher"
+});
 ```
 
 ``` shell
