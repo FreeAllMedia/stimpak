@@ -50,16 +50,6 @@ export default function prompt(...prompts) {
 					inquirer
 					.prompt(unansweredPrompt)
 					.then(questionAnswers => {
-						let transforms = this.transforms();
-						for (let question in questionAnswers) {
-							let answer = questionAnswers[question];
-
-							transforms.forEach(transform => {
-								answer = transform(answer);
-							});
-
-							questionAnswers[question] = answer;
-						}
 						this.answers(questionAnswers);
 						done();
 					});

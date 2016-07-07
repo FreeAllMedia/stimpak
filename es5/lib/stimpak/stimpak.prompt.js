@@ -75,21 +75,6 @@ function prompt() {
 
 				if (askQuestion) {
 					_inquirer2.default.prompt(unansweredPrompt).then(function (questionAnswers) {
-						var transforms = _this.transforms();
-
-						var _loop2 = function _loop2(question) {
-							var answer = questionAnswers[question];
-
-							transforms.forEach(function (transform) {
-								answer = transform(answer);
-							});
-
-							questionAnswers[question] = answer;
-						};
-
-						for (var question in questionAnswers) {
-							_loop2(question);
-						}
 						_this.answers(questionAnswers);
 						done();
 					});

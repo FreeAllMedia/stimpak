@@ -13,7 +13,7 @@ describe("stimpak.generate() (transformed answers)", () => {
 		default: "5"
 	};
 
-	let promptCasted = {
+	let promptTransformed = {
 		type: "input",
 		name: "transformed",
 		message: "Answer 5 please !",
@@ -21,26 +21,29 @@ describe("stimpak.generate() (transformed answers)", () => {
 	};
 
 	beforeEach(() => {
-		stimpak = new Stimpak().destination("some/path");
+		stimpak = new Stimpak().test;
 	});
 
-	it("should transform provided answers", done => {
+	it("should transform answers from `.prompt`", done => {
 		stimpak
-			.prompt(promptUntouched)
-			.transform(callbackA)
-			.transform(callbackB)
-			.prompt(promptCasted)
-			.generate(error => {
-				try {
-					stimpak.answers().should.eql({
-						untouched: "5",
-						transformed: 7
-					});
-					done(error);
-				} catch (exception) {
-					done(exception);
-				}
-			});
+		.prompt(promptUntouched)
+		.then(() => {
+			stimpak
+				.transform(callbackA)
+				.transform(callbackB);
+		})
+		.prompt(promptTransformed)
+		.generate(error => {
+			try {
+				stimpak.answers().should.eql({
+					untouched: "5",
+					transformed: 7
+				});
+				done(error);
+			} catch (exception) {
+				done(exception);
+			}
+		});
 
 		setTimeout(() => {
 			process.stdin.emit("data", `5\n`);
@@ -51,20 +54,27 @@ describe("stimpak.generate() (transformed answers)", () => {
 		}, 200);
 	});
 
-	it("should transform given answers", done => {
-		let answers = {
-			transformed: 5,
-			untouched: "5"
+	it("should transform answers from `.answers`", () => {
+		const answers = {
+			number: "5"
 		};
 
 		stimpak
-			.answers(answers)
-			.transform(callbackA)
-			.generate(error => {
-				stimpak.answers().transformed.should.eql(5);
-				stimpak.answers().untouched.should.eql("5");
+		.transform(callbackA)
+		.answers(answers);
 
-				done(error);
-			});
+		stimpak.answers().number.should.eql(5);
+	});
+
+	it("should transform array values", () => {
+		const answers = {
+			numbers: ["1", "2", "3"]
+		};
+
+		stimpak
+		.transform(callbackA)
+		.answers(answers);
+
+		stimpak.answers().numbers.should.have.members([1, 2, 3]);
 	});
 });
