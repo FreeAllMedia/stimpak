@@ -86,15 +86,22 @@ var Stimpak = function (_ChainLink) {
 
 			this.parameters("answers").mergeKeyValues.filter(function (answer) {
 				var transformedAnswerValue = answer;
+				var transformUnlessFalsy = function transformUnlessFalsy(originalValue, transform) {
+					var transformedValue = transform(originalValue);
+
+					return transformedValue == false || isNaN(transformedValue) ? originalValue : transformedValue;
+				};
+
 				_this2.transforms().forEach(function (transformFunction) {
 					if (transformedAnswerValue.constructor === Array) {
 						transformedAnswerValue = transformedAnswerValue.map(function (value) {
-							return transformFunction(value);
+							return transformUnlessFalsy(value, transformFunction);
 						});
 					} else {
-						transformedAnswerValue = transformFunction(transformedAnswerValue);
+						transformedAnswerValue = transformUnlessFalsy(transformedAnswerValue, transformFunction);
 					}
 				});
+
 				return transformedAnswerValue;
 			});
 
