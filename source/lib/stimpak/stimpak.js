@@ -57,8 +57,9 @@ export default class Stimpak extends ChainLink {
 				function transformUnlessFalsy(originalValue, transform) {
 					let transformedValue = transform(originalValue);
 
+					/* eslint-disable eqeqeq */
 					if (transformedValue == false || isNaN(transformedValue)) {
-						return originalValue;
+						transformedValue = originalValue;
 					}
 
 					return transformedValue;
