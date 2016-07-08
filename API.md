@@ -680,13 +680,11 @@ stimpak
 .answers({
 	something: "1",
 	blah: "2",
-	Bob: "Belcher"
 });
 
 stimpak.answers().should.eql({
 	something: 1,
 	blah: 2,
-	Bob: "Belcher"
 });
 ```
 
