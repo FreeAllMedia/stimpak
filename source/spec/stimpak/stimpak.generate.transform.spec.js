@@ -77,4 +77,17 @@ describe("stimpak.generate() (transformed answers)", () => {
 
 		stimpak.answers().numbers.should.have.members([1, 2, 3]);
 	});
+
+
+		it("should not transform answer if transform function returns falsy", () => {
+			const answers = {
+				string: "text"
+			};
+
+			stimpak
+			.transform(callbackA)
+			.answers(answers);
+
+			stimpak.answers().string.should.eql("text");
+		});
 });
