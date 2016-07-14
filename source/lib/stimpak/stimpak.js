@@ -54,16 +54,27 @@ export default class Stimpak extends ChainLink {
 			.mergeKeyValues
 			.filter(answer => {
 				let transformedAnswerValue = answer;
+				function transformUnlessFalsy(originalValue, transform) {
+					let transformedValue = transform(originalValue);
+
+					/* eslint-disable eqeqeq */
+					if (transformedValue == false || isNaN(transformedValue)) {
+						transformedValue = originalValue;
+					}
+
+					return transformedValue;
+				}
+
 				this.transforms().forEach(transformFunction => {
 					if (transformedAnswerValue.constructor === Array) {
 						transformedAnswerValue = transformedAnswerValue.map(value => {
-							return transformFunction(value);
+							return transformUnlessFalsy(value, transformFunction);
 						});
 					} else {
-						transformedAnswerValue = transformFunction(transformedAnswerValue);
+						transformedAnswerValue = transformUnlessFalsy(transformedAnswerValue, transformFunction);
 					}
-
 				});
+
 				return transformedAnswerValue;
 			});
 
