@@ -69,7 +69,12 @@ function render(done) {
 		try {
 			renderFile.call(_this.stimpak, fileName, _this, fileNameDone);
 		} catch (exception) {
-			fileNameDone(exception);
+			if (exception.constructor.name === "ReferenceError") {
+				var error = new Error("\"" + exception.message.replace(" is not defined", "") + "\" is not defined in \"" + _this.directory() + "/" + fileName + "\"");
+				fileNameDone(error);
+			} else {
+				fileNameDone(exception);
+			}
 		}
 	}, done);
 }

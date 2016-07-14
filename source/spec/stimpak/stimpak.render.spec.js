@@ -3,7 +3,7 @@ import Stimpak, { Source } from "../../lib/stimpak/stimpak.js";
 describe("stimpak.render()", () => {
 	let stimpak,
 			globString,
-			directoryPath;
+			templatesDirectoryPath;
 
 	beforeEach(() => {
 		stimpak = new Stimpak();
@@ -16,7 +16,7 @@ describe("stimpak.render()", () => {
 			});
 
 		globString = "**/*";
-		directoryPath = `${__dirname}/fixtures/simpleTemplates`;
+		templatesDirectoryPath = `${__dirname}/fixtures/simpleTemplates`;
 	});
 
 	it("should return an instance of Source", () => {
@@ -29,15 +29,15 @@ describe("stimpak.render()", () => {
 	});
 
 	it("should be able to set the directory at the same time", () => {
-		const source = stimpak.render(globString, directoryPath);
-		source.directory().should.eql(directoryPath);
+		const source = stimpak.render(globString, templatesDirectoryPath);
+		source.directory().should.eql(templatesDirectoryPath);
 	});
 
 	it("should render sources in order", done => {
 		let actualFilepaths;
 
 		stimpak
-		.render(globString, directoryPath)
+		.render(globString, templatesDirectoryPath)
 		.then(() => {
 			actualFilepaths = Object.keys(stimpak.report.files);
 		})
@@ -55,9 +55,19 @@ describe("stimpak.render()", () => {
 	it("should bubble up thrown errors from the template system", done => {
 		new Stimpak()
 		.test
-		.render(globString, directoryPath)
+		.render(globString, `${__dirname}/fixtures/errorTemplates`)
 		.generate(error => {
 			error.should.be.instanceOf(Error);
+			done();
+		});
+	});
+
+	it("should include the template filepath along with the error thrown from the template system", done => {
+		new Stimpak()
+		.test
+		.render(globString, templatesDirectoryPath)
+		.generate(error => {
+			error.message.should.eql(`"functionName" is not defined in "${templatesDirectoryPath}/##folderName##/##fileName##.js"`);
 			done();
 		});
 	});

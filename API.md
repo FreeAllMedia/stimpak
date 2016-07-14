@@ -690,10 +690,6 @@ stimpak.answers().should.eql({
 });
 ```
 
-``` shell
-Hello!
-```
-
 [Back to Table of Contents](#method-guide)
 
 ---
