@@ -9,10 +9,6 @@ export default function mergeText(stimpak, newFile, oldFile, done) {
 		newContent
 	);
 
-	console.log({
-		differences
-	});
-
 	const mergedContent = differences
 	//.filter(difference => !difference.removed)
 	.map(difference => {
