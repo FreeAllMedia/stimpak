@@ -17,10 +17,6 @@ function mergeText(stimpak, newFile, oldFile, done) {
 
 	var differences = jsdiff.diffLines(oldContent, newContent);
 
-	console.log({
-		differences: differences
-	});
-
 	var mergedContent = differences
 	//.filter(difference => !difference.removed)
 	.map(function (difference) {

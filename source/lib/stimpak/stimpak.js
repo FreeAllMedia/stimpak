@@ -10,8 +10,7 @@ const externalFunction = Symbol(),
 			initializePrivateData = Symbol(),
 			initializeInterface = Symbol(),
 			parseOptions = Symbol(),
-			addLineBreak = Symbol(),
-			transformCasts = Symbol();
+			addLineBreak = Symbol();
 
 export default class Stimpak extends ChainLink {
 	initialize(options) {
@@ -51,7 +50,7 @@ export default class Stimpak extends ChainLink {
 		).aggregate;
 
 		this.parameters("answers")
-			.mergeKeyValues
+			.merge
 			.filter(answer => {
 				let transformedAnswerValue = answer;
 				function transformUnlessFalsy(originalValue, transform) {
@@ -146,6 +145,10 @@ export default class Stimpak extends ChainLink {
 
 	then(...stepFunctions) {
 		return this[externalFunction]("./stimpak.then.js", ...stepFunctions);
+	}
+
+	file(path, content) {
+		return this[externalFunction]("./stimpak.file.js", path, content);
 	}
 
 	transform(callback) {

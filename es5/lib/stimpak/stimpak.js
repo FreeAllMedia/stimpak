@@ -38,8 +38,7 @@ var externalFunction = Symbol(),
     initializePrivateData = Symbol(),
     initializeInterface = Symbol(),
     parseOptions = Symbol(),
-    addLineBreak = Symbol(),
-    transformCasts = Symbol();
+    addLineBreak = Symbol();
 
 var Stimpak = function (_ChainLink) {
 	_inherits(Stimpak, _ChainLink);
@@ -84,7 +83,7 @@ var Stimpak = function (_ChainLink) {
 
 			this.parameters("transforms").aggregate;
 
-			this.parameters("answers").mergeKeyValues.filter(function (answer) {
+			this.parameters("answers").merge.filter(function (answer) {
 				var transformedAnswerValue = answer;
 				function transformUnlessFalsy(originalValue, transform) {
 					var transformedValue = transform(originalValue);
@@ -190,6 +189,11 @@ var Stimpak = function (_ChainLink) {
 			}
 
 			return this[externalFunction].apply(this, ["./stimpak.then.js"].concat(stepFunctions));
+		}
+	}, {
+		key: "file",
+		value: function file(path, content) {
+			return this[externalFunction]("./stimpak.file.js", path, content);
 		}
 	}, {
 		key: "transform",

@@ -22,7 +22,7 @@
 		],
 		"generators": "./source/spec/cli/fixtures/**/*.*",
 		"librarySpec": [
-			"./source/spec/**/*.spec.js",
+			"./source/spec/template/*.spec.js",
 			"!./source/spec/cli/**/*"
 		],
 		"cliSpec": [

@@ -28,9 +28,13 @@ Software development (when doing it right) involves mostly patterns in both our 
 	* Create several small generators that work independently.
 	* Combine generators together on-the-fly via the CLI.
 	* Combine generators into a new generator that can guide the user through multiple tasks at once.
+* **Integrated Templates**
+	* Choose your own template engine, or use EJS by default.
+	* Answers to prompts are automatically used as values in templates.
 * **Smart File Merging**
-	* Easily tell stimpak what to do if a file you're trying to generate already exists.
-	* Merge strategies use `vinyl` file objects for ultimate flexibility when merging.
+	* Easily designate files that should be merged instead of overwritten.
+	* Use built-in or custom merging strategies for a variety of file formats.
+	* Merge strategies using [`vinyl`](https://github.com/gulpjs/vinyl) objects for ultimate flexibility when merging.
 * **Customizable ASCII-Art**
 	* Built-in ASCII-Art generator for BIG popping titles in any of 680 built-in figlet fonts.
 	* Optionally choose *not* to have ASCII-Art whenever you use your generators. It's all up to you!
