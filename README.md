@@ -51,9 +51,9 @@ Software development (when doing it right) involves mostly patterns in both our 
 
 Stimpak can be used as both a command-line interface (CLI), and as a standalone library that can be embedded into your own code. Choose the guide below to help you get started with either integration method, or with writing a new stimpak generator from scratch:
 
-1. [Stimpak Command-Line Interface](./CLI.md)
-2. [Stimpak API](./API.md)
-3. [Stimpak Generator Development](./GENERATORS.md)
+1. [Stimpak Command-Line Interface](./documentation/CLI.md)
+2. [Stimpak API](./documentation/API.md)
+3. [Stimpak Generator Development](./documentation/GENERATORS.md)
 
 ## How to Contribute
 

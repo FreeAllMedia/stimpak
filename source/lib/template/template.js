@@ -5,9 +5,8 @@ import ejs from "ejs";
 const externalFunction = Symbol();
 
 class File extends ChainLink {
-	initialize(path, content, values) {
+	initialize(options = {}) {
 		this.parameters(
-			"path",
 			"content",
 			"vinyl",
 			"engine",
@@ -18,18 +17,17 @@ class File extends ChainLink {
 			"values"
 		).merge;
 
-		this.path(path);
-		this.content(content);
+		this.content(options.content);
 		this.vinyl(new Vinyl());
-		this.values(values);
+		this.values(options.values);
 		this.engine((self, complete) => {
 			const rendered = ejs.render(this.content(), this.values());
 			complete(null, rendered);
 		});
 	}
 
-	render(callback) {
-		return this[externalFunction](`${__dirname}/template.render.js`, callback);
+	render(path, callback) {
+		return this[externalFunction](`${__dirname}/template.render.js`, path, callback);
 	}
 
 	log(message, payload) {

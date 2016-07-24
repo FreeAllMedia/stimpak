@@ -2,18 +2,16 @@ import Template from "../../lib/template/template.js";
 
 describe("template.values()", () => {
 	let template,
-			path,
 			content,
 			values;
 
 	beforeEach(() => {
-		path = "some/path";
 		content = "Hello, World!";
 		values = {
 			"one": 1,
 			2: "two"
 		};
-		template = new Template(path, content, values);
+		template = new Template({ content, values });
 	});
 
 	it("should aggregate new values", () => {

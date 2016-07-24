@@ -2,19 +2,17 @@ import Template from "../../lib/template/template.js";
 
 describe("template.content()", () => {
 	let template,
-			path,
 			content;
 
 	beforeEach(() => {
-		path = "some/path";
 		content = "Hello, World!";
-		template = new Template(path, content);
+		template = new Template({ content });
 	});
 
 	it("should be settable", () => {
 		const newContent = "Hello, Universe!";
-		template.path(newContent);
-		template.path().should.eql(newContent);
+		template.content(newContent);
+		template.content().should.eql(newContent);
 	});
 
 	it("should be settable by the constructor", () => {

@@ -11,15 +11,29 @@ var _fs2 = _interopRequireDefault(_fs);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function render(callback) {
-	var _this = this;
+function render(path) {
+	var callback = arguments.length <= 1 || arguments[1] === undefined ? function () {} : arguments[1];
 
 	var templateEngine = this.engine();
 
-	templateEngine(this, function (error, renderedTemplate) {
-		_fs2.default.writeFileSync(_this.path(), renderedTemplate);
-		callback(error);
-	});
+	switch (templateEngine.length) {
+		case 0:
+		case 1:
+			{
+				var renderedTemplate = templateEngine(this);
+
+				_fs2.default.writeFileSync(path, renderedTemplate);
+
+				callback();
+				break;
+			}
+		case 2:
+			templateEngine(this, function (error, renderedTemplate) {
+				_fs2.default.writeFileSync(path, renderedTemplate);
+				callback(error);
+			});
+			break;
+	}
 
 	return this;
 }

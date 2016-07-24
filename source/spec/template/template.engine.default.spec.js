@@ -16,11 +16,12 @@ describe("template.engine() (default)", () => {
 		path = `${temporaryDirectory}/template.txt`;
 		content = "Hello, <%= foo %>!";
 
-		new Template(path, content)
+		new Template()
+		.content(content)
 		.values({
 			"foo": "World"
 		})
-		.render(error => {
+		.render(path, error => {
 			renderedContent = templateSystem.readFileSync(path, { encoding: "utf8" });
 			done(error);
 		});

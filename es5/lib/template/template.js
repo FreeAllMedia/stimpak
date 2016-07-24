@@ -39,17 +39,18 @@ var File = function (_ChainLink) {
 
 	_createClass(File, [{
 		key: "initialize",
-		value: function initialize(path, content, values) {
+		value: function initialize() {
 			var _this2 = this;
 
-			this.parameters("path", "content", "vinyl", "engine", "debug");
+			var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+			this.parameters("content", "vinyl", "engine", "debug");
 
 			this.parameters("values").merge;
 
-			this.path(path);
-			this.content(content);
+			this.content(options.content);
 			this.vinyl(new _vinyl2.default());
-			this.values(values);
+			this.values(options.values);
 			this.engine(function (self, complete) {
 				var rendered = _ejs2.default.render(_this2.content(), _this2.values());
 				complete(null, rendered);
@@ -57,8 +58,8 @@ var File = function (_ChainLink) {
 		}
 	}, {
 		key: "render",
-		value: function render(callback) {
-			return this[externalFunction](__dirname + "/template.render.js", callback);
+		value: function render(path, callback) {
+			return this[externalFunction](__dirname + "/template.render.js", path, callback);
 		}
 	}, {
 		key: "log",

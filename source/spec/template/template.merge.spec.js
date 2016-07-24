@@ -4,7 +4,7 @@ import templateSystem from "fs";
 
 temp.track();
 
-describe("template.render()", () => {
+xdescribe("template.merge()", () => {
 	let template,
 			path,
 			content,
@@ -15,9 +15,12 @@ describe("template.render()", () => {
 		temporaryDirectory = temp.mkdirSync("Template.render");
 		path = `${temporaryDirectory}/template.txt`;
 		content = "Hello, World!";
-		template = new Template()
-		.content(content)
-		.render(path, error => {
+		template = new Template(path, content);
+		mergeStrategy = (oldFile, newFile, mergeComplete) => {
+			oldFile.contents += newFile.contents;
+			mergeComplete(null, oldFile);
+		};
+		template.render(error => {
 			renderedContent = templateSystem.readFileSync(path, { encoding: "utf8" });
 			done(error);
 		});
@@ -28,18 +31,6 @@ describe("template.render()", () => {
 	});
 
 	it("should return `this` to allow chaining", () => {
-		template.render(path, () => {}).should.eql(template);
-	});
-
-	it("should not throw an error when called without a callback", () => {
-		(() => {
-			template.render(path);
-		}).should.not.throw();
-	});
-
-	it("should not catch thrown errors", () => {
-		(() => {
-			template.render(path);
-		}).should.not.throw();
+		template.render(() => {}).should.eql(template);
 	});
 });

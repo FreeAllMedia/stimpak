@@ -5,10 +5,11 @@ import Handlebars from "handlebars";
 
 temp.track();
 
-describe("template.engine()", () => {
+describe("template.engine() (sync)", () => {
 	let template,
 			path,
 			content,
+			values,
 			engine,
 			renderedContent,
 			temporaryDirectory;
@@ -17,30 +18,44 @@ describe("template.engine()", () => {
 		temporaryDirectory = temp.mkdirSync("Template.engine");
 
 		path = `${temporaryDirectory}/template.txt`;
-		content = "Hello, {{foo}}!";
-
-		engine = (self, complete) => {
-			const handleBarsTemplate = Handlebars.compile(self.content());
-			const renderedTemplate = handleBarsTemplate(self.values());
-			complete(null, renderedTemplate);
+		content = "Hello, {{name}}!";
+		values = {
+			"name": "World"
 		};
 
-		template = new Template(path, content)
-		.values({
-			"foo": "World"
-		})
+		engine = self => {
+			const handleBarsTemplate = Handlebars.compile(self.content());
+			const renderedTemplate = handleBarsTemplate(self.values());
+			return renderedTemplate;
+		};
+
+		template = new Template()
+		.content(content)
+		.values(values)
 		.engine(engine)
-		.render(error => {
+		.render(path, error => {
 			renderedContent = templateSystem.readFileSync(path, { encoding: "utf8" });
 			done(error);
 		});
 	});
 
-	it("should render the template contents using the designated engine", () => {
+	it("should render the template contents using the designated synchronous engine", () => {
 		renderedContent.should.eql("Hello, World!");
 	});
 
 	it("should return `this` to allow chaining", () => {
 		template.engine(engine).should.eql(template);
+	});
+
+	it("should not catch thrown errors", () => {
+		(() => {
+			template = new Template()
+			.content(content)
+			.values(values)
+			.engine(() => {
+				throw new Error();
+			})
+			.render(path);
+		}).should.throw();
 	});
 });
