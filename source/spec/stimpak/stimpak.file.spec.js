@@ -1,6 +1,6 @@
 import Stimpak from "../../lib/stimpak/stimpak.js";
 
-describe("stimpak.file(path, content)", () => {
+xdescribe("stimpak.file(path, content)", () => {
 	let stimpak,
 			path,
 			content,
