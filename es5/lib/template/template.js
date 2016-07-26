@@ -10,10 +10,6 @@ var _mrt = require("mrt");
 
 var _mrt2 = _interopRequireDefault(_mrt);
 
-var _vinyl = require("vinyl");
-
-var _vinyl2 = _interopRequireDefault(_vinyl);
-
 var _ejs = require("ejs");
 
 var _ejs2 = _interopRequireDefault(_ejs);
@@ -25,6 +21,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+// import privateData from "incognito";
 
 var externalFunction = Symbol();
 
@@ -44,12 +42,11 @@ var File = function (_ChainLink) {
 
 			var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
-			this.parameters("content", "vinyl", "engine", "debug");
+			this.parameters("content", "engine", "debug", "merge", "difference");
 
 			this.parameters("values").merge;
 
 			this.content(options.content);
-			this.vinyl(new _vinyl2.default());
 			this.values(options.values);
 			this.engine(function (self, complete) {
 				var rendered = _ejs2.default.render(_this2.content(), _this2.values());

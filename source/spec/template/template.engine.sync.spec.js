@@ -47,15 +47,18 @@ describe("template.engine() (sync)", () => {
 		template.engine(engine).should.eql(template);
 	});
 
-	it("should not catch thrown errors", () => {
-		(() => {
-			template = new Template()
-			.content(content)
-			.values(values)
-			.engine(() => {
-				throw new Error();
-			})
-			.render(path);
-		}).should.throw();
+	it("should catch thrown errors", done => {
+		const expectedError = new Error("Something went wrong!");
+
+		template = new Template()
+		.content(content)
+		.values(values)
+		.engine(() => {
+			throw expectedError;
+		})
+		.render(path, error => {
+			error.should.eql(expectedError);
+			done();
+		});
 	});
 });

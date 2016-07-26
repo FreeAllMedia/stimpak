@@ -1,6 +1,6 @@
 import ChainLink from "mrt";
-import Vinyl from "vinyl";
 import ejs from "ejs";
+// import privateData from "incognito";
 
 const externalFunction = Symbol();
 
@@ -8,9 +8,10 @@ class File extends ChainLink {
 	initialize(options = {}) {
 		this.parameters(
 			"content",
-			"vinyl",
 			"engine",
-			"debug"
+			"debug",
+			"merge",
+			"difference"
 		);
 
 		this.parameters(
@@ -18,7 +19,6 @@ class File extends ChainLink {
 		).merge;
 
 		this.content(options.content);
-		this.vinyl(new Vinyl());
 		this.values(options.values);
 		this.engine((self, complete) => {
 			const rendered = ejs.render(this.content(), this.values());
