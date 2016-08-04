@@ -42,7 +42,7 @@ var File = function (_ChainLink) {
 
 			var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
-			this.parameters("content", "engine", "debug", "merge", "difference");
+			this.parameters("content", "engine", "debug", "merge");
 
 			this.parameters("values").merge;
 

@@ -147,9 +147,9 @@ export default class Stimpak extends ChainLink {
 		return this[externalFunction]("./stimpak.then.js", ...stepFunctions);
 	}
 
-	file(path, content) {
-		return this[externalFunction]("./stimpak.file.js", path, content);
-	}
+	// file(path, content) {
+	// 	return this[externalFunction]("./stimpak.file.js", path, content);
+	// }
 
 	transform(callback) {
 		return this[externalFunction]("./stimpak.transform.js", callback);

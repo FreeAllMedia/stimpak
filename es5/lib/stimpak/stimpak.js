@@ -190,11 +190,11 @@ var Stimpak = function (_ChainLink) {
 
 			return this[externalFunction].apply(this, ["./stimpak.then.js"].concat(stepFunctions));
 		}
-	}, {
-		key: "file",
-		value: function file(path, content) {
-			return this[externalFunction]("./stimpak.file.js", path, content);
-		}
+
+		// file(path, content) {
+		// 	return this[externalFunction]("./stimpak.file.js", path, content);
+		// }
+
 	}, {
 		key: "transform",
 		value: function transform(callback) {

@@ -15,7 +15,7 @@ var _incognito2 = _interopRequireDefault(_incognito);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-_asciiArt2.default.Figlet.fontPath = __dirname + "/../../../figlet-fonts/";
+_asciiArt2.default.Figlet.fontPath = __dirname + "/../../figlet-fonts/";
 
 function title() {
 	var _this = this;

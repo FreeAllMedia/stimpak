@@ -1,5 +1,5 @@
-![](./images/stimpak-logo.png?raw=true)
-![](./images/generate.gif?raw=true)
+![](./source/images/stimpak-logo.png?raw=true)
+![](./source/images/generate.gif?raw=true)
 
 # Stimpak: A Pattern Management System
 
@@ -51,9 +51,9 @@ Software development (when doing it right) involves mostly patterns in both our 
 
 Stimpak can be used as both a command-line interface (CLI), and as a standalone library that can be embedded into your own code. Choose the guide below to help you get started with either integration method, or with writing a new stimpak generator from scratch:
 
-1. [Stimpak Command-Line Interface](./documentation/CLI.md)
-2. [Stimpak API](./documentation/API.md)
-3. [Stimpak Generator Development](./documentation/GENERATORS.md)
+1. [Stimpak Command-Line Interface](./source/documentation/CLI.md)
+2. [Stimpak API](./source/documentation/API.md)
+3. [Stimpak Generator Development](./source/documentation/GENERATORS.md)
 
 ## How to Contribute
 
