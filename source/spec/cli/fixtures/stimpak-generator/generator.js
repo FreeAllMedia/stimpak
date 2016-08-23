@@ -9,13 +9,12 @@ export default class Generator {
 				name: "promptName",
 				message: "You should not see this"
 			})
-			.render("**/*")
-				.directory(`${__dirname}/templates`)
+			.render("**/*", `${__dirname}/templates`)
 			.merge("generated.js", createSecondFile);
 	}
 }
 
 function createSecondFile(stimpak, newFile, oldFile, done) {
-	newFile.stem = "generated2";
+	newFile.path = newFile.path.replace("generated.js", "generated2.js");
 	done(null, newFile);
 }

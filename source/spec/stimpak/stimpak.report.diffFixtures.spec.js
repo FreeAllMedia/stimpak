@@ -30,16 +30,16 @@ describe("stimpak.report.diffFixtures()", () => {
 				paths: {
 					actual: [
 						"letters",
-						"letters/shapes.js",
-						"textures.js"
+						"textures.js",
+						"letters/shapes.js"
 					],
 					expected: [
 						"letters",
-						"letters/shapes.js",
-						"textures.js"
+						"textures.js",
+						"letters/shapes.js"
 					]
 				},
-				content: {}
+				contents: {}
 			});
 		});
 
@@ -63,9 +63,9 @@ describe("stimpak.report.diffFixtures()", () => {
 			.generate(done);
 		});
 
-		it("should return a diff string of mismatched content", () => {
+		it("should return a diff string of mismatched contents", () => {
 			const differences = stimpak.report.diffFixtures(`${__dirname}/fixtures/simpleTemplatesRendered`);
-			differences.content.should.eql({
+			differences.contents.should.eql({
 				["letters/shapes.js"]: {
 					actual: "export default function baz() {}\n",
 					expected: "export default function foo() {}\n"

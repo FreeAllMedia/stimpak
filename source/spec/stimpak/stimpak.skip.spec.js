@@ -1,14 +1,14 @@
 import Stimpak from "../../lib/stimpak/stimpak.js";
 import glob from "glob";
-import temp from "temp";
 
 describe(".skip(globOrGlobs)", () => {
 	let stimpak,
-			temporaryDirectoryPath;
+			destinationPath;
 
 	beforeEach(() => {
-		stimpak = new Stimpak();
-		temporaryDirectoryPath = temp.mkdirSync("stimpak.skip");
+		stimpak = new Stimpak().test;
+
+		destinationPath = stimpak.destination();
 
 		stimpak
 			.answers({
@@ -17,17 +17,32 @@ describe(".skip(globOrGlobs)", () => {
 				dynamicFolderName: "someFolder",
 				primaryFunctionName: "someFunction"
 			})
-			.destination(temporaryDirectoryPath)
-			.render("**/*")
-				.directory(`${__dirname}/fixtures/templates`);
+			.render("**/*", `${__dirname}/fixtures/templates`);
 	});
 
-	it("should skip files that match the provided globs", done => {
+	it("should skip files that match a relative glob path", done => {
 		stimpak
 			.skip("**/!(colors.js)")
 			.generate(error => {
 				const generatedFileNames = glob.sync("**/*", {
-					cwd: temporaryDirectoryPath,
+					cwd: destinationPath,
+					dot: true
+				});
+
+				generatedFileNames.should.eql([
+					"colors.js"
+				]);
+
+				done(error);
+			});
+	});
+
+	it("should skip files that match an absolute glob path", done => {
+		stimpak
+			.skip(`${stimpak.destination()}/**/!(colors.js)`)
+			.generate(error => {
+				const generatedFileNames = glob.sync("**/*", {
+					cwd: destinationPath,
 					dot: true
 				});
 
@@ -49,7 +64,7 @@ describe(".skip(globOrGlobs)", () => {
 			])
 			.generate(error => {
 				const generatedFileNames = glob.sync("**/*", {
-					cwd: temporaryDirectoryPath,
+					cwd: destinationPath,
 					dot: true
 				});
 
@@ -71,7 +86,7 @@ describe(".skip(globOrGlobs)", () => {
 			])
 			.generate(error => {
 				const generatedFileNames = glob.sync("**/*", {
-					cwd: temporaryDirectoryPath,
+					cwd: destinationPath,
 					dot: true
 				});
 

@@ -2,10 +2,6 @@ import privateData from "incognito";
 import Action from "staircase";
 import ChainLink from "mrt";
 
-import Source from "../source/source.js";
-
-export { Source };
-
 const externalFunction = Symbol(),
 			initializePrivateData = Symbol(),
 			initializeInterface = Symbol(),
@@ -80,11 +76,6 @@ export default class Stimpak extends ChainLink {
 		this.parameters(
 			"merge"
 		).multiValue.aggregate;
-
-		this
-			.link("render", Source)
-				.into("sources")
-				.usingArguments(this);
 	}
 
 	[parseOptions](options = {}) {
@@ -189,6 +180,10 @@ export default class Stimpak extends ChainLink {
 
 	log(message, payload) {
 		return this[externalFunction]("./stimpak.log.js", message, payload);
+	}
+
+	render(globString, directoryPath) {
+		return this[externalFunction]("./stimpak.render.js", globString, directoryPath);
 	}
 
 	debug(message, payload) {

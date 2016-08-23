@@ -1,6 +1,6 @@
 import temp from "temp";
 
-temp.track();
+//temp.track();
 
 export default function test() {
 	this.write = () => {};

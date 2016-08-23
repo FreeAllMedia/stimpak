@@ -70,7 +70,8 @@ function render(done) {
 			renderFile.call(_this.stimpak, fileName, _this, fileNameDone);
 		} catch (exception) {
 			if (exception.constructor.name === "ReferenceError") {
-				var error = new Error("\"" + exception.message.replace(" is not defined", "") + "\" is not defined in \"" + _this.directory() + "/" + fileName + "\"");
+				var errorMessage = exception.message.replace(/(.*) is not defined/, "\"$1\" is not defined in \"" + _this.directory() + "/" + fileName + "\"");
+				var error = new Error(errorMessage);
 				fileNameDone(error);
 			} else {
 				fileNameDone(exception);
@@ -178,7 +179,7 @@ function renderFile(templateFileName, source, done) {
 													_this2.debug("merging file");
 													mergedFileDetails.isMerged = true;
 													mergedFileDetails.path = mergedFile.path;
-													mergedFileDetails.oldContent = oldFile.contents.toString();
+													mergedFileDetails.oldContents = oldFile.contents.toString();
 													mergedFileDetails.oldPath = oldFile.path;
 													mergeFile.call(_this2, mergedFile, mergedFileDetails, mergeDone);
 												}
@@ -240,7 +241,7 @@ function mergeFile(file, fileDetails, done) {
 		oldPath: fileDetails.oldPath,
 		templatePath: fileDetails.templatePath,
 		content: fileDetails.content,
-		oldContent: fileDetails.oldContent
+		oldContents: fileDetails.oldContents
 	});
 
 	done();

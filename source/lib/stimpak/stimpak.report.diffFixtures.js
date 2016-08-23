@@ -1,8 +1,9 @@
 import glob from "glob";
 import fileSystem from "fs";
+import sortByLength from "../sorters/sortByLength.js";
 
 export default function diffFixtures(fixturesDirectoryPath) {
-	const fixtureFilePaths = glob.sync("**/*", { cwd: fixturesDirectoryPath, dot: true });
+	const fixtureFilePaths = glob.sync("**/*", { cwd: fixturesDirectoryPath, dot: true }).sort(sortByLength);
 
 	const reportFilePaths = Object.keys(this.report.files).map(filePath => {
 		return filePath.replace(`${this.destination()}/`, "");
@@ -13,7 +14,7 @@ export default function diffFixtures(fixturesDirectoryPath) {
 			actual: reportFilePaths,
 			expected: fixtureFilePaths
 		},
-		content: {}
+		contents: {}
 	};
 
 	fixtureFilePaths.forEach(fixtureFilePath => {
@@ -24,7 +25,7 @@ export default function diffFixtures(fixturesDirectoryPath) {
 			const actualContent = fileSystem.readFileSync(fileReport.path, { encoding: "utf-8" });
 
 			if (actualContent !== expectedContent) {
-				differences.content[fixtureFilePath] = {
+				differences.contents[fixtureFilePath] = {
 					actual: actualContent,
 					expected: expectedContent
 				};
