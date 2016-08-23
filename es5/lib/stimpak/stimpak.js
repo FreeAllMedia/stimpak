@@ -69,13 +69,13 @@ var Stimpak = function (_ChainLink) {
 			this.generators = [];
 			this.sources = [];
 
-			this.parameters("destination", "debugStream", "logStream");
+			this.properties("destination", "debugStream", "logStream");
 
-			this.parameters("skip").aggregate;
+			this.properties("skip").aggregate;
 
-			this.parameters("transforms").aggregate;
+			this.properties("transforms").aggregate;
 
-			this.parameters("answers").merge.filter(function (answer) {
+			this.properties("answers").merged.filter(function (answer) {
 				var transformedAnswerValue = answer;
 				function transformUnlessFalsy(originalValue, transform) {
 					var transformedValue = transform(originalValue);
@@ -101,7 +101,7 @@ var Stimpak = function (_ChainLink) {
 				return transformedAnswerValue;
 			});
 
-			this.parameters("merge").multiValue.aggregate;
+			this.properties("merge").multi.aggregate;
 		}
 	}, {
 		key: parseOptions,

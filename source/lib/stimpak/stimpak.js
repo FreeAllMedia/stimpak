@@ -31,22 +31,22 @@ export default class Stimpak extends ChainLink {
 		this.generators = [];
 		this.sources = [];
 
-		this.parameters(
+		this.properties(
 			"destination",
 			"debugStream",
 			"logStream"
 		);
 
-		this.parameters(
+		this.properties(
 			"skip"
 		).aggregate;
 
-		this.parameters(
+		this.properties(
 			"transforms"
 		).aggregate;
 
-		this.parameters("answers")
-			.merge
+		this.properties("answers")
+			.merged
 			.filter(answer => {
 				let transformedAnswerValue = answer;
 				function transformUnlessFalsy(originalValue, transform) {
@@ -73,9 +73,9 @@ export default class Stimpak extends ChainLink {
 				return transformedAnswerValue;
 			});
 
-		this.parameters(
+		this.properties(
 			"merge"
-		).multiValue.aggregate;
+		).multi.aggregate;
 	}
 
 	[parseOptions](options = {}) {
