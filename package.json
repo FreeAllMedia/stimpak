@@ -38,6 +38,7 @@
   },
   "dependencies": {
     "ascii-art": "^1.0.3",
+    "async": "^2.0.1",
     "babel": "^6.5.1",
     "babel-core": "^6.5.1",
     "babel-polyfill": "^6.9.0",
