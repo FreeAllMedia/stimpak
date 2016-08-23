@@ -5,6 +5,9 @@ import minimatch from "minimatch";
 import privateData from "incognito";
 import sortByPathLength from "../sorters/sortByPathLength.js";
 import globToFileNames from "../steps/globToFileNames.js";
+import isJSON from "is-json";
+import mergeJSON from "../mergers/mergeJSON.js";
+import mergeText from "../mergers/mergeText.js";
 
 export default function render(globString, directoryPath) {
 	this.then((stimpak, thenDone) => {
@@ -177,20 +180,27 @@ function jobToFileMixer(stimpak, job, readDone) {
 
 			if (job.mergeStrategies.length > 0) {
 				const mergeWithAllStrategies = (self, oldFile, newFile, mergeDone) => {
-					const mergeFunctions = job.mergeStrategies.map(mergeStrategy => mergeStrategy[1]);
-
 					let currentFile = newFile;
+					Async.mapSeries(job.mergeStrategies, (mergeStrategy, mergeStrategyDone) => {
+						let mergeFunction = mergeStrategy[1];
 
-					fileMixer.originalContents = oldFile.contents;
-					fileMixer.originalPath = oldFile.path;
+						if (!mergeFunction) {
+							if (isJSON(oldFile.contents.toString()) && isJSON(newFile.contents).toString()) {
+								mergeFunction = mergeJSON;
+							} else {
+								mergeFunction = mergeText;
+							}
+						}
 
-					Async.mapSeries(mergeFunctions, (mergeFunction, mergeFunctionDone) => {
+						fileMixer.originalContents = oldFile.contents;
+						fileMixer.originalPath = oldFile.path;
+
 						mergeFunction(stimpak, oldFile, currentFile, (error, mergedFile) => {
 							if (!error) {
 								mergedFile.isMerged = true;
 								currentFile = mergedFile;
 							}
-							mergeFunctionDone(error);
+							mergeStrategyDone(error);
 						});
 					}, error => {
 						if (!error) {

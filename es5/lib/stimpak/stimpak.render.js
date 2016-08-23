@@ -33,6 +33,18 @@ var _globToFileNames = require("../steps/globToFileNames.js");
 
 var _globToFileNames2 = _interopRequireDefault(_globToFileNames);
 
+var _isJson = require("is-json");
+
+var _isJson2 = _interopRequireDefault(_isJson);
+
+var _mergeJSON = require("../mergers/mergeJSON.js");
+
+var _mergeJSON2 = _interopRequireDefault(_mergeJSON);
+
+var _mergeText = require("../mergers/mergeText.js");
+
+var _mergeText2 = _interopRequireDefault(_mergeText);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function render(globString, directoryPath) {
@@ -191,22 +203,27 @@ function jobToFileMixer(stimpak, job, readDone) {
 
 		if (job.mergeStrategies.length > 0) {
 			var mergeWithAllStrategies = function mergeWithAllStrategies(self, oldFile, newFile, mergeDone) {
-				var mergeFunctions = job.mergeStrategies.map(function (mergeStrategy) {
-					return mergeStrategy[1];
-				});
-
 				var currentFile = newFile;
+				_async2.default.mapSeries(job.mergeStrategies, function (mergeStrategy, mergeStrategyDone) {
+					var mergeFunction = mergeStrategy[1];
 
-				fileMixer.originalContents = oldFile.contents;
-				fileMixer.originalPath = oldFile.path;
+					if (!mergeFunction) {
+						if ((0, _isJson2.default)(oldFile.contents.toString()) && (0, _isJson2.default)(newFile.contents).toString()) {
+							mergeFunction = _mergeJSON2.default;
+						} else {
+							mergeFunction = _mergeText2.default;
+						}
+					}
 
-				_async2.default.mapSeries(mergeFunctions, function (mergeFunction, mergeFunctionDone) {
+					fileMixer.originalContents = oldFile.contents;
+					fileMixer.originalPath = oldFile.path;
+
 					mergeFunction(stimpak, oldFile, currentFile, function (error, mergedFile) {
 						if (!error) {
 							mergedFile.isMerged = true;
 							currentFile = mergedFile;
 						}
-						mergeFunctionDone(error);
+						mergeStrategyDone(error);
 					});
 				}, function (error) {
 					if (!error) {

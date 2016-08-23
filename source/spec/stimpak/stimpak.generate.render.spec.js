@@ -26,8 +26,6 @@ describe("stimpak.generate() (template rendering)", () => {
 
 		existingFileNames = glob.sync("**/*", { cwd: temporaryDirectoryPath, dot: true });
 
-		//console.log({ existingFileNames });
-
 		templateDirectoryPath = path.normalize(`${__dirname}/fixtures/templates`);
 
 		templateFilePaths = glob.sync("**/*", { cwd: templateDirectoryPath, dot: true });
@@ -36,8 +34,6 @@ describe("stimpak.generate() (template rendering)", () => {
 				.replace("##dynamicFileName##", "shapes")
 				.replace("##dynamicFolderName##", "letters");
 		});
-
-		console.log({ templateFilePaths });
 
 		answers = {
 			dynamicFileName: "shapes",
