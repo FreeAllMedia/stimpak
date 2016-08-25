@@ -3,8 +3,7 @@ import fileSystem from "fs";
 
 describe("stimpak.add(path, [contents]) (directory)", () => {
 	let stimpak,
-			path,
-			differences;
+			path;
 
 	beforeEach(done => {
 		path = "letters";
@@ -13,26 +12,17 @@ describe("stimpak.add(path, [contents]) (directory)", () => {
 
 		stimpak
 		.add(path)
-		.generate(error => {
-			const fixturesDirectoryPath = `${__dirname}/fixtures`;
-			const fixturesFilePaths = fileSystem.readdirSync(fixturesDirectoryPath);
-			console.log({ fixturesDirectoryPath, fixturesFilePaths });
-			differences = stimpak.report.diffFixtures(fixturesDirectoryPath);
-			done(error);
-		});
+		.generate(done);
 	});
 
 	it("should render a directory with the path provided", () => {
-		console.log({isDir: fileSystem.statSync(`${stimpak.destination()}/${path}`).isDirectory(), act: differences.paths.actual, exp: differences.paths.expected});
-		differences.paths.actual.should.eql(differences.paths.expected);
+		fileSystem.statSync(`${stimpak.destination()}/${path}`).isDirectory().should.be.true;
 	});
 
 	it("should not render the file before .generate is called", () => {
 		stimpak = new Stimpak().test
 		.add(path);
 
-		differences = stimpak.report.diffFixtures(`${__dirname}/fixtures/existingDirectory/`);
-
-		differences.paths.actual.should.eql([]);
+		fileSystem.existsSync(`${stimpak.destination()}/${path}`).should.be.false;
 	});
 });
