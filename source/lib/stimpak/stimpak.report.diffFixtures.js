@@ -3,10 +3,16 @@ import fileSystem from "fs";
 import sortByLength from "../sorters/sortByLength.js";
 
 export default function diffFixtures(fixturesDirectoryPath) {
-	const fixtureFilePaths = glob.sync("{**/*,*}", { cwd: fixturesDirectoryPath, dot: true }).sort(sortByLength);
+	const fixtureFilePaths = glob.sync("**/*", { cwd: fixturesDirectoryPath, dot: true }).sort(sortByLength);
 
 	const reportFilePaths = Object.keys(this.report.files).map(filePath => {
 		return filePath.replace(`${this.destination()}/`, "");
+	});
+
+	console.log({
+		fixturesDirectoryPath,
+		fixtureFilePaths,
+		reportFilePaths
 	});
 
 	const differences = {
