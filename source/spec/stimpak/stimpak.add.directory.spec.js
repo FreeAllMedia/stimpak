@@ -19,7 +19,7 @@ describe("stimpak.add(path, [contents]) (directory)", () => {
 	});
 
 	it("should render a directory with the path provided", () => {
-		console.log({ differences });
+		console.log({ act: differences.paths.actual, exp: differences.paths.expected});
 		differences.paths.actual.should.eql(differences.paths.expected);
 	});
 
