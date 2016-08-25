@@ -85,7 +85,7 @@ describe("stimpak.merge()", () => {
 			stimpak
 			.report
 			.diffFixtures(`${__dirname}/fixtures/mergeRendered`)
-			.content
+			.contents
 			.should.eql({});
 
 			done(error);

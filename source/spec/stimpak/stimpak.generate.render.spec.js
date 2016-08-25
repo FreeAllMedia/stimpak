@@ -44,6 +44,8 @@ describe("stimpak.generate() (template rendering)", () => {
 
 		actualGeneratedFilePaths = [];
 
+		sourceGlob = "**/*";
+
 		stimpak
 			.answers(answers)
 			.render(sourceGlob, templateDirectoryPath)
@@ -53,9 +55,9 @@ describe("stimpak.generate() (template rendering)", () => {
 	describe("(after generating)", () => {
 		beforeEach(done => {
 			stimpak
-				.generate(() => {
+				.generate((error) => {
 					actualGeneratedFilePaths = glob.sync("**/*", { cwd: temporaryDirectoryPath, dot: true });
-					done();
+					done(error);
 				});
 		});
 

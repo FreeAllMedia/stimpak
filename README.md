@@ -1,13 +1,11 @@
-![](./images/stimpak-logo.png?raw=true)
-![](./images/generate.gif?raw=true)
+![](./source/images/stimpak-logo.png?raw=true)
+![](./source/images/generate.gif?raw=true)
 
 # Stimpak: A Pattern Management System
 
 [![npm version](https://img.shields.io/npm/v/stimpak.svg)](https://www.npmjs.com/package/stimpak) [![license type](https://img.shields.io/npm/l/stimpak.svg)](https://github.com/FreeAllMedia/stimpak.git/blob/master/LICENSE)  [![Build Status](https://travis-ci.org/FreeAllMedia/stimpak.png?branch=master)](https://travis-ci.org/FreeAllMedia/stimpak) [![Coverage Status](https://coveralls.io/repos/github/FreeAllMedia/stimpak/badge.svg?branch=master)](https://coveralls.io/github/FreeAllMedia/stimpak?branch=master) [![bitHound Score](https://www.bithound.io/github/FreeAllMedia/stimpak/badges/score.svg)](https://www.bithound.io/github/FreeAllMedia/stimpak) [![bitHound Dependencies](https://www.bithound.io/github/FreeAllMedia/stimpak/badges/dependencies.svg)](https://www.bithound.io/github/FreeAllMedia/stimpak/dependencies/npm) [![bitHound Dev Dependencies](https://www.bithound.io/github/FreeAllMedia/stimpak/badges/devDependencies.svg)](https://www.bithound.io/github/FreeAllMedia/stimpak/dependencies/npm) [![npm downloads](https://img.shields.io/npm/dm/stimpak.svg)](https://www.npmjs.com/package/stimpak) ![Source: ECMAScript 6](https://img.shields.io/badge/Source-ECMAScript_2015-green.svg)
 
-Software development (when doing it right) involves mostly patterns in both our code and our workflows. Automating these routine patterns and tasks frees us up to be more productive.
-
-**Stimpak is a system for defining, discovering, and re-using code and workflow patterns:**
+**Stimpak is a system for defining, discovering, and re-using code & workflow patterns:**
 
 * Formalize code and workflow patterns with minimal effort so that they can be re-used and shared with others.
 * Cut down on time doing routine tasks by generating new files based upon simple patterns.
@@ -28,9 +26,13 @@ Software development (when doing it right) involves mostly patterns in both our 
 	* Create several small generators that work independently.
 	* Combine generators together on-the-fly via the CLI.
 	* Combine generators into a new generator that can guide the user through multiple tasks at once.
+* **Integrated Templates**
+	* Choose your own template engine, or use EJS by default.
+	* Answers to prompts are automatically used as values in templates.
 * **Smart File Merging**
-	* Easily tell stimpak what to do if a file you're trying to generate already exists.
-	* Merge strategies use `vinyl` file objects for ultimate flexibility when merging.
+	* Easily designate files that should be merged instead of overwritten.
+	* Use built-in or custom merging strategies for a variety of file formats.
+	* Merge strategies using virtual file objects to avoid touching the filesystem more than necessary.
 * **Customizable ASCII-Art**
 	* Built-in ASCII-Art generator for BIG popping titles in any of 680 built-in figlet fonts.
 	* Optionally choose *not* to have ASCII-Art whenever you use your generators. It's all up to you!
@@ -47,9 +49,9 @@ Software development (when doing it right) involves mostly patterns in both our 
 
 Stimpak can be used as both a command-line interface (CLI), and as a standalone library that can be embedded into your own code. Choose the guide below to help you get started with either integration method, or with writing a new stimpak generator from scratch:
 
-1. [Stimpak Command-Line Interface](./CLI.md)
-2. [Stimpak API](./API.md)
-3. [Stimpak Generator Development](./GENERATORS.md)
+1. [Stimpak Command-Line Interface](./source/documentation/CLI.md)
+2. [Stimpak API](./source/documentation/API.md)
+3. [Stimpak Generator Development](./source/documentation/GENERATORS.md)
 
 ## How to Contribute
 

@@ -1,4 +1,4 @@
-[![](./images/stimpak-logo.png?raw=true)](./README.md)
+[![](../images/stimpak-logo.png?raw=true)](../../README.md)
 
 # Stimpak API
 
@@ -445,6 +445,31 @@ Stimpak uses `underscore`-style templates to render files using the answers set.
 
 ---
 
+## `.add(path, [contents])`
+
+* Add a file or directory to be rendered.
+* If `contents` are provided, the path will be added as a file.
+* If `contents` are NOT provided, the path will be added as a directory.
+
+**Takes One or Two Arguments:**
+
+1. **`path`**
+	* This should be a relative (to the `.destination()` directory), or absolute path for a file or directory.
+2. **`[contents]`**
+	* If provided, the path is considered a file and these contents will be written into the file.
+
+**Example:**
+
+``` javascript
+stimpak
+	.add("someFile.txt", "These are the contents of someFile.txt")
+	.add("someDirectory");
+```
+
+[Back to Table of Contents](#method-guide)
+
+---
+
 ## `.merge(globString, [mergeStrategyFunction])`
 
 * Provide a [glob string](https://github.com/isaacs/node-glob) to match against file paths set with `.render`.
@@ -456,13 +481,13 @@ Stimpak uses `underscore`-style templates to render files using the answers set.
 
 1. **`globString`**
 	* This should be a [glob](https://github.com/isaacs/node-glob) string that matches filepaths set by `.render`.
-2. **`[mergeStrategyFunction(stimpak, newFile, oldFile, callback)]`**
+2. **`[mergeStrategyFunction(stimpak, oldFile, newFile, callback)]`**
 	1. **`stimpak`**
 		The current instance of stimpak.
-	2. **`newFile`**
-		A [Vinyl file](https://github.com/gulpjs/vinyl) representing the newly rendered file.
-	3. **`oldFile`**
-		A [Vinyl file](https://github.com/gulpjs/vinyl) representing the file that already exists in the destination directory.
+	2. **`oldFile`**
+		A virtual file object representing the file that already exists in the destination directory.
+	3. **`newFile`**
+		A virtual file object representing the new rendered file.
 	4. **`callback(error, mergedFile)`**
 		A node-standard callback that accepts two arguments:
 		1. `error`
@@ -470,19 +495,22 @@ Stimpak uses `underscore`-style templates to render files using the answers set.
 		2. `mergedFile`.
 			A required [Vinyl-compatible file](https://github.com/gulpjs/vinyl) representing the final merged file that should overwrite the existing file.
 
-**Merge Strategy Functions:**
-
-Each merge strategy is a function that accepts 4 mandatory arguments:
-
-
-
 **Example:**
 
 ``` javascript
-stimpak.merge("important.txt", keepOldFile);
+stimpak.merge("important.txt", mergeFile);
 
-function keepOldFile(stimpak, newFile, oldFile, callback) {
-	callback(null, oldFile);
+function mergeFile(stimpak, oldFile, newFile, callback) {
+	const mergedFile = Object.assign({}, oldFile);
+
+	mergedFile.name;
+	mergedFile.path;
+	mergedFile.base;
+	mergedFile.isFile;
+	mergedFile.isDirectory;
+	mergedFile.isMerged;
+
+	callback(null, mergedFile);
 }
 ```
 

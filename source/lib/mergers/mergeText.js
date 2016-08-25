@@ -1,6 +1,6 @@
 import * as jsdiff from "diff";
 
-export default function mergeText(stimpak, newFile, oldFile, done) {
+export default function mergeText(stimpak, oldFile, newFile, done) {
 	const oldContent = oldFile.contents.toString();
 	const newContent = newFile.contents.toString();
 

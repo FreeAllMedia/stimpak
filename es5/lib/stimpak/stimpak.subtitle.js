@@ -11,7 +11,7 @@ var _asciiArt2 = _interopRequireDefault(_asciiArt);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-_asciiArt2.default.Figlet.fontPath = __dirname + "/../../../figlet-fonts/";
+_asciiArt2.default.Figlet.fontPath = __dirname + "/../../figlet-fonts/";
 
 function subtitle() {
 	var _this = this;

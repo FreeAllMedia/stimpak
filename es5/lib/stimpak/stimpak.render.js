@@ -5,20 +5,55 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = render;
 
-var _source = require("../source/source.js");
+var _async = require("async");
 
-var _source2 = _interopRequireDefault(_source);
+var _async2 = _interopRequireDefault(_async);
+
+var _globToFileNames = require("../steps/globToFileNames.js");
+
+var _globToFileNames2 = _interopRequireDefault(_globToFileNames);
+
+var _fileNamesToJobs = require("../steps/fileNamesToJobs.js");
+
+var _fileNamesToJobs2 = _interopRequireDefault(_fileNamesToJobs);
+
+var _addMergeStrategiesToJobs = require("../steps/addMergeStrategiesToJobs.js");
+
+var _addMergeStrategiesToJobs2 = _interopRequireDefault(_addMergeStrategiesToJobs);
+
+var _writeFileMixers = require("../steps/writeFileMixers.js");
+
+var _writeFileMixers2 = _interopRequireDefault(_writeFileMixers);
+
+var _sortFileMixersByPathLength = require("../steps/sortFileMixersByPathLength.js");
+
+var _sortFileMixersByPathLength2 = _interopRequireDefault(_sortFileMixersByPathLength);
+
+var _jobsToFileMixers = require("../steps/jobsToFileMixers.js");
+
+var _jobsToFileMixers2 = _interopRequireDefault(_jobsToFileMixers);
+
+var _renderJobPaths = require("../steps/renderJobPaths.js");
+
+var _renderJobPaths2 = _interopRequireDefault(_renderJobPaths);
+
+var _removeSkippedJobs = require("../steps/removeSkippedJobs.js");
+
+var _removeSkippedJobs2 = _interopRequireDefault(_removeSkippedJobs);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function render(globString, directoryPath) {
-	var newSource = new _source2.default(this, globString, directoryPath);
-
-	this.sources.push(newSource);
-
-	this.then(function (stimpak, done) {
-		newSource.render(done);
+	this.then(function (stimpak, thenDone) {
+		_async2.default.waterfall([apply(_globToFileNames2.default, globString, directoryPath), apply(_fileNamesToJobs2.default, globString, directoryPath), apply(_removeSkippedJobs2.default, stimpak), apply(_renderJobPaths2.default, stimpak), apply(_removeSkippedJobs2.default, stimpak), apply(_addMergeStrategiesToJobs2.default, stimpak), apply(_jobsToFileMixers2.default, stimpak), _sortFileMixersByPathLength2.default, apply(_writeFileMixers2.default, stimpak)], thenDone);
 	});
+	return this;
+}
 
-	return newSource;
+function apply(step) {
+	for (var _len = arguments.length, values = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+		values[_key - 1] = arguments[_key];
+	}
+
+	return _async2.default.apply.apply(_async2.default, [step].concat(values));
 }
