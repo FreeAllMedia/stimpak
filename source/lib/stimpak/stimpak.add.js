@@ -1,4 +1,5 @@
 import Async from "async";
+import path from "path";
 
 import globToFileNames from "../steps/globToFileNames.js";
 import fileNamesToJobs from "../steps/fileNamesToJobs.js";
@@ -8,12 +9,12 @@ import sortFileMixersByPathLength from "../steps/sortFileMixersByPathLength.js";
 import jobsToFileMixers from "../steps/jobsToFileMixers.js";
 import renderJobPaths from "../steps/renderJobPaths.js";
 import removeSkippedJobs from "../steps/removeSkippedJobs.js";
+import virtualFileToJob from "../steps/virtualFileToJob.js";
 
-export default function render(globString, directoryPath) {
+export default function add(filePath, contents) {
 	this.then((stimpak, thenDone) => {
 		Async.waterfall([
-			apply(globToFileNames, globString, directoryPath),
-			apply(fileNamesToJobs, globString, directoryPath),
+			apply(virtualFileToJob, filePath, contents),
 			apply(removeSkippedJobs, stimpak),
 			apply(renderJobPaths, stimpak),
 			apply(removeSkippedJobs, stimpak),

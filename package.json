@@ -48,7 +48,7 @@
     "death": "^1.0.0",
     "diff": "^2.2.3",
     "ejs": "^2.5.1",
-    "filemixer": "0.0.5",
+    "filemixer": "0.0.7",
     "flowsync": "^0.1.12",
     "fs-extra": "^0.30.0",
     "glob": "^7.0.3",
