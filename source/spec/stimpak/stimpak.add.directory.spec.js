@@ -20,7 +20,7 @@ describe("stimpak.add(path, [contents]) (directory)", () => {
 	});
 
 	it("should render a directory with the path provided", () => {
-		console.log({isDir: fileSystem.statSync(`${stimpak.destination()}/${path}`).isDirectory()});
+		console.log({isDir: fileSystem.statSync(`${stimpak.destination()}/${path}`).isDirectory(), act: differences.paths.actual, exp: differences.paths.expected});
 		differences.paths.actual.should.eql(differences.paths.expected);
 	});
 
