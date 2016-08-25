@@ -38,7 +38,7 @@ var Stimpak = function (_ChainLink) {
 	function Stimpak() {
 		_classCallCheck(this, Stimpak);
 
-		return _possibleConstructorReturn(this, Object.getPrototypeOf(Stimpak).apply(this, arguments));
+		return _possibleConstructorReturn(this, (Stimpak.__proto__ || Object.getPrototypeOf(Stimpak)).apply(this, arguments));
 	}
 
 	_createClass(Stimpak, [{

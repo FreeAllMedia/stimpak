@@ -26,8 +26,6 @@ describe("stimpak.add(path, [contents]) (directory)", () => {
 		stimpak = new Stimpak().test
 		.add(path);
 
-		differences = stimpak.report.diffFixtures(`${__dirname}/fixtures/existingDirectory`);
-
-		differences.paths.actual.should.eql([]);
+		(stimpak.report.files[path] === undefined).should.be.true;
 	});
 });

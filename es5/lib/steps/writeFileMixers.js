@@ -45,27 +45,28 @@ function writeFileMixer(stimpak, fileMixer, done) {
 		pathParts.pop();
 	}, function () {
 		fileMixer.write(function (error, file) {
-			missingPaths.reverse().forEach(function (missingPath) {
-				report.events.push({
-					type: "writeDirectory",
-					path: missingPath
-				});
-
-				var base = file.base;
-				var name = missingPath.replace(base, "");
-
-				report.files[missingPath] = {
-					path: missingPath,
-					base: base,
-					name: name,
-					isDirectory: true,
-					isFile: false,
-					isMerged: false
-				};
-			});
-
 			var event = void 0;
 			if (!error) {
+				console.log({ missingPaths: missingPaths });
+				missingPaths.reverse().forEach(function (missingPath) {
+					report.events.push({
+						type: "writeDirectory",
+						path: missingPath
+					});
+
+					var base = file.base;
+					var name = missingPath.replace(base, "");
+
+					report.files[missingPath] = {
+						path: missingPath,
+						base: base,
+						name: name,
+						isDirectory: true,
+						isFile: false,
+						isMerged: false
+					};
+				});
+
 				if (!file.isMerged) {
 					if (file.isFile) {
 						event = {
