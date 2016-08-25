@@ -14,7 +14,10 @@ describe("stimpak.add(path, [contents]) (directory)", () => {
 		stimpak
 		.add(path)
 		.generate(error => {
-			differences = stimpak.report.diffFixtures(`${__dirname}/fixtures/existingDirectory/`);
+			const fixturesDirectoryPath = `${__dirname}/fixtures/existingDirectory/`;
+			const actualFilePaths = fileSystem.readdirSync(fixturesDirectoryPath);
+			console.log({ actualFilePaths });
+			differences = stimpak.report.diffFixtures(fixturesDirectoryPath);
 			done(error);
 		});
 	});
