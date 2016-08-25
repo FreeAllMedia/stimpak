@@ -3,7 +3,6 @@
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
-exports.Source = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -19,10 +18,6 @@ var _mrt = require("mrt");
 
 var _mrt2 = _interopRequireDefault(_mrt);
 
-var _source = require("../source/source.js");
-
-var _source2 = _interopRequireDefault(_source);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -31,15 +26,11 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-exports.Source = _source2.default;
-
-
 var externalFunction = Symbol(),
     initializePrivateData = Symbol(),
     initializeInterface = Symbol(),
     parseOptions = Symbol(),
-    addLineBreak = Symbol(),
-    transformCasts = Symbol();
+    addLineBreak = Symbol();
 
 var Stimpak = function (_ChainLink) {
 	_inherits(Stimpak, _ChainLink);
@@ -47,7 +38,7 @@ var Stimpak = function (_ChainLink) {
 	function Stimpak() {
 		_classCallCheck(this, Stimpak);
 
-		return _possibleConstructorReturn(this, Object.getPrototypeOf(Stimpak).apply(this, arguments));
+		return _possibleConstructorReturn(this, (Stimpak.__proto__ || Object.getPrototypeOf(Stimpak)).apply(this, arguments));
 	}
 
 	_createClass(Stimpak, [{
@@ -78,13 +69,13 @@ var Stimpak = function (_ChainLink) {
 			this.generators = [];
 			this.sources = [];
 
-			this.parameters("destination", "debugStream", "logStream");
+			this.properties("destination", "debugStream", "logStream");
 
-			this.parameters("skip").aggregate;
+			this.properties("skip").aggregate;
 
-			this.parameters("transforms").aggregate;
+			this.properties("transforms").aggregate;
 
-			this.parameters("answers").mergeKeyValues.filter(function (answer) {
+			this.properties("answers").merged.filter(function (answer) {
 				var transformedAnswerValue = answer;
 				function transformUnlessFalsy(originalValue, transform) {
 					var transformedValue = transform(originalValue);
@@ -110,9 +101,7 @@ var Stimpak = function (_ChainLink) {
 				return transformedAnswerValue;
 			});
 
-			this.parameters("merge").multiValue.aggregate;
-
-			this.link("render", _source2.default).into("sources").usingArguments(this);
+			this.properties("merge").multi.aggregate;
 		}
 	}, {
 		key: parseOptions,
@@ -191,6 +180,11 @@ var Stimpak = function (_ChainLink) {
 
 			return this[externalFunction].apply(this, ["./stimpak.then.js"].concat(stepFunctions));
 		}
+
+		// file(path, content) {
+		// 	return this[externalFunction]("./stimpak.file.js", path, content);
+		// }
+
 	}, {
 		key: "transform",
 		value: function transform(callback) {
@@ -244,6 +238,16 @@ var Stimpak = function (_ChainLink) {
 		key: "log",
 		value: function log(message, payload) {
 			return this[externalFunction]("./stimpak.log.js", message, payload);
+		}
+	}, {
+		key: "render",
+		value: function render(globString, directoryPath) {
+			return this[externalFunction]("./stimpak.render.js", globString, directoryPath);
+		}
+	}, {
+		key: "add",
+		value: function add(path, contents) {
+			return this[externalFunction]("./stimpak.add.js", path, contents);
 		}
 	}, {
 		key: "debug",

@@ -1,4 +1,4 @@
-import Stimpak, { Source } from "../../lib/stimpak/stimpak.js";
+import Stimpak from "../../lib/stimpak/stimpak.js";
 
 describe("stimpak.render()", () => {
 	let stimpak,
@@ -19,18 +19,8 @@ describe("stimpak.render()", () => {
 		templatesDirectoryPath = `${__dirname}/fixtures/simpleTemplates`;
 	});
 
-	it("should return an instance of Source", () => {
-		stimpak.render(globString).should.be.instanceOf(Source);
-	});
-
-	it("should add new instances to .sources", () => {
-		const source = stimpak.render(globString);
-		stimpak.sources.should.eql([source]);
-	});
-
-	it("should be able to set the directory at the same time", () => {
-		const source = stimpak.render(globString, templatesDirectoryPath);
-		source.directory().should.eql(templatesDirectoryPath);
+	it("should return this to enable chaining", () => {
+		stimpak.render(globString, templatesDirectoryPath).should.eql(stimpak);
 	});
 
 	it("should render sources in order", done => {
@@ -45,8 +35,8 @@ describe("stimpak.render()", () => {
 		.generate(error => {
 			actualFilepaths.should.eql([
 				`${stimpak.destination()}/shapes`,
-				`${stimpak.destination()}/shapes/colors.js`,
-				`${stimpak.destination()}/textures.js`
+				`${stimpak.destination()}/textures.js`,
+				`${stimpak.destination()}/shapes/colors.js`
 			]);
 			done(error);
 		});
@@ -67,7 +57,7 @@ describe("stimpak.render()", () => {
 		.test
 		.render(globString, templatesDirectoryPath)
 		.generate(error => {
-			error.message.should.eql(`"functionName" is not defined in "${templatesDirectoryPath}/##folderName##/##fileName##.js"`);
+			error.message.should.contain(`"functionName" is not defined in "${templatesDirectoryPath}/##folderName##/##fileName##.js"`);
 			done();
 		});
 	});

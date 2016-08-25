@@ -9,7 +9,7 @@ import {
 		execSync as runCommandSync
 } from "child_process";
 
-const setParameters = Symbol(),
+const setProperties = Symbol(),
 			setDefaultPaths = Symbol();
 
 export default class StimpakSandbox extends ChainLink {
@@ -17,7 +17,7 @@ export default class StimpakSandbox extends ChainLink {
 		// TODO: Turn temporary file tracking in stimpak sandbox back on
 		//temp.track();
 
-		this[setParameters]();
+		this[setProperties]();
 		this[setDefaultPaths]();
 
 		this.configure();
@@ -89,14 +89,14 @@ export default class StimpakSandbox extends ChainLink {
 		});
 	}
 
-	[setParameters]() {
-		this.parameters("paths").mergeKeyValues;
-		this.parameters(
+	[setProperties]() {
+		this.properties("paths").merge;
+		this.properties(
 			"copy",
 			"symlink"
-		).aggregate.multiValue;
+		).multi.aggregate;
 
-		this.parameters(
+		this.properties(
 			"makeDirectory"
 		).aggregate;
 	}

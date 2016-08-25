@@ -53,8 +53,6 @@ function setupEnvironment() {
 
 	const command = `node ${paths.stimpakCliPath}`;
 
-	//console.log("TEMP DIRECTORY PATH", paths.temporaryDirectoryPath);
-
 	return {
 		temporaryDirectoryPath: paths.temporaryDirectoryPath,
 		globalNodeModulesDirectoryPath: paths.globalNodeModulesDirectoryPath,

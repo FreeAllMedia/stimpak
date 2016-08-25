@@ -1,7 +1,7 @@
 import ascii from "ascii-art";
 import privateData from "incognito";
 
-ascii.Figlet.fontPath = `${__dirname}/../../../figlet-fonts/`;
+ascii.Figlet.fontPath = `${__dirname}/../../figlet-fonts/`;
 
 export default function title(message = "Title", figletFont = "standard") {
 	this.debug("title", message, figletFont);

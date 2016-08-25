@@ -1,4 +1,4 @@
-[![](./images/stimpak-logo.png?raw=true)](./README.md)
+[![](../images/stimpak-logo.png?raw=true)](../../README.md)
 
 # Stimpak API
 

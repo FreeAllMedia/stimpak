@@ -17,12 +17,14 @@ describe("stimpak.merge() (on .generate)", () => {
 			existingFilePath,
 			existingFileContents,
 			mergedFileContents,
+			basePath,
 			answers;
 
 	beforeEach(done => {
 		templateDirectoryPath = path.normalize(`${__dirname}/fixtures/templates/`);
 		temporaryDirectoryPath = temp.mkdirSync("stimpak.merge");
 		existingProjectPath = path.normalize(`${__dirname}/fixtures/existingProject/`);
+		basePath = `${temporaryDirectoryPath}/`;
 
 		fileSystem.copySync(existingProjectPath, temporaryDirectoryPath);
 
@@ -30,24 +32,20 @@ describe("stimpak.merge() (on .generate)", () => {
 
 		mergedFileContents = "merged!";
 
-		mergeStrategy = sinon.spy((generator, newFile, oldFile, mergeCallback) => {
+		mergeStrategy = sinon.spy((generator, oldFile, newFile, mergeCallback) => {
 			results.generator = generator;
 			results.newFile = newFile;
 			results.oldFile = oldFile;
 
-			results.mergedFile = new File({
-				cwd: results.newFile.cwd,
-				base: results.newFile.base,
-				path: results.newFile.path,
-				contents: new Buffer(mergedFileContents)
-			});
+			results.mergedFile = Object.assign({}, newFile);
+			results.mergedFile.contents = mergedFileContents;
 
 			mergeCallback(null, results.mergedFile);
 		});
 
 		existingFileName = "package.json";
 		existingFilePath = `${temporaryDirectoryPath}/${existingFileName}`;
-		existingFileContents = fileSystem.readFileSync(existingFilePath);
+		existingFileContents = fileSystem.readFileSync(existingFilePath, "utf8");
 
 		answers = {
 			className: "Foo",
@@ -58,8 +56,7 @@ describe("stimpak.merge() (on .generate)", () => {
 		stimpak = new Stimpak();
 		stimpak
 			.answers(answers)
-			.render("**/*")
-				.directory(templateDirectoryPath)
+			.render("**/*", templateDirectoryPath)
 			.destination(temporaryDirectoryPath)
 			.merge(
 				existingFileName,
@@ -72,61 +69,46 @@ describe("stimpak.merge() (on .generate)", () => {
 		results.generator.should.eql(stimpak);
 	});
 
-	it("should call the mergeStrategy with the new file as a vinyl object", () => {
-		File.isVinyl(results.newFile).should.be.true;
-	});
-
-	it("should set the new file to the appropriate file path", () => {
-		const filePath = results.newFile.path;
-		filePath.should.be.eql(existingFilePath);
-	});
-
-	it("should set the new file to the appropriate base path", () => {
-		const base = results.newFile.base;
-		base.should.be.eql(temporaryDirectoryPath);
-	});
-
-	it("should set the new file to the appropriate file contents", () => {
-		const templateContents = fileSystem.readFileSync(`${templateDirectoryPath}/${existingFileName}`, { encoding: "utf-8" });
+	it("should call the mergeStrategy with the new file as a virtual file object", () => {
+		const templateContents = fileSystem.readFileSync(`${templateDirectoryPath}/${existingFileName}`, "utf-8");
 		const template = newTemplate(templateContents);
 		const expectedFileContents = template(stimpak.answers());
 
-		const actualFileContents = results.newFile.contents.toString();
-		actualFileContents.should.be.eql(expectedFileContents);
+		results.newFile.should.eql({
+			name: existingFileName,
+			base: basePath,
+			path: existingFilePath,
+			contents: expectedFileContents,
+			isFile: true,
+			isDirectory: false,
+			isMerged: false
+		});
 	});
 
-	it("should call the mergeStrategy with the old file as a vinyl object", () => {
-		File.isVinyl(results.oldFile).should.be.true;
-	});
-
-	it("should set the old file to the appropriate file path", () => {
-		const filePath = results.oldFile.path;
-		filePath.should.be.eql(existingFilePath);
-	});
-
-	it("should set the old file to the appropriate base", () => {
-		const base = results.oldFile.base;
-		base.should.be.eql(temporaryDirectoryPath);
-	});
-
-	it("should set the old file to the appropriate file contents", () => {
-		const expectedFileContents = existingFileContents.toString();
-		const actualFileContents = results.oldFile.contents.toString();
-		actualFileContents.should.be.eql(expectedFileContents);
+	it("should call the mergeStrategy with the old file as a virtual file object", () => {
+		results.oldFile.should.eql({
+			name: existingFileName,
+			base: basePath,
+			path: existingFilePath,
+			contents: existingFileContents,
+			isFile: true,
+			isDirectory: false,
+			isMerged: false
+		});
 	});
 
 	it("should overwrite existing files that don't have a merge strategy", () => {
-		const templateContents = fileSystem.readFileSync(`${templateDirectoryPath}/colors.js`, { encoding: "utf-8" });
+		const templateContents = fileSystem.readFileSync(`${templateDirectoryPath}/colors.js`, "utf-8");
 		const template = newTemplate(templateContents);
 		const expectedFileContents = template(stimpak.answers());
 
-		const actualFileContents = fileSystem.readFileSync(`${temporaryDirectoryPath}/colors.js`, { encoding: "utf-8" });
+		const actualFileContents = fileSystem.readFileSync(`${temporaryDirectoryPath}/colors.js`, "utf-8");
 
 		actualFileContents.should.eql(expectedFileContents);
 	});
 
 	it("should render existing files like normal if there are no merge strategies at all", done => {
-		const templateContents = fileSystem.readFileSync(`${templateDirectoryPath}/colors.js`, { encoding: "utf-8" });
+		const templateContents = fileSystem.readFileSync(`${templateDirectoryPath}/colors.js`, "utf-8");
 		const template = newTemplate(templateContents);
 		const expectedFileContents = template(stimpak.answers());
 
@@ -134,11 +116,10 @@ describe("stimpak.merge() (on .generate)", () => {
 
 		stimpak
 			.answers(answers)
-			.render("**/*")
-				.directory(templateDirectoryPath)
+			.render("**/*", templateDirectoryPath)
 			.destination(temporaryDirectoryPath)
 			.generate(() => {
-				const actualFileContents = fileSystem.readFileSync(`${temporaryDirectoryPath}/colors.js`, { encoding: "utf-8" });
+				const actualFileContents = fileSystem.readFileSync(`${temporaryDirectoryPath}/colors.js`, "utf-8");
 				actualFileContents.should.eql(expectedFileContents);
 				done();
 			});
@@ -149,7 +130,7 @@ describe("stimpak.merge() (on .generate)", () => {
 
 		stimpak = new Stimpak();
 
-		const actualFileContents = fileSystem.readFileSync(`${temporaryDirectoryPath}/${existingFileName}`, { encoding: "utf-8" });
+		const actualFileContents = fileSystem.readFileSync(`${temporaryDirectoryPath}/${existingFileName}`, "utf-8");
 		actualFileContents.should.eql(expectedFileContents);
 	});
 
@@ -160,10 +141,9 @@ describe("stimpak.merge() (on .generate)", () => {
 
 		stimpak
 			.answers(answers)
-			.render("**/*")
-				.directory(templateDirectoryPath)
+			.render("**/*", templateDirectoryPath)
 			.destination(temporaryDirectoryPath)
-			.merge(existingFileName, (generator, newFile, oldFile, mergeCallback) => {
+			.merge(existingFileName, (generator, oldFile, newFile, mergeCallback) => {
 				mergeCallback(new Error(expectedErrorMessage));
 			})
 			.generate(error => {
@@ -175,14 +155,13 @@ describe("stimpak.merge() (on .generate)", () => {
 	it("should handle multiple merge strategies", done => {
 		stimpak = new Stimpak();
 
-		function mergeFunction(generator, newFile, oldFile, mergeCallback) {
+		function mergeFunction(generator, oldFile, newFile, mergeCallback) {
 			mergeCallback(null, oldFile);
 		}
 
 		stimpak
 			.answers(answers)
-			.render("**/*")
-				.directory(templateDirectoryPath)
+			.render("**/*", templateDirectoryPath)
 			.destination(temporaryDirectoryPath)
 			.merge(existingFilePath, mergeFunction)
 			.merge(existingFilePath, mergeFunction)

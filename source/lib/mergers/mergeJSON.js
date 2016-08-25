@@ -2,9 +2,9 @@ import mergeWith from "lodash.mergewith";
 import union from "lodash.union";
 import isArray from "lodash.isarray";
 
-export default function mergeJSON(stimpak, newFile, oldFile, done) {
-	const newFileJSON = JSON.parse(newFile.contents);
+export default function mergeJSON(stimpak, oldFile, newFile, done) {
 	const oldFileJSON = JSON.parse(oldFile.contents);
+	const newFileJSON = JSON.parse(newFile.contents);
 
 	function concatArrays(array, value) {
 		let newArray;

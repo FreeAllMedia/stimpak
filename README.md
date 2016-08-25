@@ -1,5 +1,5 @@
-![](./images/stimpak-logo.png?raw=true)
-![](./images/generate.gif?raw=true)
+![](./source/images/stimpak-logo.png?raw=true)
+![](./source/images/generate.gif?raw=true)
 
 # Stimpak: A Pattern Management System
 
@@ -28,9 +28,13 @@ Software development (when doing it right) involves mostly patterns in both our 
 	* Create several small generators that work independently.
 	* Combine generators together on-the-fly via the CLI.
 	* Combine generators into a new generator that can guide the user through multiple tasks at once.
+* **Integrated Templates**
+	* Choose your own template engine, or use EJS by default.
+	* Answers to prompts are automatically used as values in templates.
 * **Smart File Merging**
-	* Easily tell stimpak what to do if a file you're trying to generate already exists.
-	* Merge strategies use `vinyl` file objects for ultimate flexibility when merging.
+	* Easily designate files that should be merged instead of overwritten.
+	* Use built-in or custom merging strategies for a variety of file formats.
+	* Merge strategies using [`vinyl`](https://github.com/gulpjs/vinyl) objects for ultimate flexibility when merging.
 * **Customizable ASCII-Art**
 	* Built-in ASCII-Art generator for BIG popping titles in any of 680 built-in figlet fonts.
 	* Optionally choose *not* to have ASCII-Art whenever you use your generators. It's all up to you!
@@ -47,9 +51,9 @@ Software development (when doing it right) involves mostly patterns in both our 
 
 Stimpak can be used as both a command-line interface (CLI), and as a standalone library that can be embedded into your own code. Choose the guide below to help you get started with either integration method, or with writing a new stimpak generator from scratch:
 
-1. [Stimpak Command-Line Interface](./CLI.md)
-2. [Stimpak API](./API.md)
-3. [Stimpak Generator Development](./GENERATORS.md)
+1. [Stimpak Command-Line Interface](./source/documentation/CLI.md)
+2. [Stimpak API](./source/documentation/API.md)
+3. [Stimpak Generator Development](./source/documentation/GENERATORS.md)
 
 ## How to Contribute
 

@@ -25,8 +25,8 @@ describe("stimpak.report()", () => {
 			functionName: "foo"
 		})
 		.render("**/*", templatesDirectoryPath)
-		.merge("letters/shapes.js", (self, newFile, oldFile, mergeDone) => {
-			newFile.stem = "blah";
+		.merge("letters/shapes.js", (self, oldFile, newFile, mergeDone) => {
+			newFile.path = newFile.path.replace(self.answers().fileName, "blah");
 			mergeDone(null, newFile);
 		})
 		.merge("package.json", stimpak.mergeJSON)
@@ -51,18 +51,18 @@ describe("stimpak.report()", () => {
 				templatePath: `${templatesDirectoryPath}/##folderName##`
 			},
 			{
+				type: "writeFile",
+				path: `${stimpak.destination()}/textures.js`,
+				templatePath: `${templatesDirectoryPath}/textures.js`,
+				contents: "Flub!\n"
+			},
+			{
 				type: "mergeFile",
 				path: `${stimpak.destination()}/letters/blah.js`,
 				oldPath: `${stimpak.destination()}/letters/shapes.js`,
 				templatePath: `${templatesDirectoryPath}/##folderName##/##fileName##.js`,
-				content: "export default function foo() {}\n",
-				oldContent: "export default function baz() {}\n"
-			},
-			{
-				type: "writeFile",
-				path: `${stimpak.destination()}/textures.js`,
-				templatePath: `${templatesDirectoryPath}/textures.js`,
-				content: "Flub!\n"
+				contents: "export default function foo() {}\n",
+				oldContents: "export default function baz() {}\n"
 			},
 			{
 				type: "command",
@@ -79,25 +79,34 @@ describe("stimpak.report()", () => {
 		const expectedFiles = {
 			[`${stimpak.destination()}/letters/blah.js`]: {
 				isDirectory: false,
+				isFile: true,
 				isMerged: true,
+				base: stimpak.destination() + "/",
+				name: "letters/blah.js",
 				path: `${stimpak.destination()}/letters/blah.js`,
 				oldPath: `${stimpak.destination()}/letters/shapes.js`,
 				templatePath: `${templatesDirectoryPath}/##folderName##/##fileName##.js`,
-				content: "export default function foo() {}\n",
-				oldContent: "export default function baz() {}\n"
+				contents: "export default function foo() {}\n",
+				oldContents: "export default function baz() {}\n"
 			},
 			[`${stimpak.destination()}/letters`]: {
 				isDirectory: true,
+				isFile: false,
 				isMerged: false,
+				base: stimpak.destination() + "/",
+				name: "letters",
 				path: `${stimpak.destination()}/letters`,
 				templatePath: `${templatesDirectoryPath}/##folderName##`
 			},
 			[`${stimpak.destination()}/textures.js`]: {
 				isDirectory: false,
+				isFile: true,
 				isMerged: false,
+				base: stimpak.destination() + "/",
+				name: "textures.js",
 				path: `${stimpak.destination()}/textures.js`,
 				templatePath: `${templatesDirectoryPath}/textures.js`,
-				content: "Flub!\n"
+				contents: "Flub!\n"
 			}
 		};
 

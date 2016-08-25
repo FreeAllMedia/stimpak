@@ -1,6 +1,6 @@
 // Imagine a beautifully written colors library here.
-export default class <%= className %> {
+export default class SomeClass {
 	constructor() {
-		this.<%= primaryFunctionName %> = () => {}
+		this.someFunction = () => {}
 	}
 }

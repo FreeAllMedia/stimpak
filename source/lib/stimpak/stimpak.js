@@ -2,16 +2,11 @@ import privateData from "incognito";
 import Action from "staircase";
 import ChainLink from "mrt";
 
-import Source from "../source/source.js";
-
-export { Source };
-
 const externalFunction = Symbol(),
 			initializePrivateData = Symbol(),
 			initializeInterface = Symbol(),
 			parseOptions = Symbol(),
-			addLineBreak = Symbol(),
-			transformCasts = Symbol();
+			addLineBreak = Symbol();
 
 export default class Stimpak extends ChainLink {
 	initialize(options) {
@@ -36,22 +31,22 @@ export default class Stimpak extends ChainLink {
 		this.generators = [];
 		this.sources = [];
 
-		this.parameters(
+		this.properties(
 			"destination",
 			"debugStream",
 			"logStream"
 		);
 
-		this.parameters(
+		this.properties(
 			"skip"
 		).aggregate;
 
-		this.parameters(
+		this.properties(
 			"transforms"
 		).aggregate;
 
-		this.parameters("answers")
-			.mergeKeyValues
+		this.properties("answers")
+			.merged
 			.filter(answer => {
 				let transformedAnswerValue = answer;
 				function transformUnlessFalsy(originalValue, transform) {
@@ -78,14 +73,9 @@ export default class Stimpak extends ChainLink {
 				return transformedAnswerValue;
 			});
 
-		this.parameters(
+		this.properties(
 			"merge"
-		).multiValue.aggregate;
-
-		this
-			.link("render", Source)
-				.into("sources")
-				.usingArguments(this);
+		).multi.aggregate;
 	}
 
 	[parseOptions](options = {}) {
@@ -128,12 +118,6 @@ export default class Stimpak extends ChainLink {
 			case "./stimpak.subtitle.js":
 				_.lastWritingStepType = functionFilePath;
 		}
-
-		// console.log({
-		// 	functionFilePath: functionFilePath,
-		// 	lastStepType: _.lastWritingStepType,
-		// 	needsLineBreak: _.needsLineBreak
-		// });
 	}
 
 	get report() {
@@ -186,6 +170,14 @@ export default class Stimpak extends ChainLink {
 
 	log(message, payload) {
 		return this[externalFunction]("./stimpak.log.js", message, payload);
+	}
+
+	render(globString, directoryPath) {
+		return this[externalFunction]("./stimpak.render.js", globString, directoryPath);
+	}
+
+	add(path, contents) {
+		return this[externalFunction]("./stimpak.add.js", path, contents);
 	}
 
 	debug(message, payload) {
