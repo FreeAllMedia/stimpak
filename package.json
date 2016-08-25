@@ -1,6 +1,6 @@
 {
   "name": "stimpak",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Automate workflows and generate code patterns with minimal effort.",
   "main": "./es5/lib/index.js",
   "bin": {
@@ -47,7 +47,7 @@
     "colors": "^1.1.2",
     "diff": "^3.0.0",
     "ejs": "^2.5.1",
-    "filemixer": "0.0.7",
+    "filemixer": "0.0.8",
     "flowsync": "^0.1.12",
     "fs-extra": "^0.30.0",
     "glob": "^7.0.3",
@@ -62,7 +62,7 @@
     "lodash.template": "^4.2.4",
     "lodash.union": "^4.4.0",
     "minimatch": "^3.0.2",
-    "mrt": "^0.3.0",
+    "mrt": "^0.3.1",
     "rimraf": "^2.5.2",
     "staircase": "^0.2.1",
     "temp": "^0.8.3",
