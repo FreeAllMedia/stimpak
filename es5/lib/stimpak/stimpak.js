@@ -155,12 +155,6 @@ var Stimpak = function (_ChainLink) {
 				case "./stimpak.subtitle.js":
 					_.lastWritingStepType = functionFilePath;
 			}
-
-			// console.log({
-			// 	functionFilePath: functionFilePath,
-			// 	lastStepType: _.lastWritingStepType,
-			// 	needsLineBreak: _.needsLineBreak
-			// });
 		}
 	}, {
 		key: "use",
@@ -180,11 +174,6 @@ var Stimpak = function (_ChainLink) {
 
 			return this[externalFunction].apply(this, ["./stimpak.then.js"].concat(stepFunctions));
 		}
-
-		// file(path, content) {
-		// 	return this[externalFunction]("./stimpak.file.js", path, content);
-		// }
-
 	}, {
 		key: "transform",
 		value: function transform(callback) {

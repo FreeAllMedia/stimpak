@@ -28,15 +28,6 @@ function diffFixtures(fixturesDirectoryPath) {
 		return filePath.replace(_this.destination() + "/", "");
 	});
 
-	var actualFilePaths = _fs2.default.readdirSync(fixturesDirectoryPath);
-
-	console.log({
-		actualFilePaths: actualFilePaths,
-		fixturesDirectoryPath: fixturesDirectoryPath,
-		fixtureFilePaths: fixtureFilePaths,
-		reportFilePaths: reportFilePaths
-	});
-
 	var differences = {
 		paths: {
 			actual: reportFilePaths,
