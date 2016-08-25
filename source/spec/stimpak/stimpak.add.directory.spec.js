@@ -20,8 +20,8 @@ describe("stimpak.add(path, [contents]) (directory)", () => {
 	});
 
 	it("should render a directory with the path provided", () => {
-		differences.paths.actual.should.eql(differences.paths.expected);
 		console.log({isDir: fileSystem.statSync(`${stimpak.destination()}/${path}`).isDirectory()});
+		differences.paths.actual.should.eql(differences.paths.expected);
 	});
 
 	it("should not render the file before .generate is called", () => {
