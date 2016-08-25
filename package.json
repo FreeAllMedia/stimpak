@@ -1,6 +1,6 @@
 {
   "name": "stimpak",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Automate workflows and generate code patterns with minimal effort.",
   "main": "./es5/lib/index.js",
   "bin": {
