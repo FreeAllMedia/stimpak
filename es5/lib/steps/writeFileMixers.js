@@ -47,7 +47,6 @@ function writeFileMixer(stimpak, fileMixer, done) {
 		fileMixer.write(function (error, file) {
 			var event = void 0;
 			if (!error) {
-				console.log({ missingPaths: missingPaths });
 				missingPaths.reverse().forEach(function (missingPath) {
 					report.events.push({
 						type: "writeDirectory",

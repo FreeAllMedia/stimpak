@@ -118,12 +118,6 @@ export default class Stimpak extends ChainLink {
 			case "./stimpak.subtitle.js":
 				_.lastWritingStepType = functionFilePath;
 		}
-
-		// console.log({
-		// 	functionFilePath: functionFilePath,
-		// 	lastStepType: _.lastWritingStepType,
-		// 	needsLineBreak: _.needsLineBreak
-		// });
 	}
 
 	get report() {
@@ -137,10 +131,6 @@ export default class Stimpak extends ChainLink {
 	then(...stepFunctions) {
 		return this[externalFunction]("./stimpak.then.js", ...stepFunctions);
 	}
-
-	// file(path, content) {
-	// 	return this[externalFunction]("./stimpak.file.js", path, content);
-	// }
 
 	transform(callback) {
 		return this[externalFunction]("./stimpak.transform.js", callback);

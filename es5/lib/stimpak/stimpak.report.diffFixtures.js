@@ -22,10 +22,19 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function diffFixtures(fixturesDirectoryPath) {
 	var _this = this;
 
-	var fixtureFilePaths = _glob2.default.sync("{**/*,*}", { cwd: fixturesDirectoryPath, dot: true }).sort(_sortByLength2.default);
+	var fixtureFilePaths = _glob2.default.sync("**/*", { cwd: fixturesDirectoryPath, dot: true }).sort(_sortByLength2.default);
 
 	var reportFilePaths = Object.keys(this.report.files).map(function (filePath) {
 		return filePath.replace(_this.destination() + "/", "");
+	});
+
+	var actualFilePaths = _fs2.default.readdirSync(fixturesDirectoryPath);
+
+	console.log({
+		actualFilePaths: actualFilePaths,
+		fixturesDirectoryPath: fixturesDirectoryPath,
+		fixtureFilePaths: fixtureFilePaths,
+		reportFilePaths: reportFilePaths
 	});
 
 	var differences = {

@@ -9,15 +9,6 @@ export default function diffFixtures(fixturesDirectoryPath) {
 		return filePath.replace(`${this.destination()}/`, "");
 	});
 
-	const actualFilePaths = fileSystem.readdirSync(fixturesDirectoryPath);
-
-	console.log({
-		actualFilePaths,
-		fixturesDirectoryPath,
-		fixtureFilePaths,
-		reportFilePaths
-	});
-
 	const differences = {
 		paths: {
 			actual: reportFilePaths,
